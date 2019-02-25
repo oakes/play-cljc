@@ -34,10 +34,21 @@
      :source-paths []
      :resource-paths paths}))
 
+(def extra-deps '[[org.lwjgl/lwjgl "3.2.1" :classifier "natives-linux"]
+                  [org.lwjgl/lwjgl "3.2.1" :classifier "natives-macos"]
+                  [org.lwjgl/lwjgl "3.2.1" :classifier "natives-windows"]
+                  [org.lwjgl/lwjgl-glfw "3.2.1" :classifier "natives-linux"]
+                  [org.lwjgl/lwjgl-glfw "3.2.1" :classifier "natives-macos"]
+                  [org.lwjgl/lwjgl-glfw "3.2.1" :classifier "natives-windows"]
+                  [org.lwjgl/lwjgl-opengl "3.2.1" :classifier "natives-linux"]
+                  [org.lwjgl/lwjgl-opengl "3.2.1" :classifier "natives-macos"]
+                  [org.lwjgl/lwjgl-opengl "3.2.1" :classifier "natives-windows"]])
+
 (defmethod task "install"
   [_]
   (-> (read-project-clj)
       (merge (read-deps-edn []))
+      (update :dependencies into extra-deps)
       p/init-project
       install)
   (System/exit 0))
@@ -46,6 +57,7 @@
   [_]
   (-> (read-project-clj)
       (merge (read-deps-edn []))
+      (update :dependencies into extra-deps)
       p/init-project
       (deploy "clojars"))
   (System/exit 0))
