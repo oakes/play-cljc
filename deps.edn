@@ -1,5 +1,17 @@
 {:paths ["src"]
- :deps {iglu {:mvn/version "0.1.0-SNAPSHOT"}}
+ :deps {iglu {:mvn/version "0.1.0-SNAPSHOT"}
+        org.lwjgl/lwjgl {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl$natives-macos {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-glfw {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-glfw$natives-macos {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-opengl {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-opengl$natives-macos {:mvn/version "3.2.1"}
+        org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.1"}}
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                               dynadoc {:mvn/version "RELEASE"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.0"}
