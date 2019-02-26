@@ -9,12 +9,3 @@
 
 (st/instrument)
 (set! s/*explain-out* expound/printer)
-
-(defn create-canvas [card]
-  (when-let [canvas (.querySelector card "canvas")]
-    (.removeChild card canvas))
-  (let [canvas (doto (js/document.createElement "canvas")
-                 (-> .-style .-width (set! "100%"))
-                 (-> .-style .-height (set! "100%")))]
-    (.appendChild card canvas)
-    canvas))

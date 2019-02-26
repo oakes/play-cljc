@@ -1,5 +1,6 @@
 (ns play-cljc.examples-3d
   (:require [play-cljc.utils :as u]
+            [play-cljc.client-utils :as cu]
             [goog.events :as events]
             [play-cljc.data :as data])
   (:require-macros [dynadoc.example :refer [defexample]]))
@@ -9,7 +10,7 @@
 (defn translation-3d-render [canvas
                              {:keys [gl program vao matrix-location cnt]}
                              {:keys [x y]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -58,7 +59,7 @@
 
 (defexample play-cljc.examples-3d/translation-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/translation-3d-init)))
 
 ;; rotation-3d
@@ -66,7 +67,7 @@
 (defn rotation-3d-render [canvas
                           {:keys [gl program vao matrix-location cnt]}
                           {:keys [tx ty r]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -121,7 +122,7 @@
 
 (defexample play-cljc.examples-3d/rotation-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/rotation-3d-init)))
 
 ;; scale-3d
@@ -129,7 +130,7 @@
 (defn scale-3d-render [canvas
                        {:keys [gl program vao matrix-location cnt]}
                        {:keys [tx ty sx sy]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -183,7 +184,7 @@
 
 (defexample play-cljc.examples-3d/scale-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/scale-3d-init)))
 
 ;; perspective-3d
@@ -191,7 +192,7 @@
 (defn perspective-3d-render [canvas
                              {:keys [gl program vao matrix-location cnt]}
                              {:keys [tx ty]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -240,7 +241,7 @@
 
 (defexample play-cljc.examples-3d/perspective-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/perspective-3d-init)))
 
 ;; perspective-camera-3d
@@ -248,7 +249,7 @@
 (defn perspective-camera-3d-render [canvas
                                     {:keys [gl program vao matrix-location cnt]}
                                     {:keys [r]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -320,7 +321,7 @@
 
 (defexample play-cljc.examples-3d/perspective-camera-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/perspective-camera-3d-init)))
 
 ;; perspective-camera-target-3d
@@ -328,7 +329,7 @@
 (defn perspective-camera-target-3d-render [canvas
                                            {:keys [gl program vao matrix-location cnt]}
                                            {:keys [r]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -407,7 +408,7 @@
 
 (defexample play-cljc.examples-3d/perspective-camera-target-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/perspective-camera-target-3d-init)))
 
 ;; perspective-animation-3d
@@ -416,7 +417,7 @@
                                        {:keys [gl program vao matrix-location cnt]
                                         :as props}
                                        {:keys [rx ry rz then now] :as state}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -466,7 +467,7 @@
 
 (defexample play-cljc.examples-3d/perspective-animation-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/perspective-animation-3d-init)))
 
 ;; perspective-texture-3d
@@ -475,7 +476,7 @@
                                      {:keys [gl program vao matrix-location cnt]
                                       :as props}
                                      {:keys [rx ry then now] :as state}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -555,7 +556,7 @@
 
 (defexample play-cljc.examples-3d/perspective-texture-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/perspective-texture-3d-load)))
 
 ;; perspective-texture-data-3d
@@ -564,7 +565,7 @@
                                           {:keys [gl program vao matrix-location cnt]
                                            :as props}
                                           {:keys [rx ry then now] :as state}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -634,7 +635,7 @@
 
 (defexample play-cljc.examples-3d/perspective-texture-data-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/perspective-texture-data-3d-init)))
 
 ;; perspective-texture-meta-3d
@@ -665,7 +666,7 @@
                                                   textures]
                                            :as props}
                                           {:keys [then now] :as state}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
@@ -750,6 +751,6 @@
 
 (defexample play-cljc.examples-3d/perspective-texture-meta-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-3d/perspective-texture-meta-3d-init)))
 

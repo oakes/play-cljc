@@ -1,5 +1,6 @@
 (ns play-cljc.examples-2d
   (:require [play-cljc.utils :as u]
+            [play-cljc.client-utils :as cu]
             [goog.events :as events]
             [play-cljc.data :as data])
   (:require-macros [dynadoc.example :refer [defexample]]))
@@ -17,7 +18,7 @@
         matrix-location (.getUniformLocation gl program "u_matrix")
         color-location (.getUniformLocation gl program "u_color")
         cnt @*buffers]
-    (u/resize-canvas canvas)
+    (cu/resize-canvas canvas)
     (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
@@ -33,7 +34,7 @@
 
 (defexample play-cljc.examples-2d/rand-rects
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-2d/rand-rects-init)))
 
 ;; image
@@ -59,7 +60,7 @@
       (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MAG_FILTER gl.NEAREST))
     (let [mip-level 0, internal-fmt gl.RGBA, src-fmt gl.RGBA, src-type gl.UNSIGNED_BYTE]
       (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type image))
-    (u/resize-canvas canvas)
+    (cu/resize-canvas canvas)
     (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
@@ -81,7 +82,7 @@
 
 (defexample play-cljc.examples-2d/image
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-2d/image-load)))
 
 ;; translation
@@ -89,7 +90,7 @@
 (defn translation-render [canvas
                           {:keys [gl program vao matrix-location color-location cnt]}
                           {:keys [x y]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
@@ -128,7 +129,7 @@
 
 (defexample play-cljc.examples-2d/translation
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-2d/translation-init)))
 
 ;; rotation
@@ -136,7 +137,7 @@
 (defn rotation-render [canvas
                        {:keys [gl program vao matrix-location color-location cnt]}
                        {:keys [tx ty r]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
@@ -182,7 +183,7 @@
 
 (defexample play-cljc.examples-2d/rotation
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-2d/rotation-init)))
 
 ;; scale
@@ -190,7 +191,7 @@
 (defn scale-render [canvas
                     {:keys [gl program vao matrix-location color-location cnt]}
                     {:keys [tx ty sx sy]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
@@ -235,7 +236,7 @@
 
 (defexample play-cljc.examples-2d/scale
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-2d/scale-init)))
 
 ;; rotation-multi
@@ -243,7 +244,7 @@
 (defn rotation-multi-render [canvas
                              {:keys [gl program vao matrix-location color-location cnt]}
                              {:keys [tx ty r]}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
@@ -291,6 +292,6 @@
 
 (defexample play-cljc.examples-2d/rotation-multi
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-2d/rotation-multi-init)))
 

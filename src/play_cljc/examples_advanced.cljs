@@ -1,5 +1,6 @@
 (ns play-cljc.examples-advanced
   (:require [play-cljc.utils :as u]
+            [play-cljc.client-utils :as cu]
             [goog.events :as events]
             [play-cljc.data :as data]
             [play-cljc.primitives :as primitives])
@@ -20,7 +21,7 @@
                         :uniforms
                         :as props}
                        {:keys [then now] :as state}]
-  (u/resize-canvas canvas)
+  (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
@@ -110,7 +111,7 @@
 
 (defexample play-cljc.examples-advanced/balls-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-advanced/balls-3d-init)))
 
 ;; planes-3d
@@ -161,7 +162,7 @@
 
 (defexample play-cljc.examples-advanced/planes-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-advanced/planes-3d-init)))
 
 ;; cubes-3d
@@ -212,7 +213,7 @@
 
 (defexample play-cljc.examples-advanced/cubes-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-advanced/cubes-3d-init)))
 
 ;; cylinder-3d
@@ -264,7 +265,7 @@
 
 (defexample play-cljc.examples-advanced/cylinder-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-advanced/cylinder-3d-init)))
 
 ;; crescent-3d
@@ -316,7 +317,7 @@
 
 (defexample play-cljc.examples-advanced/crescent-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-advanced/crescent-3d-init)))
 
 ;; torus-3d
@@ -367,7 +368,7 @@
 
 (defexample play-cljc.examples-advanced/torus-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-advanced/torus-3d-init)))
 
 ;; disc-3d
@@ -418,6 +419,6 @@
 
 (defexample play-cljc.examples-advanced/disc-3d
   {:with-card card}
-  (->> (play-cljc.dev/create-canvas card)
+  (->> (play-cljc.client-utils/create-canvas card)
        (play-cljc.examples-advanced/disc-3d-init)))
 

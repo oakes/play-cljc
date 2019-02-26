@@ -1,13 +1,5 @@
 (ns play-cljc.utils)
 
-(defn resize-canvas [canvas]
-  (let [display-width canvas.clientWidth
-        display-height canvas.clientHeight]
-    (when (or (not= canvas.width display-width)
-              (not= canvas.height display-height))
-      (set! canvas.width display-width)
-      (set! canvas.height display-height))))
-
 (defn create-shader [gl type source]
   (let [shader (.createShader gl type)]
     (.shaderSource gl shader source)
