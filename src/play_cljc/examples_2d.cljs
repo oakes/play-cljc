@@ -1,5 +1,6 @@
 (ns play-cljc.examples-2d
-  (:require [play-cljc.utils :as u]
+  (:require [play-cljc.core :as c]
+            [play-cljc.utils :as u]
             [play-cljc.client-utils :as cu]
             [goog.events :as events]
             [play-cljc.data :as data])
@@ -9,28 +10,24 @@
 
 (defn rand-rects-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/two-d-vertex-shader-source
-                  data/two-d-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. (clj->js data/rect))))
-        vao (u/create-vao gl *buffers)
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        color-location (.getUniformLocation gl program "u_color")
-        cnt @*buffers]
+        entity (c/create-entity gl
+                 {:vertex data/two-d-vertex-shader
+                  :fragment data/two-d-fragment-shader
+                  :attributes {'a_position {:data data/rect
+                                            :size 2
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}}})]
     (cu/resize-canvas canvas)
     (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-    (.useProgram gl program)
-    (.bindVertexArray gl vao)
     (dotimes [_ 50]
-      (.uniform4f gl color-location (rand) (rand) (rand) 1)
-      (.uniformMatrix3fv gl matrix-location false
-        (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-             (u/multiply-matrices 3 (u/translation-matrix (rand-int 300) (rand-int 300)))
-             (u/multiply-matrices 3 (u/scaling-matrix (rand-int 300) (rand-int 300)))))
-      (.drawArrays gl gl.TRIANGLES 0 cnt))))
+      (c/render-entity gl entity
+        {:uniforms {'u_color (array (rand) (rand) (rand) 1)
+                    'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                                   (u/multiply-matrices 3 (u/translation-matrix (rand-int 300) (rand-int 300)))
+                                   (u/multiply-matrices 3 (u/scaling-matrix (rand-int 300) (rand-int 300))))}}))))
 
 (defexample play-cljc.examples-2d/rand-rects
   {:with-card card}
