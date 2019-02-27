@@ -14,8 +14,12 @@
 
 (defn call-uniform-fn [gl glsl-type uni-loc data]
   (case glsl-type
+    vec2 (.uniform2fv gl uni-loc data)
+    vec3 (.uniform3fv gl uni-loc data)
     vec4 (.uniform4fv gl uni-loc data)
-    mat3 (.uniformMatrix3fv gl uni-loc false data)))
+    mat2 (.uniformMatrix2fv gl uni-loc false data)
+    mat3 (.uniformMatrix3fv gl uni-loc false data)
+    mat4 (.uniformMatrix4fv gl uni-loc false data)))
 
 (defn create-entity [gl {:keys [vertex fragment attributes] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
