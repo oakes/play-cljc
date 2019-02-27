@@ -37,7 +37,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -96,7 +96,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -158,7 +158,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -218,7 +218,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -285,7 +285,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (let [positions (js/Float32Array. data/f-3d)
                          matrix (u/multiply-matrices 4
@@ -372,7 +372,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (let [positions (js/Float32Array. data/f-3d)
                          matrix (u/multiply-matrices 4
@@ -447,7 +447,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))

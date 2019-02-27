@@ -13,7 +13,7 @@
                   data/two-d-vertex-shader-source
                   data/two-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/rect)))
+                   (u/create-buffer gl program "a_position" (js/Float32Array. (clj->js data/rect))))
         vao (u/create-vao gl *buffers)
         matrix-location (.getUniformLocation gl program "u_matrix")
         color-location (.getUniformLocation gl program "u_color")
@@ -45,7 +45,7 @@
                   data/image-vertex-shader-source
                   data/image-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/rect)))
+                   (u/create-buffer gl program "a_position" (js/Float32Array. (clj->js data/rect))))
         vao (u/create-vao gl *buffers)
         matrix-location (.getUniformLocation gl program "u_matrix")
         image-location (.getUniformLocation gl program "u_image")
@@ -108,7 +108,7 @@
                   data/two-d-vertex-shader-source
                   data/two-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
+                   (u/create-buffer gl program "a_position" (js/Float32Array. (clj->js data/f-2d))))
         vao (u/create-vao gl *buffers)
         color-location (.getUniformLocation gl program "u_color")
         matrix-location (.getUniformLocation gl program "u_matrix")
@@ -158,7 +158,7 @@
                   data/two-d-vertex-shader-source
                   data/two-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
+                   (u/create-buffer gl program "a_position" (js/Float32Array. (clj->js data/f-2d))))
         vao (u/create-vao gl *buffers)
         color-location (.getUniformLocation gl program "u_color")
         matrix-location (.getUniformLocation gl program "u_matrix")
@@ -211,7 +211,7 @@
                   data/two-d-vertex-shader-source
                   data/two-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
+                   (u/create-buffer gl program "a_position" (js/Float32Array. (clj->js data/f-2d))))
         vao (u/create-vao gl *buffers)
         color-location (.getUniformLocation gl program "u_color")
         matrix-location (.getUniformLocation gl program "u_matrix")
@@ -267,7 +267,7 @@
                   data/two-d-vertex-shader-source
                   data/two-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
+                   (u/create-buffer gl program "a_position" (js/Float32Array. (clj->js data/f-2d))))
         vao (u/create-vao gl *buffers)
         color-location (.getUniformLocation gl program "u_color")
         matrix-location (.getUniformLocation gl program "u_matrix")
