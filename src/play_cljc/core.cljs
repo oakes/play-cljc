@@ -1,16 +1,14 @@
 (ns play-cljc.core
   (:require [iglu.core :as ig]
             [iglu.parse :as parse]
-            [play-cljc.utils :as u]
-            [clojure.string :as str]))
+            [play-cljc.utils :as u]))
 
 (defn glsl-type->platform-type [glsl-type]
-  (let [s (name glsl-type)]
-    (cond
-      (str/starts-with? s "vec")  js/Float32Array
-      (str/starts-with? s "dvec") js/Float64Array
-      (str/starts-with? s "ivec") js/Int32Array
-      (str/starts-with? s "uvec") js/Uint32Array)))
+  (case glsl-type
+    (vec2 vec3 vec4)    js/Float32Array
+    (dvec2 dvec3 dvec4) js/Float64Array
+    (ivec2 ivec3 ivec4) js/Int32Array
+    (uvec2 uvec3 uvec4) js/Uint32Array))
 
 (defn call-uniform-fn [gl glsl-type uni-loc data]
   (case glsl-type
