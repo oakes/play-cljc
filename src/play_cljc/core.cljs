@@ -87,16 +87,16 @@
     entity))
 
 (defn render-entity [gl
-                     {:keys [program vao index-count textures] :as entity}
+                     {:keys [program vao index-count] :as entity}
                      {:keys [uniforms]}]
   (.useProgram gl program)
   (.bindVertexArray gl vao)
-  (reduce
-    (partial call-uniform gl)
-    entity
-    uniforms)
-  (dotimes [i (range (count textures))]
-    (.uniform1i gl (nth textures i) i))
+  (let [{:keys [textures]} (reduce
+                             (partial call-uniform gl)
+                             entity
+                             uniforms)]
+    (dotimes [i (range (count textures))]
+      (.uniform1i gl (nth textures i) i)))
   (.drawArrays gl gl.TRIANGLES 0 index-count)
   (.bindVertexArray gl nil))
 
