@@ -37,7 +37,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -96,7 +96,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -158,7 +158,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -218,7 +218,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -285,7 +285,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (let [positions (js/Float32Array. data/f-3d)
                          matrix (u/multiply-matrices 4
@@ -293,14 +293,13 @@
                                   (u/x-rotation-matrix-3d js/Math.PI))]
                      (doseq [i (range 0 (.-length positions) 3)]
                        (let [v (u/transform-vector matrix
-                                 (array
-                                   (aget positions (+ i 0))
-                                   (aget positions (+ i 1))
-                                   (aget positions (+ i 2))
-                                   1))]
-                         (aset positions (+ i 0) (aget v 0))
-                         (aset positions (+ i 1) (aget v 1))
-                         (aset positions (+ i 2) (aget v 2))))
+                                 [(aget positions (+ i 0))
+                                  (aget positions (+ i 1))
+                                  (aget positions (+ i 2))
+                                  1])]
+                         (aset positions (+ i 0) (nth v 0))
+                         (aset positions (+ i 1) (nth v 1))
+                         (aset positions (+ i 2) (nth v 2))))
                      (u/create-buffer gl program "a_position" positions {:size 3})))
         vao (u/create-vao gl *buffers)
         matrix-location (.getUniformLocation gl program "u_matrix")
@@ -347,12 +346,11 @@
         camera-matrix (->> (u/y-rotation-matrix-3d r)
                            (u/multiply-matrices 4
                              (u/translation-matrix-3d 0 50 (* radius 1.5))))
-        camera-pos (array
-                     (aget camera-matrix 12)
-                     (aget camera-matrix 13)
-                     (aget camera-matrix 14))
-        f-pos (array radius 0 0)
-        up (array 0 1 0)
+        camera-pos [(nth camera-matrix 12)
+                    (nth camera-matrix 13)
+                    (nth camera-matrix 14)]
+        f-pos [radius 0 0]
+        up [0 1 0]
         camera-matrix (u/look-at camera-pos f-pos up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
@@ -372,7 +370,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (let [positions (js/Float32Array. data/f-3d)
                          matrix (u/multiply-matrices 4
@@ -380,14 +378,13 @@
                                   (u/x-rotation-matrix-3d js/Math.PI))]
                      (doseq [i (range 0 (.-length positions) 3)]
                        (let [v (u/transform-vector matrix
-                                 (array
-                                   (aget positions (+ i 0))
-                                   (aget positions (+ i 1))
-                                   (aget positions (+ i 2))
-                                   1))]
-                         (aset positions (+ i 0) (aget v 0))
-                         (aset positions (+ i 1) (aget v 1))
-                         (aset positions (+ i 2) (aget v 2))))
+                                 [(aget positions (+ i 0))
+                                  (aget positions (+ i 1))
+                                  (aget positions (+ i 2))
+                                  1])]
+                         (aset positions (+ i 0) (nth v 0))
+                         (aset positions (+ i 1) (nth v 1))
+                         (aset positions (+ i 2) (nth v 2))))
                      (u/create-buffer gl program "a_position" positions {:size 3})))
         vao (u/create-vao gl *buffers)
         matrix-location (.getUniformLocation gl program "u_matrix")
@@ -447,7 +444,7 @@
                   data/three-d-vertex-shader-source
                   data/three-d-fragment-shader-source)
         *buffers (delay
-                   (u/create-buffer gl program "a_color" (js/Uint8Array. (clj->js data/f-3d-colors))
+                   (u/create-buffer gl program "a_color" (js/Uint8Array. data/f-3d-colors)
                      {:size 3 :type gl.UNSIGNED_BYTE :normalize true})
                    (u/create-buffer gl program "a_position"
                      (js/Float32Array. data/f-3d) {:size 3}))
@@ -489,9 +486,9 @@
                                                                 gl.canvas.clientHeight)
                                                      :near 1
                                                      :far 2000})
-        camera-pos (array 0 0 200)
-        target (array 0 0 0)
-        up (array 0 1 0)
+        camera-pos [0 0 200]
+        target [0 0 0]
+        up [0 1 0]
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
@@ -520,14 +517,13 @@
                                   (u/x-rotation-matrix-3d js/Math.PI))]
                      (doseq [i (range 0 (.-length positions) 3)]
                        (let [v (u/transform-vector matrix
-                                 (array
-                                   (aget positions (+ i 0))
-                                   (aget positions (+ i 1))
-                                   (aget positions (+ i 2))
-                                   1))]
-                         (aset positions (+ i 0) (aget v 0))
-                         (aset positions (+ i 1) (aget v 1))
-                         (aset positions (+ i 2) (aget v 2))))
+                                 [(aget positions (+ i 0))
+                                  (aget positions (+ i 1))
+                                  (aget positions (+ i 2))
+                                  1])]
+                         (aset positions (+ i 0) (nth v 0))
+                         (aset positions (+ i 1) (nth v 1))
+                         (aset positions (+ i 2) (nth v 2))))
                      (u/create-buffer gl program "a_position" positions {:size 3})))
         vao (u/create-vao gl *buffers)
         matrix-location (.getUniformLocation gl program "u_matrix")
@@ -540,12 +536,12 @@
                :ry (u/deg->rad 40)
                :then 0
                :now 0}]
-      (let [texture (.createTexture gl)]
-        (.activeTexture gl (+ gl.TEXTURE0 0))
-        (.bindTexture gl gl.TEXTURE_2D texture)
-        (.texImage2D gl gl.TEXTURE_2D 0 gl.RGBA gl.RGBA gl.UNSIGNED_BYTE image)
-        (.generateMipmap gl gl.TEXTURE_2D))
-      (perspective-texture-3d-render canvas props state)))
+    (let [texture (.createTexture gl)]
+      (.activeTexture gl (+ gl.TEXTURE0 0))
+      (.bindTexture gl gl.TEXTURE_2D texture)
+      (.texImage2D gl gl.TEXTURE_2D 0 gl.RGBA gl.RGBA gl.UNSIGNED_BYTE image)
+      (.generateMipmap gl gl.TEXTURE_2D))
+    (perspective-texture-3d-render canvas props state)))
 
 (defn perspective-texture-3d-load [canvas]
   (let [image (js/Image.)]
@@ -578,9 +574,9 @@
                                                                 gl.canvas.clientHeight)
                                                      :near 1
                                                      :far 2000})
-        camera-pos (array 0 0 2)
-        target (array 0 0 0)
-        up (array 0 1 0)
+        camera-pos [0 0 2]
+        target [0 0 0]
+        up [0 1 0]
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
@@ -622,7 +618,7 @@
       (let [texture (.createTexture gl)
             level 0, internal-fmt gl.R8, width 3, height 2, border 0
             fmt gl.RED, type gl.UNSIGNED_BYTE
-            data (js/Uint8Array. (array 128 64 128 0 192 0))]
+            data (js/Uint8Array. [128 64 128 0 192 0])]
         (.activeTexture gl (+ gl.TEXTURE0 0))
         (.bindTexture gl gl.TEXTURE_2D texture)
         (.pixelStorei gl gl.UNPACK_ALIGNMENT 1)
@@ -649,9 +645,9 @@
                                                      :aspect aspect
                                                      :near 1
                                                      :far 2000})
-        camera-pos (array 0 0 2)
-        target (array 0 0 0)
-        up (array 0 1 0)
+        camera-pos [0 0 2]
+        target [0 0 0]
+        up [0 1 0]
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
@@ -714,7 +710,7 @@
     (let [texture (.createTexture gl)
           level 0, internal-fmt gl.R8, width 3, height 2, border 0
           fmt gl.RED, type gl.UNSIGNED_BYTE
-          data (js/Uint8Array. (array 128 64 128 0 192 0))]
+          data (js/Uint8Array. [128 64 128 0 192 0])]
       (.activeTexture gl (+ gl.TEXTURE0 0))
       (.bindTexture gl gl.TEXTURE_2D texture)
       (.pixelStorei gl gl.UNPACK_ALIGNMENT 1)

@@ -35,7 +35,7 @@
                                              (str "The type " attr-type
                                                " is invalid for attribute " attr-name)))]
                          (u/create-buffer gl program (name attr-name)
-                           (->> data clj->js (new attr-type))
+                           (new attr-type data)
                            opts)))
                  attributes)
         _ (.bindVertexArray gl nil)]

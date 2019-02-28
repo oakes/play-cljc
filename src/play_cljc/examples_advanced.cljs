@@ -32,15 +32,15 @@
                                                                 gl.canvas.clientHeight)
                                                      :near 1
                                                      :far 2000})
-        camera-pos (array 0 0 100)
-        target (array 0 0 0)
-        up (array 0 1 0)
+        camera-pos [0 0 100]
+        target [0 0 0]
+        up [0 1 0]
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (.uniform3fv gl light-world-pos (array -50 30 100))
+    (.uniform3fv gl light-world-pos [-50 30 100])
     (.uniformMatrix4fv gl view-inverse false camera-matrix)
-    (.uniform4fv gl light-color (array 1 1 1 1))
+    (.uniform4fv gl light-color [1 1 1 1])
     (doseq [{:keys [rx ry tz mat-uniforms]}
             objects]
       (let [world-matrix (->> (u/identity-matrix-3d)
@@ -101,8 +101,8 @@
                             {:tz (rand 150)
                              :rx (rand (* 2 js/Math.PI))
                              :ry (rand js/Math.PI)
-                             :mat-uniforms {:u_color (array (rand) (rand) (rand) 1)
-                                            :u_specular        (array 1, 1, 1, 1)
+                             :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
+                                            :u_specular        [1, 1, 1, 1]
                                             :u_shininess       (rand 500)
                                             :u_specularFactor  (rand 1)}}))}
         state {:then 0
@@ -152,8 +152,8 @@
                             {:tz (rand 150)
                              :rx (rand (* 2 js/Math.PI))
                              :ry (rand js/Math.PI)
-                             :mat-uniforms {:u_color (array (rand) (rand) (rand) 1)
-                                            :u_specular        (array 1, 1, 1, 1)
+                             :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
+                                            :u_specular        [1, 1, 1, 1]
                                             :u_shininess       (rand 500)
                                             :u_specularFactor  (rand 1)}}))}
         state {:then 0
@@ -203,8 +203,8 @@
                             {:tz (rand 150)
                              :rx (rand (* 2 js/Math.PI))
                              :ry (rand js/Math.PI)
-                             :mat-uniforms {:u_color (array (rand) (rand) (rand) 1)
-                                            :u_specular        (array 1, 1, 1, 1)
+                             :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
+                                            :u_specular        [1, 1, 1, 1]
                                             :u_shininess       (rand 500)
                                             :u_specularFactor  (rand 1)}}))}
         state {:then 0
@@ -255,8 +255,8 @@
                             {:tz (rand 150)
                              :rx (rand (* 2 js/Math.PI))
                              :ry (rand js/Math.PI)
-                             :mat-uniforms {:u_color (array (rand) (rand) (rand) 1)
-                                            :u_specular        (array 1, 1, 1, 1)
+                             :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
+                                            :u_specular        [1, 1, 1, 1]
                                             :u_shininess       (rand 500)
                                             :u_specularFactor  (rand 1)}}))}
         state {:then 0
@@ -307,8 +307,8 @@
                             {:tz (rand 150)
                              :rx (rand (* 2 js/Math.PI))
                              :ry (rand js/Math.PI)
-                             :mat-uniforms {:u_color (array (rand) (rand) (rand) 1)
-                                            :u_specular        (array 1, 1, 1, 1)
+                             :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
+                                            :u_specular        [1, 1, 1, 1]
                                             :u_shininess       (rand 500)
                                             :u_specularFactor  (rand 1)}}))}
         state {:then 0
@@ -358,8 +358,8 @@
                             {:tz (rand 150)
                              :rx (rand (* 2 js/Math.PI))
                              :ry (rand js/Math.PI)
-                             :mat-uniforms {:u_color (array (rand) (rand) (rand) 1)
-                                            :u_specular        (array 1, 1, 1, 1)
+                             :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
+                                            :u_specular        [1, 1, 1, 1]
                                             :u_shininess       (rand 500)
                                             :u_specularFactor  (rand 1)}}))}
         state {:then 0
@@ -409,8 +409,8 @@
                             {:tz (rand 150)
                              :rx (rand (* 2 js/Math.PI))
                              :ry (rand js/Math.PI)
-                             :mat-uniforms {:u_color (array (rand) (rand) (rand) 1)
-                                            :u_specular        (array 1, 1, 1, 1)
+                             :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
+                                            :u_specular        [1, 1, 1, 1]
                                             :u_shininess       (rand 500)
                                             :u_specularFactor  (rand 1)}}))}
         state {:then 0
