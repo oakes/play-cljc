@@ -14,6 +14,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/rect
+                                            :type gl.FLOAT
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -43,6 +44,7 @@
                  {:vertex data/image-vertex-shader
                   :fragment data/image-fragment-shader
                   :attributes {'a_position {:data data/rect
+                                            :type gl.FLOAT
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -93,6 +95,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
+                                            :type gl.FLOAT
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -133,6 +136,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
+                                            :type gl.FLOAT
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -176,6 +180,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
+                                            :type gl.FLOAT
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -221,6 +226,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
+                                            :type gl.FLOAT
                                             :size 2
                                             :normalize false
                                             :stride 0
