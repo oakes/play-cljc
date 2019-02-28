@@ -10,7 +10,7 @@
     (ivec2 ivec3 ivec4) js/Int32Array
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
-(defn call-uniform-fn [gl glsl-type uni-loc data]
+(defn call-uniform [gl glsl-type uni-loc data]
   (case glsl-type
     vec2 (.uniform2fv gl uni-loc data)
     vec3 (.uniform3fv gl uni-loc data)
@@ -19,7 +19,17 @@
     mat3 (.uniformMatrix3fv gl uni-loc false data)
     mat4 (.uniformMatrix4fv gl uni-loc false data)))
 
-(defn create-entity [gl {:keys [vertex fragment attributes] :as m}]
+(defn call-uniforms [gl {:keys [vertex fragment uniform-locations]} uniforms]
+  (doseq [[uni-name uni-data] uniforms]
+    (let [uni-type (or (get-in vertex [:uniforms uni-name])
+                       (get-in fragment [:uniforms uni-name])
+                       (parse/throw-error
+                         (str "You must define " uni-name
+                           " in your vertex or fragment shader")))
+          uni-loc (get uniform-locations uni-name)]
+      (call-uniform gl uni-type uni-loc uni-data))))
+
+(defn create-entity [gl {:keys [vertex fragment attributes uniforms] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
         program (u/create-program gl vertex-source fragment-source)
@@ -38,35 +48,30 @@
                            (new attr-type data)
                            opts)))
                  attributes)
-        _ (.bindVertexArray gl nil)]
-    (assoc m
-      :vertex-source vertex-source
-      :fragment-source fragment-source
-      :program program
-      :vao vao
-      :uniform-locations (reduce
-                           (fn [m uniform]
-                             (assoc m uniform
-                               (.getUniformLocation gl program (name uniform))))
-                           {}
-                           (-> #{}
-                               (into (-> vertex :uniforms keys))
-                               (into (-> fragment :uniforms keys))))
-      :count (apply max counts))))
+        entity (assoc m
+                 :vertex-source vertex-source
+                 :fragment-source fragment-source
+                 :program program
+                 :vao vao
+                 :uniform-locations (reduce
+                                      (fn [m uniform]
+                                        (assoc m uniform
+                                          (.getUniformLocation gl program (name uniform))))
+                                      {}
+                                      (-> #{}
+                                          (into (-> vertex :uniforms keys))
+                                          (into (-> fragment :uniforms keys))))
+                 :count (apply max counts))]
+    (call-uniforms gl entity uniforms)
+    (.bindVertexArray gl nil)
+    entity))
 
 (defn render-entity [gl
-                     {:keys [vertex fragment program vao uniform-locations count]}
+                     {:keys [program vao count] :as entity}
                      {:keys [uniforms]}]
   (.useProgram gl program)
   (.bindVertexArray gl vao)
-  (doseq [[uni-name uni-data] uniforms]
-    (let [uni-type (or (get-in vertex [:uniforms uni-name])
-                       (get-in fragment [:uniforms uni-name])
-                       (parse/throw-error
-                         (str "You must define " uni-name
-                           " in your vertex or fragment shader")))
-          uni-loc (get uniform-locations uni-name)]
-      (call-uniform-fn gl uni-type uni-loc uni-data)))
+  (call-uniforms gl entity uniforms)
   (.drawArrays gl gl.TRIANGLES 0 count)
   (.bindVertexArray gl nil))
 
