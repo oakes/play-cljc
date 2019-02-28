@@ -71,14 +71,15 @@
                             (-> #{}
                                 (into (-> vertex :uniforms keys))
                                 (into (-> fragment :uniforms keys))))
-        entity (assoc m
-                 :vertex-source vertex-source
-                 :fragment-source fragment-source
-                 :program program
-                 :vao vao
-                 :uniform-locations uniform-locations
-                 :textures []
-                 :index-count (apply max counts))
+        entity {:vertex vertex
+                :fragment fragment
+                :vertex-source vertex-source
+                :fragment-source fragment-source
+                :program program
+                :vao vao
+                :uniform-locations uniform-locations
+                :textures []
+                :index-count (apply max counts)}
         entity (reduce
                  (partial call-uniform gl)
                  entity
@@ -86,9 +87,7 @@
     (.bindVertexArray gl nil)
     entity))
 
-(defn render-entity [gl
-                     {:keys [program vao index-count] :as entity}
-                     {:keys [uniforms]}]
+(defn render-entity [gl {:keys [program vao index-count uniforms] :as entity}]
   (.useProgram gl program)
   (.bindVertexArray gl vao)
   (let [{:keys [textures]} (reduce

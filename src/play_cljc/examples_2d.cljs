@@ -23,11 +23,12 @@
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
     (dotimes [_ 50]
-      (c/render-entity gl entity
-        {:uniforms {'u_color [(rand) (rand) (rand) 1]
-                    'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-                                   (u/multiply-matrices 3 (u/translation-matrix (rand-int 300) (rand-int 300)))
-                                   (u/multiply-matrices 3 (u/scaling-matrix (rand-int 300) (rand-int 300))))}}))))
+      (c/render-entity gl
+        (assoc entity
+          :uniforms {'u_color [(rand) (rand) (rand) 1]
+                     'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                                    (u/multiply-matrices 3 (u/translation-matrix (rand-int 300) (rand-int 300)))
+                                    (u/multiply-matrices 3 (u/scaling-matrix (rand-int 300) (rand-int 300))))})))))
 
 (defexample play-cljc.examples-2d/rand-rects
   {:with-card card}
@@ -55,11 +56,12 @@
     (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-    (c/render-entity gl entity
-      {:uniforms {'u_matrix
-                  (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-                       (u/multiply-matrices 3 (u/translation-matrix 0 0))
-                       (u/multiply-matrices 3 (u/scaling-matrix image.width image.height)))}})))
+    (c/render-entity gl
+      (assoc entity
+        :uniforms {'u_matrix
+                   (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                        (u/multiply-matrices 3 (u/translation-matrix 0 0))
+                        (u/multiply-matrices 3 (u/scaling-matrix image.width image.height)))}))))
 
 (defn image-load [canvas]
   (let [image (js/Image.)]
