@@ -48,6 +48,7 @@
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
         program (u/create-program gl vertex-source fragment-source)
+        _ (.useProgram gl program)
         vao (.createVertexArray gl)
         _ (.bindVertexArray gl vao)
         counts (mapv (fn [[attr-name {:keys [data] :as opts}]]

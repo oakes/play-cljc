@@ -77,45 +77,35 @@
 
 ;; translation
 
-(defn translation-render [canvas
-                          {:keys [gl program vao matrix-location color-location cnt]}
-                          {:keys [x y]}]
+(defn translation-render [gl canvas entity {:keys [x y]}]
   (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (.useProgram gl program)
-  (.bindVertexArray gl vao)
-  (.uniform4f gl color-location 1 0 0.5 1)
-  (.uniformMatrix3fv gl matrix-location false
-    (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-         (u/multiply-matrices 3 (u/translation-matrix x y))))
-  (.drawArrays gl gl.TRIANGLES 0 cnt))
+  (c/render-entity gl
+      (assoc entity
+        :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                                  (u/multiply-matrices 3 (u/translation-matrix x y)))})))
 
 (defn translation-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/two-d-vertex-shader-source
-                  data/two-d-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
-        vao (u/create-vao gl *buffers)
-        color-location (.getUniformLocation gl program "u_color")
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        props {:gl gl
-               :program program
-               :vao vao
-               :color-location color-location
-               :matrix-location matrix-location
-               :cnt @*buffers}
+        entity (c/create-entity gl
+                 {:vertex data/two-d-vertex-shader
+                  :fragment data/two-d-fragment-shader
+                  :attributes {'a_position {:data data/f-2d
+                                            :size 2
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}}
+                  :uniforms {'u_color [1 0 0.5 1]}})
         *state (atom {:x 0 :y 0})]
     (events/listen js/window "mousemove"
       (fn [event]
         (let [bounds (.getBoundingClientRect canvas)
               x (- (.-clientX event) (.-left bounds))
               y (- (.-clientY event) (.-top bounds))]
-          (translation-render canvas props (swap! *state assoc :x x :y y)))))
-    (translation-render canvas props @*state)))
+          (translation-render gl canvas entity (swap! *state assoc :x x :y y)))))
+    (translation-render gl canvas entity @*state)))
 
 (defexample play-cljc.examples-2d/translation
   {:with-card card}
