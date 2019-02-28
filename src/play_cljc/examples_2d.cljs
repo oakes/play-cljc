@@ -38,37 +38,28 @@
 
 (defn image-init [canvas image]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/image-vertex-shader-source
-                  data/image-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/rect)))
-        vao (u/create-vao gl *buffers)
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        image-location (.getUniformLocation gl program "u_image")
-        texture-unit 0
-        cnt @*buffers]
-    (let [texture (.createTexture gl)]
-      (.activeTexture gl (+ gl.TEXTURE0 texture-unit))
-      (.bindTexture gl gl.TEXTURE_2D texture)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MIN_FILTER gl.NEAREST)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MAG_FILTER gl.NEAREST))
-    (let [mip-level 0, internal-fmt gl.RGBA, src-fmt gl.RGBA, src-type gl.UNSIGNED_BYTE]
-      (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type image))
+        entity (c/create-entity gl
+                 {:vertex data/image-vertex-shader
+                  :fragment data/image-fragment-shader
+                  :attributes {'a_position {:data data/rect
+                                            :size 2
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}}
+                  :uniforms {'u_image {:image image
+                                       :params {gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
+                                                gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE
+                                                gl.TEXTURE_MIN_FILTER gl.NEAREST
+                                                gl.TEXTURE_MAG_FILTER gl.NEAREST}}}})]
     (cu/resize-canvas canvas)
     (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-    (.useProgram gl program)
-    (.bindVertexArray gl vao)
-    (.uniform1i gl image-location texture-unit)
-    (.uniformMatrix3fv gl matrix-location false
-      (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-           (u/multiply-matrices 3 (u/translation-matrix 0 0))
-           (u/multiply-matrices 3 (u/scaling-matrix image.width image.height))))
-    (.drawArrays gl gl.TRIANGLES 0 cnt)))
+    (c/render-entity gl entity
+      {:uniforms {'u_matrix
+                  (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                       (u/multiply-matrices 3 (u/translation-matrix 0 0))
+                       (u/multiply-matrices 3 (u/scaling-matrix image.width image.height)))}})))
 
 (defn image-load [canvas]
   (let [image (js/Image.)]

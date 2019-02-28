@@ -114,8 +114,7 @@
      a_color vec4
      a_texcoord vec2}
     :uniforms
-    {u_matrix mat4
-     u_texture sampler2D}
+    {u_matrix mat4}
     :varyings
     {v_texcoord vec2}
     :signatures
