@@ -114,40 +114,30 @@
 
 ;; rotation
 
-(defn rotation-render [canvas
-                       {:keys [gl program vao matrix-location color-location cnt]}
-                       {:keys [tx ty r]}]
+(defn rotation-render [gl canvas entity {:keys [tx ty r]}]
   (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (.useProgram gl program)
-  (.bindVertexArray gl vao)
-  (.uniform4f gl color-location 1 0 0.5 1)
-  (.uniformMatrix3fv gl matrix-location false
-    (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-         (u/multiply-matrices 3 (u/translation-matrix tx ty))
-         (u/multiply-matrices 3 (u/rotation-matrix r))
-         ;; make it rotate around its center
-         (u/multiply-matrices 3 (u/translation-matrix -50 -75))))
-  (.drawArrays gl gl.TRIANGLES 0 cnt))
+  (c/render-entity gl
+      (assoc entity
+        :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                                  (u/multiply-matrices 3 (u/translation-matrix tx ty))
+                                  (u/multiply-matrices 3 (u/rotation-matrix r))
+                                  ;; make it rotate around its center
+                                  (u/multiply-matrices 3 (u/translation-matrix -50 -75)))})))
 
 (defn rotation-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/two-d-vertex-shader-source
-                  data/two-d-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
-        vao (u/create-vao gl *buffers)
-        color-location (.getUniformLocation gl program "u_color")
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        props {:gl gl
-               :program program
-               :vao vao
-               :color-location color-location
-               :matrix-location matrix-location
-               :cnt @*buffers}
+        entity (c/create-entity gl
+                 {:vertex data/two-d-vertex-shader
+                  :fragment data/two-d-fragment-shader
+                  :attributes {'a_position {:data data/f-2d
+                                            :size 2
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}}
+                  :uniforms {'u_color [1 0 0.5 1]}})
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
@@ -158,8 +148,8 @@
                     (.-width bounds))
               ry (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (rotation-render canvas props (swap! *state assoc :r (Math/atan2 rx ry))))))
-    (rotation-render canvas props @*state)))
+          (rotation-render gl canvas entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (rotation-render gl canvas entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation
   {:with-card card}
@@ -168,39 +158,29 @@
 
 ;; scale
 
-(defn scale-render [canvas
-                    {:keys [gl program vao matrix-location color-location cnt]}
-                    {:keys [tx ty sx sy]}]
+(defn scale-render [gl canvas entity {:keys [tx ty sx sy]}]
   (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (.useProgram gl program)
-  (.bindVertexArray gl vao)
-  (.uniform4f gl color-location 1 0 0.5 1)
-  (.uniformMatrix3fv gl matrix-location false
-    (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-         (u/multiply-matrices 3 (u/translation-matrix tx ty))
-         (u/multiply-matrices 3 (u/rotation-matrix 0))
-         (u/multiply-matrices 3 (u/scaling-matrix sx sy))))
-  (.drawArrays gl gl.TRIANGLES 0 cnt))
+  (c/render-entity gl
+      (assoc entity
+        :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                                  (u/multiply-matrices 3 (u/translation-matrix tx ty))
+                                  (u/multiply-matrices 3 (u/rotation-matrix 0))
+                                  (u/multiply-matrices 3 (u/scaling-matrix sx sy)))})))
 
 (defn scale-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/two-d-vertex-shader-source
-                  data/two-d-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
-        vao (u/create-vao gl *buffers)
-        color-location (.getUniformLocation gl program "u_color")
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        props {:gl gl
-               :program program
-               :vao vao
-               :color-location color-location
-               :matrix-location matrix-location
-               :cnt @*buffers}
+        entity (c/create-entity gl
+                 {:vertex data/two-d-vertex-shader
+                  :fragment data/two-d-fragment-shader
+                  :attributes {'a_position {:data data/f-2d
+                                            :size 2
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}}
+                  :uniforms {'u_color [1 0 0.5 1]}})
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :sx 1 :sy 1})]
@@ -211,8 +191,8 @@
                     (.-width bounds))
               sy (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (scale-render canvas props (swap! *state assoc :sx sx :sy sy)))))
-    (scale-render canvas props @*state)))
+          (scale-render gl canvas entity (swap! *state assoc :sx sx :sy sy)))))
+    (scale-render gl canvas entity @*state)))
 
 (defexample play-cljc.examples-2d/scale
   {:with-card card}
@@ -221,42 +201,31 @@
 
 ;; rotation-multi
 
-(defn rotation-multi-render [canvas
-                             {:keys [gl program vao matrix-location color-location cnt]}
-                             {:keys [tx ty r]}]
+(defn rotation-multi-render [gl canvas entity {:keys [tx ty r]}]
   (cu/resize-canvas canvas)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (.useProgram gl program)
-  (.bindVertexArray gl vao)
-  (.uniform4f gl color-location 1 0 0.5 1)
   (loop [i 0
          matrix (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)]
     (when (< i 5)
       (let [matrix (->> matrix
                         (u/multiply-matrices 3 (u/translation-matrix tx ty))
                         (u/multiply-matrices 3 (u/rotation-matrix r)))]
-        (.uniformMatrix3fv gl matrix-location false matrix)
-        (.drawArrays gl gl.TRIANGLES 0 cnt)
+        (c/render-entity gl (assoc entity :uniforms {'u_matrix matrix}))
         (recur (inc i) matrix)))))
 
 (defn rotation-multi-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/two-d-vertex-shader-source
-                  data/two-d-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_position" (js/Float32Array. data/f-2d)))
-        vao (u/create-vao gl *buffers)
-        color-location (.getUniformLocation gl program "u_color")
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        props {:gl gl
-               :program program
-               :vao vao
-               :color-location color-location
-               :matrix-location matrix-location
-               :cnt @*buffers}
+        entity (c/create-entity gl
+                 {:vertex data/two-d-vertex-shader
+                  :fragment data/two-d-fragment-shader
+                  :attributes {'a_position {:data data/f-2d
+                                            :size 2
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}}
+                  :uniforms {'u_color [1 0 0.5 1]}})
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
@@ -267,8 +236,8 @@
                     (.-width bounds))
               ry (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (rotation-multi-render canvas props (swap! *state assoc :r (Math/atan2 rx ry))))))
-    (rotation-multi-render canvas props @*state)))
+          (rotation-multi-render gl canvas entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (rotation-multi-render gl canvas entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation-multi
   {:with-card card}
