@@ -10,7 +10,7 @@
     (ivec2 ivec3 ivec4) js/Int32Array
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
-(defn init-texture [gl m uni-loc {:keys [image params]}]
+(defn init-texture [gl m uni-loc {:keys [data params]}]
   (let [unit (count (:textures m))
         texture (.createTexture gl)]
     (.activeTexture gl (+ gl.TEXTURE0 unit))
@@ -18,7 +18,7 @@
     (doseq [[param-name param-val] params]
       (.texParameteri gl gl.TEXTURE_2D param-name param-val))
     (let [mip-level 0, internal-fmt gl.RGBA, src-fmt gl.RGBA, src-type gl.UNSIGNED_BYTE]
-      (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type image))
+      (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data))
     (update m :textures conj uni-loc)))
 
 (defn call-uniform* [gl m glsl-type uni-loc data]
