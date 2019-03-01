@@ -121,3 +121,19 @@
     (.drawArrays gl gl.TRIANGLES 0 index-count)
     (.bindVertexArray gl nil)))
 
+(defrecord Clear [gl color depth stencil])
+
+(extend-type Clear
+  Renderable
+  (render [{:keys [gl color depth stencil]}]
+    (when-let [{:keys [r g b a]} color]
+      (.clearColor gl r g b a))
+    (some->> depth (.clearDepth gl))
+    (some->> stencil (.clearStencil gl))
+    (->> [(when color gl.COLOR_BUFFER_BIT)
+          (when depth gl.DEPTH_BUFFER_BIT)
+          (when stencil gl.STENCIL_BUFFER_BIT)]
+         (remove nil?)
+         (apply bit-or)
+         (.clear gl))))
+

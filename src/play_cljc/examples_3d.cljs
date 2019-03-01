@@ -47,8 +47,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
       :uniforms {'u_matrix
@@ -87,8 +86,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
       :uniforms {'u_matrix
@@ -133,8 +131,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
       :uniforms {'u_matrix
@@ -178,8 +175,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
       :uniforms {'u_matrix
@@ -218,8 +214,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [radius 200
         num-fs 5
         projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -266,8 +261,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [radius 200
         num-fs 5
         projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -320,8 +314,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
       (assoc entity
         :uniforms {'u_matrix
@@ -361,8 +354,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ gl.canvas.clientWidth
                                                                gl.canvas.clientHeight)
@@ -435,8 +427,7 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ gl.canvas.clientWidth
                                                                gl.canvas.clientHeight)
