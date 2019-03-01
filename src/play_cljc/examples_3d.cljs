@@ -428,35 +428,31 @@
 
 ;; perspective-texture-data-3d
 
-(defn perspective-texture-data-3d-render [canvas
-                                          {:keys [gl program vao matrix-location cnt]
-                                           :as props}
-                                          {:keys [rx ry then now] :as state}]
+(defn perspective-texture-data-3d-render [gl canvas entity {:keys [rx ry then now] :as state}]
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (.useProgram gl program)
-  (.bindVertexArray gl vao)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
-                                                     :aspect (/ gl.canvas.clientWidth
-                                                                gl.canvas.clientHeight)
-                                                     :near 1
-                                                     :far 2000})
+                                                    :aspect (/ gl.canvas.clientWidth
+                                                               gl.canvas.clientHeight)
+                                                    :near 1
+                                                    :far 2000})
         camera-pos [0 0 2]
         target [0 0 0]
         up [0 1 0]
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (.uniformMatrix4fv gl matrix-location false
-      (->> view-projection-matrix
-           (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
-           (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry))))
-    (.drawArrays gl gl.TRIANGLES 0 cnt)
-    (js/requestAnimationFrame #(perspective-texture-data-3d-render canvas props
+    (c/render-entity gl
+      (assoc entity
+        :uniforms {'u_matrix
+                   (->> view-projection-matrix
+                        (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
+                        (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))}))
+    (js/requestAnimationFrame #(perspective-texture-data-3d-render gl canvas entity
                                  (-> state
                                      (update :rx + (* 1.2 (- now then)))
                                      (update :ry + (* 0.7 (- now then)))
@@ -464,41 +460,39 @@
 
 (defn perspective-texture-data-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/texture-vertex-shader-source
-                  data/texture-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_texcoord"
-                     (js/Float32Array. data/cube-texcoords) {:normalize true})
-                   (let [matrix (u/multiply-matrices 4
-                                  (u/translation-matrix-3d -50 -75 -15)
-                                  (u/x-rotation-matrix-3d js/Math.PI))
-                         positions (js/Float32Array. data/cube)]
-                     (u/create-buffer gl program "a_position" positions {:size 3})))
-        vao (u/create-vao gl *buffers)
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        props {:gl gl
-               :program program
-               :vao vao
-               :matrix-location matrix-location
-               :cnt @*buffers}
+        entity (c/create-entity gl
+                 {:vertex data/texture-vertex-shader
+                  :fragment data/texture-fragment-shader
+                  :attributes {'a_position {:data data/cube
+                                            :type gl.FLOAT
+                                            :size 3
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}
+                               'a_texcoord {:data data/cube-texcoords
+                                            :type gl.FLOAT
+                                            :size 2
+                                            :normalize true
+                                            :stride 0
+                                            :offset 0}}
+                  :uniforms {'u_texture {:data (js/Uint8Array. [128 64 128 0 192 0])
+                                         :opts {:mip-level 0
+                                                :internal-fmt gl.R8
+                                                :width 3
+                                                :height 2
+                                                :border 0
+                                                :src-fmt gl.RED
+                                                :src-type gl.UNSIGNED_BYTE}
+                                         :alignment 1
+                                         :params {gl.TEXTURE_MIN_FILTER gl.NEAREST
+                                                  gl.TEXTURE_MAG_FILTER gl.NEAREST
+                                                  gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
+                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}})
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
                :then 0
                :now 0}]
-      (let [texture (.createTexture gl)
-            level 0, internal-fmt gl.R8, width 3, height 2, border 0
-            fmt gl.RED, type gl.UNSIGNED_BYTE
-            data (js/Uint8Array. [128 64 128 0 192 0])]
-        (.activeTexture gl (+ gl.TEXTURE0 0))
-        (.bindTexture gl gl.TEXTURE_2D texture)
-        (.pixelStorei gl gl.UNPACK_ALIGNMENT 1)
-        (.texImage2D gl gl.TEXTURE_2D level internal-fmt width height border fmt type data)
-        (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MIN_FILTER gl.NEAREST)
-        (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MAG_FILTER gl.NEAREST)
-        (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE)
-        (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE))
-    (perspective-texture-data-3d-render canvas props state)))
+    (perspective-texture-data-3d-render gl canvas entity state)))
 
 (defexample play-cljc.examples-3d/perspective-texture-data-3d
   {:with-card card}

@@ -17,14 +17,14 @@
     (.bindTexture gl gl.TEXTURE_2D texture)
     (doseq [[param-name param-val] params]
       (.texParameteri gl gl.TEXTURE_2D param-name param-val))
+    (when alignment
+      (.pixelStorei gl gl.UNPACK_ALIGNMENT alignment))
     (let [{:keys [mip-level internal-fmt src-fmt src-type width height border]} opts]
       (if (and width height border)
         (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt width height border src-fmt src-type data)
         (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data)))
     (when mipmap
       (.generateMipmap gl gl.TEXTURE_2D))
-    (when alignment
-      (.pixelStorei gl gl.UNPACK_ALIGNMENT alignment))
     (update m :textures conj uni-loc)))
 
 (defn call-uniform* [gl m glsl-type uni-loc data]
