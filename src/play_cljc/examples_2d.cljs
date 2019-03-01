@@ -10,8 +10,9 @@
 
 (defn rand-rects-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/two-d-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/rect
                                             :type gl.FLOAT
@@ -24,7 +25,7 @@
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
     (dotimes [_ 50]
-      (c/render-entity gl
+      (c/render
         (assoc entity
           :uniforms {'u_color [(rand) (rand) (rand) 1]
                      'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
@@ -40,8 +41,9 @@
 
 (defn image-init [canvas image]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/image-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/image-vertex-shader
                   :fragment data/image-fragment-shader
                   :attributes {'a_position {:data data/rect
                                             :type gl.FLOAT
@@ -62,7 +64,7 @@
     (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
     (.clearColor gl 0 0 0 0)
     (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-    (c/render-entity gl
+    (c/render
       (assoc entity
         :uniforms {'u_matrix
                    (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
@@ -88,15 +90,16 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
+  (c/render
       (assoc entity
         :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
                                   (u/multiply-matrices 3 (u/translation-matrix x y)))})))
 
 (defn translation-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/two-d-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type gl.FLOAT
@@ -126,18 +129,19 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
-      (assoc entity
-        :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-                                  (u/multiply-matrices 3 (u/translation-matrix tx ty))
-                                  (u/multiply-matrices 3 (u/rotation-matrix r))
-                                  ;; make it rotate around its center
-                                  (u/multiply-matrices 3 (u/translation-matrix -50 -75)))})))
+  (c/render
+    (assoc entity
+      :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                                (u/multiply-matrices 3 (u/translation-matrix tx ty))
+                                (u/multiply-matrices 3 (u/rotation-matrix r))
+                                ;; make it rotate around its center
+                                (u/multiply-matrices 3 (u/translation-matrix -50 -75)))})))
 
 (defn rotation-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/two-d-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type gl.FLOAT
@@ -171,17 +175,18 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
-      (assoc entity
-        :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
-                                  (u/multiply-matrices 3 (u/translation-matrix tx ty))
-                                  (u/multiply-matrices 3 (u/rotation-matrix 0))
-                                  (u/multiply-matrices 3 (u/scaling-matrix sx sy)))})))
+  (c/render
+    (assoc entity
+      :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                                (u/multiply-matrices 3 (u/translation-matrix tx ty))
+                                (u/multiply-matrices 3 (u/rotation-matrix 0))
+                                (u/multiply-matrices 3 (u/scaling-matrix sx sy)))})))
 
 (defn scale-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/two-d-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type gl.FLOAT
@@ -221,13 +226,14 @@
       (let [matrix (->> matrix
                         (u/multiply-matrices 3 (u/translation-matrix tx ty))
                         (u/multiply-matrices 3 (u/rotation-matrix r)))]
-        (c/render-entity gl (assoc entity :uniforms {'u_matrix matrix}))
+        (c/render (assoc entity :uniforms {'u_matrix matrix}))
         (recur (inc i) matrix)))))
 
 (defn rotation-multi-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/two-d-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type gl.FLOAT

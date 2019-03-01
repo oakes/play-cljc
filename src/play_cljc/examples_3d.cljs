@@ -7,8 +7,9 @@
   (:require-macros [dynadoc.example :refer [defexample]]))
 
 (defn f-entity [gl f-data]
-  (c/create-entity gl
-    {:vertex data/three-d-vertex-shader
+  (c/create-entity
+    {:gl gl
+     :vertex data/three-d-vertex-shader
      :fragment data/three-d-fragment-shader
      :attributes {'a_position {:data f-data
                                :type gl.FLOAT
@@ -48,7 +49,7 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
+  (c/render
     (assoc entity
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
@@ -88,7 +89,7 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
+  (c/render
     (assoc entity
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
@@ -134,7 +135,7 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
+  (c/render
     (assoc entity
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
@@ -179,7 +180,7 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
+  (c/render
     (assoc entity
       :uniforms {'u_matrix
                  (->> (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -238,7 +239,7 @@
             matrix (u/multiply-matrices 4
                      (u/translation-matrix-3d x 0 z)
                      view-projection-matrix)]
-        (c/render-entity gl (assoc entity :uniforms {'u_matrix matrix}))))))
+        (c/render (assoc entity :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
@@ -292,7 +293,7 @@
             matrix (u/multiply-matrices 4
                      (u/translation-matrix-3d x 0 z)
                      view-projection-matrix)]
-        (c/render-entity gl (assoc entity :uniforms {'u_matrix matrix}))))))
+        (c/render (assoc entity :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-target-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
@@ -321,7 +322,7 @@
   (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
   (.clearColor gl 0 0 0 0)
   (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (c/render-entity gl
+  (c/render
       (assoc entity
         :uniforms {'u_matrix
                    (->> (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -373,7 +374,7 @@
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (c/render-entity gl
+    (c/render
       (assoc entity
         :uniforms {'u_matrix
                    (->> view-projection-matrix
@@ -387,8 +388,9 @@
 
 (defn perspective-texture-3d-init [canvas image]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/texture-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data (transform-f-data data/f-3d)
                                             :type gl.FLOAT
@@ -446,7 +448,7 @@
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (c/render-entity gl
+    (c/render
       (assoc entity
         :uniforms {'u_matrix
                    (->> view-projection-matrix
@@ -460,8 +462,9 @@
 
 (defn perspective-texture-data-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        entity (c/create-entity gl
-                 {:vertex data/texture-vertex-shader
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
                                             :type gl.FLOAT

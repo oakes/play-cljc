@@ -3,6 +3,16 @@
             [iglu.parse :as parse]
             [play-cljc.utils :as u]))
 
+(defprotocol Renderable
+  (render [this]))
+
+(defrecord Entity
+  [gl vertex fragment
+   vertex-source fragment-source
+   program vao
+   uniform-locations texture-locations
+   index-count])
+
 (defn glsl-type->platform-type [glsl-type]
   (case glsl-type
     (vec2 vec3 vec4)    js/Float32Array
@@ -11,7 +21,7 @@
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
 (defn init-texture [gl m uni-loc {:keys [data params opts mipmap alignment]}]
-  (let [unit (count (:textures m))
+  (let [unit (count (:texture-locations m))
         texture (.createTexture gl)]
     (.activeTexture gl (+ gl.TEXTURE0 unit))
     (.bindTexture gl gl.TEXTURE_2D texture)
@@ -25,7 +35,7 @@
         (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data)))
     (when mipmap
       (.generateMipmap gl gl.TEXTURE_2D))
-    (update m :textures conj uni-loc)))
+    (update m :texture-locations conj uni-loc)))
 
 (defn call-uniform* [gl m glsl-type uni-loc data]
   (case glsl-type
@@ -50,7 +60,7 @@
     (or (call-uniform* gl m uni-type uni-loc uni-data)
         m)))
 
-(defn create-entity [gl {:keys [vertex fragment attributes uniforms] :as m}]
+(defn create-entity [{:keys [gl vertex fragment attributes uniforms] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
         program (u/create-program gl vertex-source fragment-source)
@@ -80,15 +90,16 @@
                             (-> #{}
                                 (into (-> vertex :uniforms keys))
                                 (into (-> fragment :uniforms keys))))
-        entity {:vertex vertex
-                :fragment fragment
-                :vertex-source vertex-source
-                :fragment-source fragment-source
-                :program program
-                :vao vao
-                :uniform-locations uniform-locations
-                :textures []
-                :index-count (apply max counts)}
+        entity (map->Entity {:gl gl
+                             :vertex vertex
+                             :fragment fragment
+                             :vertex-source vertex-source
+                             :fragment-source fragment-source
+                             :program program
+                             :vao vao
+                             :uniform-locations uniform-locations
+                             :texture-locations []
+                             :index-count (apply max counts)})
         entity (reduce
                  (partial call-uniform gl)
                  entity
@@ -96,15 +107,17 @@
     (.bindVertexArray gl nil)
     entity))
 
-(defn render-entity [gl {:keys [program vao index-count uniforms] :as entity}]
-  (.useProgram gl program)
-  (.bindVertexArray gl vao)
-  (let [{:keys [textures]} (reduce
-                             (partial call-uniform gl)
-                             entity
-                             uniforms)]
-    (dotimes [i (range (count textures))]
-      (.uniform1i gl (nth textures i) i)))
-  (.drawArrays gl gl.TRIANGLES 0 index-count)
-  (.bindVertexArray gl nil))
+(extend-type Entity
+  Renderable
+  (render [{:keys [gl program vao index-count uniforms] :as entity}]
+    (.useProgram gl program)
+    (.bindVertexArray gl vao)
+    (let [{:keys [textures]} (reduce
+                               (partial call-uniform gl)
+                               entity
+                               uniforms)]
+      (dotimes [i (range (count textures))]
+        (.uniform1i gl (nth textures i) i)))
+    (.drawArrays gl gl.TRIANGLES 0 index-count)
+    (.bindVertexArray gl nil)))
 
