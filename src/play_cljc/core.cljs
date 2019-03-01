@@ -10,15 +10,21 @@
     (ivec2 ivec3 ivec4) js/Int32Array
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
-(defn init-texture [gl m uni-loc {:keys [data params]}]
+(defn init-texture [gl m uni-loc {:keys [data params opts mipmap alignment]}]
   (let [unit (count (:textures m))
         texture (.createTexture gl)]
     (.activeTexture gl (+ gl.TEXTURE0 unit))
     (.bindTexture gl gl.TEXTURE_2D texture)
     (doseq [[param-name param-val] params]
       (.texParameteri gl gl.TEXTURE_2D param-name param-val))
-    (let [mip-level 0, internal-fmt gl.RGBA, src-fmt gl.RGBA, src-type gl.UNSIGNED_BYTE]
-      (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data))
+    (let [{:keys [mip-level internal-fmt src-fmt src-type width height border]} opts]
+      (if (and width height border)
+        (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt width height border src-fmt src-type data)
+        (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data)))
+    (when mipmap
+      (.generateMipmap gl gl.TEXTURE_2D))
+    (when alignment
+      (.pixelStorei gl gl.UNPACK_ALIGNMENT alignment))
     (update m :textures conj uni-loc)))
 
 (defn call-uniform* [gl m glsl-type uni-loc data]
@@ -61,7 +67,9 @@
                                              (str "The type " attr-type
                                                " is invalid for attribute " attr-name)))]
                          (u/create-buffer gl program (name attr-name)
-                           (new attr-type data)
+                           (if (js/ArrayBuffer.isView data)
+                             data
+                             (new attr-type data))
                            opts)))
                  attributes)
         uniform-locations (reduce

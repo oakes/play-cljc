@@ -50,6 +50,10 @@
                                             :stride 0
                                             :offset 0}}
                   :uniforms {'u_image {:data image
+                                       :opts {:mip-level 0
+                                              :internal-fmt gl.RGBA
+                                              :src-fmt gl.RGBA
+                                              :src-type gl.UNSIGNED_BYTE}
                                        :params {gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
                                                 gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE
                                                 gl.TEXTURE_MIN_FILTER gl.NEAREST
