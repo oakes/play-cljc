@@ -137,3 +137,10 @@
          (apply bit-or)
          (.clear gl))))
 
+(defrecord Viewport [gl x y width height])
+
+(extend-type Viewport
+  Renderable
+  (render [{:keys [gl x y width height]}]
+    (.viewport gl x y width height)))
+

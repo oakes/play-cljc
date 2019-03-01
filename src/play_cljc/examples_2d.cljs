@@ -21,7 +21,7 @@
                                             :stride 0
                                             :offset 0}}})]
     (cu/resize-canvas canvas)
-    (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+    (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
     (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
     (dotimes [_ 50]
       (c/render
@@ -60,7 +60,7 @@
                                                 gl.TEXTURE_MIN_FILTER gl.NEAREST
                                                 gl.TEXTURE_MAG_FILTER gl.NEAREST}}}})]
     (cu/resize-canvas canvas)
-    (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+    (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
     (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
     (c/render
       (assoc entity
@@ -85,7 +85,7 @@
 
 (defn translation-render [gl canvas entity {:keys [x y]}]
   (cu/resize-canvas canvas)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
       (assoc entity
@@ -123,7 +123,7 @@
 
 (defn rotation-render [gl canvas entity {:keys [tx ty r]}]
   (cu/resize-canvas canvas)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
@@ -168,7 +168,7 @@
 
 (defn scale-render [gl canvas entity {:keys [tx ty sx sy]}]
   (cu/resize-canvas canvas)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
@@ -212,7 +212,7 @@
 
 (defn rotation-multi-render [gl canvas entity {:keys [tx ty r]}]
   (cu/resize-canvas canvas)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (loop [i 0
          matrix (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)]

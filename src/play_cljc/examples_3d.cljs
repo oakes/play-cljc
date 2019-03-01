@@ -46,7 +46,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
@@ -85,7 +85,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
@@ -130,7 +130,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
@@ -174,7 +174,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
     (assoc entity
@@ -213,7 +213,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [radius 200
         num-fs 5
@@ -260,7 +260,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [radius 200
         num-fs 5
@@ -313,7 +313,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (c/render
       (assoc entity
@@ -353,7 +353,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ gl.canvas.clientWidth
@@ -426,7 +426,7 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
   (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ gl.canvas.clientWidth
