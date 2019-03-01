@@ -495,48 +495,39 @@
 
 ;; perspective-texture-meta-3d
 
-(defn draw-cube [{:keys [gl program vao matrix-location cnt]}
-                 {:keys [rx ry]}
-                 aspect]
-  (.useProgram gl program)
-  (.bindVertexArray gl vao)
+(defn draw-cube [gl entity {:keys [rx ry]} aspect]
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
-                                                     :aspect aspect
-                                                     :near 1
-                                                     :far 2000})
+                                                    :aspect aspect
+                                                    :near 1
+                                                    :far 2000})
         camera-pos [0 0 2]
         target [0 0 0]
         up [0 1 0]
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (.uniformMatrix4fv gl matrix-location false
-      (->> view-projection-matrix
-           (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
-           (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry))))
-    (.drawArrays gl gl.TRIANGLES 0 cnt)))
+    (c/render
+      (assoc entity
+        :uniforms {'u_matrix
+                   (->> view-projection-matrix
+                      (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
+                      (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))}))))
 
-(defn perspective-texture-meta-3d-render [canvas
-                                          {:keys [gl program vao matrix-location cnt
-                                                  textures]
-                                           :as props}
-                                          {:keys [then now] :as state}]
+(defn perspective-texture-meta-3d-render [gl canvas entities {:keys [then now] :as state}]
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (.viewport gl 0 0 gl.canvas.width gl.canvas.height)
-  (.clearColor gl 0 0 0 0)
-  (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-  (doseq [{:keys [fb texture width height]
+  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
+  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
+  (doseq [{:keys [fb texture width height entity]
            [r g b a] :color}
-          textures]
+          entities]
     (.bindFramebuffer gl gl.FRAMEBUFFER fb)
     (.bindTexture gl gl.TEXTURE_2D texture)
-    (.viewport gl 0 0 width height)
-    (.clearColor gl r g b a)
-    (.clear gl (bit-or gl.COLOR_BUFFER_BIT gl.DEPTH_BUFFER_BIT))
-    (draw-cube props state (/ width height)))
-  (js/requestAnimationFrame #(perspective-texture-meta-3d-render canvas props
+    (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width width :height height}))
+    (c/render (c/map->Clear {:gl gl :color [r g b a] :depth 1}))
+    (draw-cube gl entity state (/ width height)))
+  (js/requestAnimationFrame #(perspective-texture-meta-3d-render gl canvas entities
                                (-> state
                                    (update :rx + (* 1.2 (- now then)))
                                    (update :ry + (* 0.7 (- now then)))
@@ -544,65 +535,85 @@
 
 (defn perspective-texture-meta-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
-        program (u/create-program gl
-                  data/texture-vertex-shader-source
-                  data/texture-fragment-shader-source)
-        *buffers (delay
-                   (u/create-buffer gl program "a_texcoord"
-                     (js/Float32Array. data/cube-texcoords) {:normalize true})
-                   (let [matrix (u/multiply-matrices 4
-                                  (u/translation-matrix-3d -50 -75 -15)
-                                  (u/x-rotation-matrix-3d js/Math.PI))
-                         positions (js/Float32Array. data/cube)]
-                     (u/create-buffer gl program "a_position" positions {:size 3})))
-        vao (u/create-vao gl *buffers)
-        matrix-location (.getUniformLocation gl program "u_matrix")
-        props {:gl gl
-               :program program
-               :vao vao
-               :matrix-location matrix-location
-               :cnt @*buffers}
+        target-width 256
+        target-height 256
+        entity (c/create-entity
+                 {:gl gl
+                  :vertex data/texture-vertex-shader
+                  :fragment data/texture-fragment-shader
+                  :attributes {'a_position {:data data/cube
+                                            :type gl.FLOAT
+                                            :size 3
+                                            :normalize false
+                                            :stride 0
+                                            :offset 0}
+                               'a_texcoord {:data data/cube-texcoords
+                                            :type gl.FLOAT
+                                            :size 2
+                                            :normalize true
+                                            :stride 0
+                                            :offset 0}}
+                  :uniforms {'u_texture {:data nil
+                                         :opts {:mip-level 0
+                                                :internal-fmt gl.RGBA
+                                                :width target-width
+                                                :height target-height
+                                                :border 0
+                                                :src-fmt gl.RGBA
+                                                :src-type gl.UNSIGNED_BYTE}
+                                         :params {gl.TEXTURE_MIN_FILTER gl.LINEAR
+                                                  gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
+                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}})
+        inner-entity (c/create-entity
+                       {:gl gl
+                        :vertex data/texture-vertex-shader
+                        :fragment data/texture-fragment-shader
+                        :attributes {'a_position {:data data/cube
+                                                  :type gl.FLOAT
+                                                  :size 3
+                                                  :normalize false
+                                                  :stride 0
+                                                  :offset 0}
+                                     'a_texcoord {:data data/cube-texcoords
+                                                  :type gl.FLOAT
+                                                  :size 2
+                                                  :normalize true
+                                                  :stride 0
+                                                  :offset 0}}
+                        :uniforms {'u_texture {:data (js/Uint8Array. [128 64 128 0 192 0])
+                                               :opts {:mip-level 0
+                                                      :internal-fmt gl.R8
+                                                      :width 3
+                                                      :height 2
+                                                      :border 0
+                                                      :src-fmt gl.RED
+                                                      :src-type gl.UNSIGNED_BYTE}
+                                               :alignment 1
+                                               :params {gl.TEXTURE_MIN_FILTER gl.NEAREST
+                                                        gl.TEXTURE_MAG_FILTER gl.NEAREST
+                                                        gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
+                                                        gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}})
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
                :then 0
-               :now 0}]
-    (let [texture (.createTexture gl)
-          level 0, internal-fmt gl.R8, width 3, height 2, border 0
-          fmt gl.RED, type gl.UNSIGNED_BYTE
-          data (js/Uint8Array. [128 64 128 0 192 0])]
-      (.activeTexture gl (+ gl.TEXTURE0 0))
-      (.bindTexture gl gl.TEXTURE_2D texture)
-      (.pixelStorei gl gl.UNPACK_ALIGNMENT 1)
-      (.texImage2D gl gl.TEXTURE_2D level internal-fmt width height border fmt type data)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MIN_FILTER gl.NEAREST)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MAG_FILTER gl.NEAREST)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE)
-      (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE)
-      (let [target-texture (.createTexture gl)
-            level 0, internal-fmt gl.RGBA, target-width 256, target-height 256, border 0
-            fmt gl.RGBA, type gl.UNSIGNED_BYTE
-            data nil]
-        (.bindTexture gl gl.TEXTURE_2D target-texture)
-        (.texImage2D gl gl.TEXTURE_2D level internal-fmt target-width target-height border fmt type data)
-        (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_MIN_FILTER gl.LINEAR)
-        (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE)
-        (.texParameteri gl gl.TEXTURE_2D gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE)
-        (let [fb (.createFramebuffer gl)
-              attachment-point gl.COLOR_ATTACHMENT0]
-          (.bindFramebuffer gl gl.FRAMEBUFFER fb)
-          (.framebufferTexture2D gl gl.FRAMEBUFFER attachment-point
-            gl.TEXTURE_2D target-texture level)
-          (let [props (assoc props :textures [{:fb fb
-                                               :texture texture
-                                               :width target-width
-                                               :height target-height
-                                               :color [0 0 1 1]}
-                                              {:fb nil
-                                               :texture target-texture
-                                               :width gl.canvas.clientWidth
-                                               :height gl.canvas.clientHeight
-                                               :color [1 1 1 1]}])]
-            (perspective-texture-meta-3d-render canvas props state)))))))
+               :now 0}
+        fb (.createFramebuffer gl)
+        entities [{:fb fb
+                   :texture (-> inner-entity :textures first)
+                   :width target-width
+                   :height target-height
+                   :color [0 0 1 1]
+                   :entity inner-entity}
+                  {:fb nil
+                   :texture (-> entity :textures first)
+                   :width gl.canvas.clientWidth
+                   :height gl.canvas.clientHeight
+                   :color [1 1 1 1]
+                   :entity entity}]]
+    (.bindFramebuffer gl gl.FRAMEBUFFER fb)
+    (.framebufferTexture2D gl gl.FRAMEBUFFER gl.COLOR_ATTACHMENT0
+      gl.TEXTURE_2D (-> entity :textures first) 0)
+    (perspective-texture-meta-3d-render gl canvas entities state)))
 
 (defexample play-cljc.examples-3d/perspective-texture-meta-3d
   {:with-card card}

@@ -7,7 +7,7 @@
   (render [this]))
 
 (defrecord Entity
-  [gl vertex fragment
+  [vertex fragment
    vertex-source fragment-source
    program vao
    uniform-locations texture-locations
@@ -35,7 +35,9 @@
         (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data)))
     (when mipmap
       (.generateMipmap gl gl.TEXTURE_2D))
-    (update m :texture-locations conj uni-loc)))
+    (-> m
+        (update :texture-locations conj uni-loc)
+        (update :textures conj texture))))
 
 (defn call-uniform* [gl m glsl-type uni-loc data]
   (case glsl-type
@@ -98,6 +100,7 @@
                              :program program
                              :vao vao
                              :uniform-locations uniform-locations
+                             :textures []
                              :texture-locations []
                              :index-count (apply max counts)})
         entity (reduce
@@ -121,12 +124,12 @@
     (.drawArrays gl gl.TRIANGLES 0 index-count)
     (.bindVertexArray gl nil)))
 
-(defrecord Clear [gl color depth stencil])
+(defrecord Clear [color depth stencil])
 
 (extend-type Clear
   Renderable
   (render [{:keys [gl color depth stencil]}]
-    (when-let [{:keys [r g b a]} color]
+    (when-let [[r g b a] color]
       (.clearColor gl r g b a))
     (some->> depth (.clearDepth gl))
     (some->> stencil (.clearStencil gl))
@@ -137,7 +140,7 @@
          (apply bit-or)
          (.clear gl))))
 
-(defrecord Viewport [gl x y width height])
+(defrecord Viewport [x y width height])
 
 (extend-type Viewport
   Renderable
