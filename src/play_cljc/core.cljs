@@ -115,12 +115,12 @@
   (render [{:keys [gl program vao index-count uniforms] :as entity}]
     (.useProgram gl program)
     (.bindVertexArray gl vao)
-    (let [{:keys [textures]} (reduce
-                               (partial call-uniform gl)
-                               entity
-                               uniforms)]
-      (dotimes [i (range (count textures))]
-        (.uniform1i gl (nth textures i) i)))
+    (let [{:keys [texture-locations]} (reduce
+                                        (partial call-uniform gl)
+                                        entity
+                                        uniforms)]
+      (dotimes [i (range (count texture-locations))]
+        (.uniform1i gl (nth texture-locations i) i)))
     (.drawArrays gl gl.TRIANGLES 0 index-count)
     (.bindVertexArray gl nil)))
 
