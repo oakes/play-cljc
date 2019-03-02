@@ -41,7 +41,13 @@
       (.generateMipmap gl gl.TEXTURE_2D))
     {:unit unit
      :texture texture
-     :location uni-loc}))
+     :location uni-loc
+     :framebuffer (when (nil? data)
+                    (let [fb (.createFramebuffer gl)]
+                      (.bindFramebuffer gl gl.FRAMEBUFFER fb)
+                      (.framebufferTexture2D gl gl.FRAMEBUFFER gl.COLOR_ATTACHMENT0
+                        gl.TEXTURE_2D texture 0)
+                      fb))}))
 
 (defn call-uniform* [{:keys [gl] :as game} m glsl-type uni-loc uni-name data]
   (case glsl-type

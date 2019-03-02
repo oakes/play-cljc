@@ -610,8 +610,7 @@
                :ry (u/deg->rad 40)
                :then 0
                :now 0}
-        fb (.createFramebuffer gl)
-        entities [{:fb fb
+        entities [{:fb (-> entity :textures (get 'u_texture) :framebuffer)
                    :texture (-> inner-entity :textures (get 'u_texture) :texture)
                    :width target-width
                    :height target-height
@@ -623,9 +622,6 @@
                    :height gl.canvas.clientHeight
                    :color [1 1 1 1]
                    :entity entity}]]
-    (.bindFramebuffer gl gl.FRAMEBUFFER fb)
-    (.framebufferTexture2D gl gl.FRAMEBUFFER gl.COLOR_ATTACHMENT0
-      gl.TEXTURE_2D (-> entity :textures (get 'u_texture) :texture) 0)
     (perspective-texture-meta-3d-render game canvas entities state)))
 
 (defexample play-cljc.examples-3d/perspective-texture-meta-3d
