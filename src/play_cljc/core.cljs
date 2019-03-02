@@ -3,8 +3,12 @@
             [iglu.parse :as parse]
             [play-cljc.utils :as u]))
 
+(defn create-game [gl]
+  {:tex-count (atom 0)
+   :gl gl})
+
 (defprotocol Renderable
-  (render [this]))
+  (render [this game]))
 
 (defrecord Entity
   [vertex fragment
@@ -20,8 +24,8 @@
     (ivec2 ivec3 ivec4) js/Int32Array
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
-(defn init-texture [gl m uni-loc uni-name {:keys [data params opts mipmap alignment]}]
-  (let [unit (count (:textures m))
+(defn init-texture [{:keys [gl tex-count]} m uni-loc uni-name {:keys [data params opts mipmap alignment]}]
+  (let [unit (dec (swap! tex-count inc))
         texture (.createTexture gl)]
     (.activeTexture gl (+ gl.TEXTURE0 unit))
     (.bindTexture gl gl.TEXTURE_2D texture)
@@ -39,7 +43,7 @@
                                         :texture texture
                                         :location uni-loc})))
 
-(defn call-uniform* [gl m glsl-type uni-loc uni-name data]
+(defn call-uniform* [{:keys [gl] :as game} m glsl-type uni-loc uni-name data]
   (case glsl-type
     vec2 (.uniform2fv gl uni-loc data)
     vec3 (.uniform3fv gl uni-loc data)
@@ -47,7 +51,7 @@
     mat2 (.uniformMatrix2fv gl uni-loc false data)
     mat3 (.uniformMatrix3fv gl uni-loc false data)
     mat4 (.uniformMatrix4fv gl uni-loc false data)
-    sampler2D (init-texture gl m uni-loc uni-name data)))
+    sampler2D (init-texture game m uni-loc uni-name data)))
 
 (defn get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
@@ -56,13 +60,13 @@
         (str "You must define " uni-name
           " in your vertex or fragment shader"))))
 
-(defn call-uniform [gl {:keys [uniform-locations] :as m} [uni-name uni-data]]
+(defn call-uniform [game {:keys [uniform-locations] :as m} [uni-name uni-data]]
   (let [uni-type (get-uniform-type m uni-name)
         uni-loc (get uniform-locations uni-name)]
-    (or (call-uniform* gl m uni-type uni-loc uni-name uni-data)
+    (or (call-uniform* game m uni-type uni-loc uni-name uni-data)
         m)))
 
-(defn create-entity [{:keys [gl vertex fragment attributes uniforms] :as m}]
+(defn create-entity [{:keys [vertex fragment attributes uniforms] :as m} {:keys [gl] :as game}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
         program (u/create-program gl vertex-source fragment-source)
@@ -92,8 +96,7 @@
                             (-> #{}
                                 (into (-> vertex :uniforms keys))
                                 (into (-> fragment :uniforms keys))))
-        entity (map->Entity {:gl gl
-                             :vertex vertex
+        entity (map->Entity {:vertex vertex
                              :fragment fragment
                              :vertex-source vertex-source
                              :fragment-source fragment-source
@@ -103,7 +106,7 @@
                              :textures {}
                              :index-count (apply max counts)})
         entity (reduce
-                 (partial call-uniform gl)
+                 (partial call-uniform game)
                  entity
                  uniforms)]
     (.bindVertexArray gl nil)
@@ -111,11 +114,11 @@
 
 (extend-type Entity
   Renderable
-  (render [{:keys [gl program vao index-count uniforms] :as entity}]
+  (render [{:keys [program vao index-count uniforms] :as entity} {:keys [gl] :as game}]
     (.useProgram gl program)
     (.bindVertexArray gl vao)
     (let [{:keys [textures]} (reduce
-                               (partial call-uniform gl)
+                               (partial call-uniform game)
                                entity
                                uniforms)]
       (doseq [{:keys [unit location]} (vals textures)]
@@ -127,7 +130,7 @@
 
 (extend-type Clear
   Renderable
-  (render [{:keys [gl color depth stencil]}]
+  (render [{:keys [color depth stencil]} {:keys [gl]}]
     (when-let [[r g b a] color]
       (.clearColor gl r g b a))
     (some->> depth (.clearDepth gl))
@@ -143,6 +146,6 @@
 
 (extend-type Viewport
   Renderable
-  (render [{:keys [gl x y width height]}]
+  (render [{:keys [x y width height]} {:keys [gl]}]
     (.viewport gl x y width height)))
 
