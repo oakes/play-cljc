@@ -24,7 +24,7 @@
     (ivec2 ivec3 ivec4) js/Int32Array
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
-(defn init-texture [{:keys [gl tex-count]} m uni-loc uni-name {:keys [data params opts mipmap alignment]}]
+(defn create-texture [{:keys [gl tex-count]} m uni-loc {:keys [data params opts mipmap alignment]}]
   (let [unit (dec (swap! tex-count inc))
         texture (.createTexture gl)]
     (.activeTexture gl (+ gl.TEXTURE0 unit))
@@ -39,9 +39,9 @@
         (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data)))
     (when mipmap
       (.generateMipmap gl gl.TEXTURE_2D))
-    (update m :textures assoc uni-name {:unit unit
-                                        :texture texture
-                                        :location uni-loc})))
+    {:unit unit
+     :texture texture
+     :location uni-loc}))
 
 (defn call-uniform* [{:keys [gl] :as game} m glsl-type uni-loc uni-name data]
   (case glsl-type
@@ -51,7 +51,8 @@
     mat2 (.uniformMatrix2fv gl uni-loc false data)
     mat3 (.uniformMatrix3fv gl uni-loc false data)
     mat4 (.uniformMatrix4fv gl uni-loc false data)
-    sampler2D (init-texture game m uni-loc uni-name data)))
+    sampler2D (assoc-in m [:textures uni-name]
+                (create-texture game m uni-loc data))))
 
 (defn get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
