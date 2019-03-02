@@ -7,7 +7,7 @@
   (:require-macros [dynadoc.example :refer [defexample]]))
 
 (defn f-entity [{:keys [gl] :as game} f-data]
-  (c/create-entity
+  (c/create-entity game
     {:vertex data/three-d-vertex-shader
      :fragment data/three-d-fragment-shader
      :attributes {'a_position {:data f-data
@@ -21,8 +21,7 @@
                             :size 3
                             :normalize true
                             :stride 0
-                            :offset 0}}}
-    game))
+                            :offset 0}}}))
 
 (defn transform-f-data [f-data]
   (let [positions (js/Float32Array. f-data)
@@ -46,10 +45,9 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
-  (c/render
+  (c/render-entity game
     (assoc entity
+      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
                                           :right gl.canvas.clientWidth
@@ -60,8 +58,7 @@
                       (u/multiply-matrices 4 (u/translation-matrix-3d x y 0))
                       (u/multiply-matrices 4 (u/x-rotation-matrix-3d (u/deg->rad 40)))
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d (u/deg->rad 25)))
-                      (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325))))})
-    game))
+                      (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325))))})))
 
 (defn translation-3d-init [canvas]
   (let [game (c/create-game (.getContext canvas "webgl2"))
@@ -86,10 +83,9 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
-  (c/render
+  (c/render-entity game
     (assoc entity
+      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
                                           :right gl.canvas.clientWidth
@@ -102,8 +98,7 @@
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d r))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d r))
                       ;; make it rotate around its center
-                      (u/multiply-matrices 4 (u/translation-matrix-3d -50 -75 0)))})
-    game))
+                      (u/multiply-matrices 4 (u/translation-matrix-3d -50 -75 0)))})))
 
 (defn rotation-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
@@ -133,10 +128,9 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
-  (c/render
+  (c/render-entity game
     (assoc entity
+      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
                                           :right gl.canvas.clientWidth
@@ -148,8 +142,7 @@
                       (u/multiply-matrices 4 (u/x-rotation-matrix-3d (u/deg->rad 40)))
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d (u/deg->rad 25)))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325)))
-                      (u/multiply-matrices 4 (u/scaling-matrix-3d sx sy 1)))})
-    game))
+                      (u/multiply-matrices 4 (u/scaling-matrix-3d sx sy 1)))})))
 
 (defn scale-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
@@ -179,10 +172,9 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
-  (c/render
+  (c/render-entity game
     (assoc entity
+      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
       :uniforms {'u_matrix
                  (->> (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                 :aspect (/ gl.canvas.clientWidth
@@ -192,8 +184,7 @@
                       (u/multiply-matrices 4 (u/translation-matrix-3d tx ty -150))
                       (u/multiply-matrices 4 (u/x-rotation-matrix-3d (u/deg->rad 180)))
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d 0))
-                      (u/multiply-matrices 4 (u/z-rotation-matrix-3d 0)))})
-    game))
+                      (u/multiply-matrices 4 (u/z-rotation-matrix-3d 0)))})))
 
 (defn perspective-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
@@ -220,15 +211,13 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
   (let [radius 200
         num-fs 5
         projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
-                                                     :aspect (/ gl.canvas.clientWidth
-                                                                gl.canvas.clientHeight)
-                                                     :near 1
-                                                     :far 2000})
+                                                    :aspect (/ gl.canvas.clientWidth
+                                                               gl.canvas.clientHeight)
+                                                    :near 1
+                                                    :far 2000})
         camera-matrix (->> (u/y-rotation-matrix-3d r)
                            (u/multiply-matrices 4
                              (u/translation-matrix-3d 0 0 (* radius 1.5))))
@@ -241,7 +230,10 @@
             matrix (u/multiply-matrices 4
                      (u/translation-matrix-3d x 0 z)
                      view-projection-matrix)]
-        (c/render (assoc entity :uniforms {'u_matrix matrix}) game)))))
+        (c/render-entity game
+          (assoc entity
+            :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+            :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
@@ -268,8 +260,6 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
   (let [radius 200
         num-fs 5
         projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -295,7 +285,10 @@
             matrix (u/multiply-matrices 4
                      (u/translation-matrix-3d x 0 z)
                      view-projection-matrix)]
-        (c/render (assoc entity :uniforms {'u_matrix matrix}) game)))))
+        (c/render-entity game
+          (assoc entity
+            :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+            :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-target-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
@@ -322,10 +315,9 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
-  (c/render
+  (c/render-entity game
     (assoc entity
+      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
       :uniforms {'u_matrix
                  (->> (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                 :aspect (/ gl.canvas.clientWidth
@@ -335,8 +327,7 @@
                       (u/multiply-matrices 4 (u/translation-matrix-3d 0 0 -360))
                       (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry))
-                      (u/multiply-matrices 4 (u/z-rotation-matrix-3d rz)))})
-    game)
+                      (u/multiply-matrices 4 (u/z-rotation-matrix-3d rz)))}))
   (js/requestAnimationFrame #(perspective-animation-3d-render game canvas entity
                                (-> state
                                    (update :ry + (* 1.2 (- now then)))
@@ -363,8 +354,6 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ gl.canvas.clientWidth
                                                                gl.canvas.clientHeight)
@@ -376,13 +365,13 @@
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (c/render
+    (c/render-entity game
       (assoc entity
+        :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
         :uniforms {'u_matrix
                    (->> view-projection-matrix
                         (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
-                        (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))})
-      game)
+                        (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))}))
     (js/requestAnimationFrame #(perspective-texture-3d-render game canvas entity
                                  (-> state
                                      (update :rx + (* 1.2 (- now then)))
@@ -392,7 +381,7 @@
 (defn perspective-texture-3d-init [canvas image]
   (let [gl (.getContext canvas "webgl2")
         game (c/create-game gl)
-        entity (c/create-entity
+        entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data (transform-f-data data/f-3d)
@@ -412,8 +401,8 @@
                                                 :internal-fmt gl.RGBA
                                                 :src-fmt gl.RGBA
                                                 :src-type gl.UNSIGNED_BYTE}
-                                         :mipmap true}}}
-                 game)
+                                         :mipmap true}}
+                  :clear {:color [0 0 0 0] :depth 1}})
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
                :then 0
@@ -438,8 +427,6 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}) game)
-  (c/render (c/map->Clear {:color [0 0 0 0] :depth 1}) game)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ gl.canvas.clientWidth
                                                                gl.canvas.clientHeight)
@@ -451,13 +438,13 @@
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (c/render
+    (c/render-entity game
       (assoc entity
+        :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
         :uniforms {'u_matrix
                    (->> view-projection-matrix
                         (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
-                        (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))})
-      game)
+                        (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))}))
     (js/requestAnimationFrame #(perspective-texture-data-3d-render game canvas entity
                                  (-> state
                                      (update :rx + (* 1.2 (- now then)))
@@ -467,7 +454,7 @@
 (defn perspective-texture-data-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
         game (c/create-game gl)
-        entity (c/create-entity
+        entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
@@ -494,8 +481,8 @@
                                          :params {gl.TEXTURE_MIN_FILTER gl.NEAREST
                                                   gl.TEXTURE_MAG_FILTER gl.NEAREST
                                                   gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
-                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}}
-                 game)
+                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
+                  :clear {:color [0 0 0 0] :depth 1}})
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
                :then 0
@@ -532,16 +519,13 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [[inner-entity entity] entities]
-    (.bindFramebuffer gl gl.FRAMEBUFFER (-> entity :textures (get 'u_texture) :framebuffer))
-    (c/render
-      (assoc inner-entity
-        :uniforms {'u_matrix (cube state (/ target-width target-height))})
-      game)
-    (.bindFramebuffer gl gl.FRAMEBUFFER nil)
-    (c/render
+    (c/render-entity game
       (assoc entity
-        :uniforms {'u_matrix (cube state (/ gl.canvas.clientWidth gl.canvas.clientHeight))})
-      game))
+        :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
+        :uniforms {'u_matrix (cube state (/ gl.canvas.clientWidth gl.canvas.clientHeight))}
+        :render-to-texture {'u_texture (assoc inner-entity
+                                         :viewport {:x 0 :y 0 :width target-width :height target-height}
+                                         :uniforms {'u_matrix (cube state (/ target-width target-height))})})))
   (js/requestAnimationFrame #(perspective-texture-meta-3d-render game canvas entities
                                (-> state
                                    (update :rx + (* 1.2 (- now then)))
@@ -551,7 +535,7 @@
 (defn perspective-texture-meta-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
         game (c/create-game gl)
-        entity (c/create-entity
+        entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
@@ -577,10 +561,8 @@
                                          :params {gl.TEXTURE_MIN_FILTER gl.LINEAR
                                                   gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
                                                   gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
-                  :viewport (c/map->Viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight})
-                  :clear (c/map->Clear {:color [1 1 1 1] :depth 1})}
-                 game)
-        inner-entity (c/create-entity
+                  :clear {:color [1 1 1 1] :depth 1}})
+        inner-entity (c/create-entity game
                        {:vertex data/texture-vertex-shader
                         :fragment data/texture-fragment-shader
                         :attributes {'a_position {:data data/cube
@@ -608,9 +590,7 @@
                                                         gl.TEXTURE_MAG_FILTER gl.NEAREST
                                                         gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
                                                         gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
-                        :viewport (c/map->Viewport {:x 0 :y 0 :width target-width :height target-height})
-                        :clear (c/map->Clear {:color [0 0 1 1] :depth 1})}
-                       game)
+                        :clear {:color [0 0 1 1] :depth 1}})
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
                :then 0

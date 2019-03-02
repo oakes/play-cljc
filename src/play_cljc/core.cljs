@@ -7,24 +7,14 @@
   {:tex-count (atom 0)
    :gl gl})
 
-(defprotocol Renderable
-  (render [this game]))
-
-(defrecord Entity
-  [vertex fragment
-   vertex-source fragment-source
-   program vao
-   uniform-locations texture-locations
-   index-count])
-
-(defn glsl-type->platform-type [glsl-type]
+(defn- glsl-type->platform-type [glsl-type]
   (case glsl-type
     (vec2 vec3 vec4)    js/Float32Array
     (dvec2 dvec3 dvec4) js/Float64Array
     (ivec2 ivec3 ivec4) js/Int32Array
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
-(defn create-texture [{:keys [gl tex-count]} m uni-loc {:keys [data params opts mipmap alignment]}]
+(defn- create-texture [{:keys [gl tex-count]} m uni-loc {:keys [data params opts mipmap alignment]}]
   (let [unit (dec (swap! tex-count inc))
         texture (.createTexture gl)]
     (.activeTexture gl (+ gl.TEXTURE0 unit))
@@ -49,7 +39,7 @@
                         gl.TEXTURE_2D texture 0)
                       fb))}))
 
-(defn call-uniform* [{:keys [gl] :as game} m glsl-type uni-loc uni-name data]
+(defn- call-uniform* [{:keys [gl] :as game} m glsl-type uni-loc uni-name data]
   (case glsl-type
     vec2 (.uniform2fv gl uni-loc data)
     vec3 (.uniform3fv gl uni-loc data)
@@ -60,20 +50,21 @@
     sampler2D (assoc-in m [:textures uni-name]
                 (create-texture game m uni-loc data))))
 
-(defn get-uniform-type [{:keys [vertex fragment]} uni-name]
+(defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
       (get-in fragment [:uniforms uni-name])
       (parse/throw-error
         (str "You must define " uni-name
           " in your vertex or fragment shader"))))
 
-(defn call-uniform [game {:keys [uniform-locations] :as m} [uni-name uni-data]]
+(defn- call-uniform [game {:keys [uniform-locations] :as m} [uni-name uni-data]]
   (let [uni-type (get-uniform-type m uni-name)
         uni-loc (get uniform-locations uni-name)]
     (or (call-uniform* game m uni-type uni-loc uni-name uni-data)
         m)))
 
-(defn create-entity [{:keys [vertex fragment attributes uniforms] :as m} {:keys [gl] :as game}]
+(defn create-entity [{:keys [gl] :as game}
+                     {:keys [vertex fragment attributes uniforms] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
         program (u/create-program gl vertex-source fragment-source)
@@ -103,17 +94,17 @@
                             (-> #{}
                                 (into (-> vertex :uniforms keys))
                                 (into (-> fragment :uniforms keys))))
-        entity (map->Entity {:vertex vertex
-                             :fragment fragment
-                             :vertex-source vertex-source
-                             :fragment-source fragment-source
-                             :viewport (:viewport m)
-                             :clear (:clear m)
-                             :program program
-                             :vao vao
-                             :uniform-locations uniform-locations
-                             :textures {}
-                             :index-count (apply max counts)})
+        entity (-> m
+                   (dissoc :uniforms :attributes)
+                   (merge {:vertex vertex
+                           :fragment fragment
+                           :vertex-source vertex-source
+                           :fragment-source fragment-source
+                           :program program
+                           :vao vao
+                           :uniform-locations uniform-locations
+                           :textures {}
+                           :index-count (apply max counts)}))
         entity (reduce
                  (partial call-uniform game)
                  entity
@@ -121,47 +112,47 @@
     (.bindVertexArray gl nil)
     entity))
 
-(extend-type Entity
-  Renderable
-  (render [{:keys [program vao index-count uniforms
-                   viewport clear]
-            :as entity}
-           {:keys [gl] :as game}]
-    (let [previous-program (.getParameter gl gl.CURRENT_PROGRAM)]
-      (.useProgram gl program)
-      (.bindVertexArray gl vao)
-      (let [{:keys [textures]} (reduce
-                                 (partial call-uniform game)
-                                 entity
-                                 uniforms)]
-        (doseq [{:keys [unit location]} (vals textures)]
-          (.uniform1i gl location unit)))
-      (some-> viewport (render game))
-      (some-> clear (render game))
-      (.drawArrays gl gl.TRIANGLES 0 index-count)
-      (.bindVertexArray gl nil)
-      (.useProgram gl previous-program))))
+(defn- render-clear [gl {:keys [color depth stencil]}]
+  (when-let [[r g b a] color]
+    (.clearColor gl r g b a))
+  (some->> depth (.clearDepth gl))
+  (some->> stencil (.clearStencil gl))
+  (->> [(when color gl.COLOR_BUFFER_BIT)
+        (when depth gl.DEPTH_BUFFER_BIT)
+        (when stencil gl.STENCIL_BUFFER_BIT)]
+       (remove nil?)
+       (apply bit-or)
+       (.clear gl)))
 
-(defrecord Clear [color depth stencil])
+(defn- render-viewport [gl {:keys [x y width height]}]
+  (.viewport gl x y width height))
 
-(extend-type Clear
-  Renderable
-  (render [{:keys [color depth stencil]} {:keys [gl]}]
-    (when-let [[r g b a] color]
-      (.clearColor gl r g b a))
-    (some->> depth (.clearDepth gl))
-    (some->> stencil (.clearStencil gl))
-    (->> [(when color gl.COLOR_BUFFER_BIT)
-          (when depth gl.DEPTH_BUFFER_BIT)
-          (when stencil gl.STENCIL_BUFFER_BIT)]
-         (remove nil?)
-         (apply bit-or)
-         (.clear gl))))
-
-(defrecord Viewport [x y width height])
-
-(extend-type Viewport
-  Renderable
-  (render [{:keys [x y width height]} {:keys [gl]}]
-    (.viewport gl x y width height)))
+(defn render-entity [{:keys [gl] :as game}
+                     {:keys [program vao index-count uniforms
+                             viewport clear render-to-texture]
+                      :as entity}]
+  (let [previous-program (.getParameter gl gl.CURRENT_PROGRAM)
+        previous-vao (.getParameter gl gl.VERTEX_ARRAY_BINDING)]
+    (.useProgram gl program)
+    (.bindVertexArray gl vao)
+    (let [{:keys [textures]} (reduce
+                               (partial call-uniform game)
+                               entity
+                               uniforms)]
+      (doseq [{:keys [unit location]} (vals textures)]
+        (.uniform1i gl location unit))
+      (doseq [[texture-name inner-entity] render-to-texture
+              :let [texture (get textures texture-name)]]
+        (when-not texture
+          (parse/throw-error (str "Can't find " texture-name)))
+        (when-not (:framebuffer texture)
+          (parse/throw-error (str texture-name " must have :data set to nil")))
+        (.bindFramebuffer gl gl.FRAMEBUFFER (:framebuffer texture))
+        (render-entity game inner-entity)
+        (.bindFramebuffer gl gl.FRAMEBUFFER nil)))
+    (some->> viewport (render-viewport gl))
+    (some->> clear (render-clear gl))
+    (.drawArrays gl gl.TRIANGLES 0 index-count)
+    (.bindVertexArray gl previous-vao)
+    (.useProgram gl previous-program)))
 
