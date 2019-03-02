@@ -533,15 +533,11 @@
   (.enable gl gl.DEPTH_TEST)
   (let [[inner-entity entity] entities]
     (.bindFramebuffer gl gl.FRAMEBUFFER (-> entity :textures (get 'u_texture) :framebuffer))
-    (c/render (c/map->Viewport {:x 0 :y 0 :width target-width :height target-height}) game)
-    (c/render (c/map->Clear {:color [0 0 1 1] :depth 1}) game)
     (c/render
       (assoc inner-entity
         :uniforms {'u_matrix (cube state (/ target-width target-height))})
       game)
     (.bindFramebuffer gl gl.FRAMEBUFFER nil)
-    (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}) game)
-    (c/render (c/map->Clear {:color [1 1 1 1] :depth 1}) game)
     (c/render
       (assoc entity
         :uniforms {'u_matrix (cube state (/ gl.canvas.clientWidth gl.canvas.clientHeight))})
@@ -580,7 +576,9 @@
                                                 :src-type gl.UNSIGNED_BYTE}
                                          :params {gl.TEXTURE_MIN_FILTER gl.LINEAR
                                                   gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
-                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}}
+                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
+                  :viewport (c/map->Viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight})
+                  :clear (c/map->Clear {:color [1 1 1 1] :depth 1})}
                  game)
         inner-entity (c/create-entity
                        {:vertex data/texture-vertex-shader
@@ -609,7 +607,9 @@
                                                :params {gl.TEXTURE_MIN_FILTER gl.NEAREST
                                                         gl.TEXTURE_MAG_FILTER gl.NEAREST
                                                         gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
-                                                        gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}}
+                                                        gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
+                        :viewport (c/map->Viewport {:x 0 :y 0 :width target-width :height target-height})
+                        :clear (c/map->Clear {:color [0 0 1 1] :depth 1})}
                        game)
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)

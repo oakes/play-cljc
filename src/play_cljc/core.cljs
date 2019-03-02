@@ -107,6 +107,8 @@
                              :fragment fragment
                              :vertex-source vertex-source
                              :fragment-source fragment-source
+                             :viewport (:viewport m)
+                             :clear (:clear m)
                              :program program
                              :vao vao
                              :uniform-locations uniform-locations
@@ -121,7 +123,10 @@
 
 (extend-type Entity
   Renderable
-  (render [{:keys [program vao index-count uniforms] :as entity} {:keys [gl] :as game}]
+  (render [{:keys [program vao index-count uniforms
+                   viewport clear]
+            :as entity}
+           {:keys [gl] :as game}]
     (let [previous-program (.getParameter gl gl.CURRENT_PROGRAM)]
       (.useProgram gl program)
       (.bindVertexArray gl vao)
@@ -131,6 +136,8 @@
                                  uniforms)]
         (doseq [{:keys [unit location]} (vals textures)]
           (.uniform1i gl location unit)))
+      (some-> viewport (render game))
+      (some-> clear (render game))
       (.drawArrays gl gl.TRIANGLES 0 index-count)
       (.bindVertexArray gl nil)
       (.useProgram gl previous-program))))
