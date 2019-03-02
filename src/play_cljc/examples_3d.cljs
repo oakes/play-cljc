@@ -517,8 +517,6 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (c/render (c/map->Viewport {:gl gl :x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}))
-  (c/render (c/map->Clear {:gl gl :color [0 0 0 0] :depth 1}))
   (doseq [{:keys [fb texture width height entity]
            [r g b a] :color}
           entities]
@@ -599,20 +597,20 @@
                :now 0}
         fb (.createFramebuffer gl)
         entities [{:fb fb
-                   :texture (-> inner-entity :textures first)
+                   :texture (-> inner-entity :textures (get 'u_texture) :texture)
                    :width target-width
                    :height target-height
                    :color [0 0 1 1]
                    :entity inner-entity}
                   {:fb nil
-                   :texture (-> entity :textures first)
+                   :texture (-> entity :textures (get 'u_texture) :texture)
                    :width gl.canvas.clientWidth
                    :height gl.canvas.clientHeight
                    :color [1 1 1 1]
                    :entity entity}]]
     (.bindFramebuffer gl gl.FRAMEBUFFER fb)
     (.framebufferTexture2D gl gl.FRAMEBUFFER gl.COLOR_ATTACHMENT0
-      gl.TEXTURE_2D (-> entity :textures first) 0)
+      gl.TEXTURE_2D (-> entity :textures (get 'u_texture) :texture) 0)
     (perspective-texture-meta-3d-render gl canvas entities state)))
 
 (defexample play-cljc.examples-3d/perspective-texture-meta-3d

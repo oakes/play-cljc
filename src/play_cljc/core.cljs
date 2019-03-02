@@ -20,8 +20,8 @@
     (ivec2 ivec3 ivec4) js/Int32Array
     (uvec2 uvec3 uvec4) js/Uint32Array))
 
-(defn init-texture [gl m uni-loc {:keys [data params opts mipmap alignment]}]
-  (let [unit (count (:texture-locations m))
+(defn init-texture [gl m uni-loc uni-name {:keys [data params opts mipmap alignment]}]
+  (let [unit (count (:textures m))
         texture (.createTexture gl)]
     (.activeTexture gl (+ gl.TEXTURE0 unit))
     (.bindTexture gl gl.TEXTURE_2D texture)
@@ -35,11 +35,11 @@
         (.texImage2D gl gl.TEXTURE_2D mip-level internal-fmt src-fmt src-type data)))
     (when mipmap
       (.generateMipmap gl gl.TEXTURE_2D))
-    (-> m
-        (update :texture-locations conj uni-loc)
-        (update :textures conj texture))))
+    (update m :textures assoc uni-name {:unit unit
+                                        :texture texture
+                                        :location uni-loc})))
 
-(defn call-uniform* [gl m glsl-type uni-loc data]
+(defn call-uniform* [gl m glsl-type uni-loc uni-name data]
   (case glsl-type
     vec2 (.uniform2fv gl uni-loc data)
     vec3 (.uniform3fv gl uni-loc data)
@@ -47,7 +47,7 @@
     mat2 (.uniformMatrix2fv gl uni-loc false data)
     mat3 (.uniformMatrix3fv gl uni-loc false data)
     mat4 (.uniformMatrix4fv gl uni-loc false data)
-    sampler2D (init-texture gl m uni-loc data)))
+    sampler2D (init-texture gl m uni-loc uni-name data)))
 
 (defn get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
@@ -59,7 +59,7 @@
 (defn call-uniform [gl {:keys [uniform-locations] :as m} [uni-name uni-data]]
   (let [uni-type (get-uniform-type m uni-name)
         uni-loc (get uniform-locations uni-name)]
-    (or (call-uniform* gl m uni-type uni-loc uni-data)
+    (or (call-uniform* gl m uni-type uni-loc uni-name uni-data)
         m)))
 
 (defn create-entity [{:keys [gl vertex fragment attributes uniforms] :as m}]
@@ -100,8 +100,7 @@
                              :program program
                              :vao vao
                              :uniform-locations uniform-locations
-                             :textures []
-                             :texture-locations []
+                             :textures {}
                              :index-count (apply max counts)})
         entity (reduce
                  (partial call-uniform gl)
@@ -115,12 +114,12 @@
   (render [{:keys [gl program vao index-count uniforms] :as entity}]
     (.useProgram gl program)
     (.bindVertexArray gl vao)
-    (let [{:keys [texture-locations]} (reduce
-                                        (partial call-uniform gl)
-                                        entity
-                                        uniforms)]
-      (dotimes [i (range (count texture-locations))]
-        (.uniform1i gl (nth texture-locations i) i)))
+    (let [{:keys [textures]} (reduce
+                               (partial call-uniform gl)
+                               entity
+                               uniforms)]
+      (doseq [{:keys [unit location]} (vals textures)]
+        (.uniform1i gl location unit)))
     (.drawArrays gl gl.TRIANGLES 0 index-count)
     (.bindVertexArray gl nil)))
 
