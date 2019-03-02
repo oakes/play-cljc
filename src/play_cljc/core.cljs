@@ -122,16 +122,18 @@
 (extend-type Entity
   Renderable
   (render [{:keys [program vao index-count uniforms] :as entity} {:keys [gl] :as game}]
-    (.useProgram gl program)
-    (.bindVertexArray gl vao)
-    (let [{:keys [textures]} (reduce
-                               (partial call-uniform game)
-                               entity
-                               uniforms)]
-      (doseq [{:keys [unit location]} (vals textures)]
-        (.uniform1i gl location unit)))
-    (.drawArrays gl gl.TRIANGLES 0 index-count)
-    (.bindVertexArray gl nil)))
+    (let [previous-program (.getParameter gl gl.CURRENT_PROGRAM)]
+      (.useProgram gl program)
+      (.bindVertexArray gl vao)
+      (let [{:keys [textures]} (reduce
+                                 (partial call-uniform game)
+                                 entity
+                                 uniforms)]
+        (doseq [{:keys [unit location]} (vals textures)]
+          (.uniform1i gl location unit)))
+      (.drawArrays gl gl.TRIANGLES 0 index-count)
+      (.bindVertexArray gl nil)
+      (.useProgram gl previous-program))))
 
 (defrecord Clear [color depth stencil])
 
