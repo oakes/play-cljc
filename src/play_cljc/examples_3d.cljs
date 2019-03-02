@@ -512,7 +512,7 @@
 (def target-width 256)
 (def target-height 256)
 
-(defn draw-cube [game entity {:keys [rx ry]} aspect]
+(defn cube [{:keys [rx ry]} aspect]
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect aspect
                                                     :near 1
@@ -523,13 +523,9 @@
         camera-matrix (u/look-at camera-pos target up)
         view-matrix (u/inverse-matrix 4 camera-matrix)
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
-    (c/render
-      (assoc entity
-        :uniforms {'u_matrix
-                   (->> view-projection-matrix
-                      (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
-                      (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))})
-      game)))
+    (->> view-projection-matrix
+         (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
+         (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))))
 
 (defn perspective-texture-meta-3d-render [{:keys [gl] :as game} canvas entities {:keys [then now] :as state}]
   (cu/resize-canvas canvas)
@@ -539,11 +535,17 @@
     (.bindFramebuffer gl gl.FRAMEBUFFER (-> entity :textures (get 'u_texture) :framebuffer))
     (c/render (c/map->Viewport {:x 0 :y 0 :width target-width :height target-height}) game)
     (c/render (c/map->Clear {:color [0 0 1 1] :depth 1}) game)
-    (draw-cube game inner-entity state (/ target-width target-height))
+    (c/render
+      (assoc inner-entity
+        :uniforms {'u_matrix (cube state (/ target-width target-height))})
+      game)
     (.bindFramebuffer gl gl.FRAMEBUFFER nil)
     (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}) game)
     (c/render (c/map->Clear {:color [1 1 1 1] :depth 1}) game)
-    (draw-cube game entity state (/ gl.canvas.clientWidth gl.canvas.clientHeight)))
+    (c/render
+      (assoc entity
+        :uniforms {'u_matrix (cube state (/ gl.canvas.clientWidth gl.canvas.clientHeight))})
+      game))
   (js/requestAnimationFrame #(perspective-texture-meta-3d-render game canvas entities
                                (-> state
                                    (update :rx + (* 1.2 (- now then)))
