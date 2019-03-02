@@ -509,6 +509,9 @@
 
 ;; perspective-texture-meta-3d
 
+(def target-width 256)
+(def target-height 256)
+
 (defn draw-cube [game entity {:keys [rx ry]} aspect]
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect aspect
@@ -532,13 +535,15 @@
   (cu/resize-canvas canvas)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
-  (doseq [{:keys [fb texture width height entity]
-           [r g b a] :color}
-          entities]
-    (.bindFramebuffer gl gl.FRAMEBUFFER fb)
-    (c/render (c/map->Viewport {:x 0 :y 0 :width width :height height}) game)
-    (c/render (c/map->Clear {:color [r g b a] :depth 1}) game)
-    (draw-cube game entity state (/ width height)))
+  (let [[inner-entity entity] entities]
+    (.bindFramebuffer gl gl.FRAMEBUFFER (-> entity :textures (get 'u_texture) :framebuffer))
+    (c/render (c/map->Viewport {:x 0 :y 0 :width target-width :height target-height}) game)
+    (c/render (c/map->Clear {:color [0 0 1 1] :depth 1}) game)
+    (draw-cube game inner-entity state (/ target-width target-height))
+    (.bindFramebuffer gl gl.FRAMEBUFFER nil)
+    (c/render (c/map->Viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}) game)
+    (c/render (c/map->Clear {:color [1 1 1 1] :depth 1}) game)
+    (draw-cube game entity state (/ gl.canvas.clientWidth gl.canvas.clientHeight)))
   (js/requestAnimationFrame #(perspective-texture-meta-3d-render game canvas entities
                                (-> state
                                    (update :rx + (* 1.2 (- now then)))
@@ -548,8 +553,6 @@
 (defn perspective-texture-meta-3d-init [canvas]
   (let [gl (.getContext canvas "webgl2")
         game (c/create-game gl)
-        target-width 256
-        target-height 256
         entity (c/create-entity
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
@@ -609,20 +612,8 @@
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
                :then 0
-               :now 0}
-        entities [{:fb (-> entity :textures (get 'u_texture) :framebuffer)
-                   :texture (-> inner-entity :textures (get 'u_texture) :texture)
-                   :width target-width
-                   :height target-height
-                   :color [0 0 1 1]
-                   :entity inner-entity}
-                  {:fb nil
-                   :texture (-> entity :textures (get 'u_texture) :texture)
-                   :width gl.canvas.clientWidth
-                   :height gl.canvas.clientHeight
-                   :color [1 1 1 1]
-                   :entity entity}]]
-    (perspective-texture-meta-3d-render game canvas entities state)))
+               :now 0}]
+    (perspective-texture-meta-3d-render game canvas [inner-entity entity] state)))
 
 (defexample play-cljc.examples-3d/perspective-texture-meta-3d
   {:with-card card}
