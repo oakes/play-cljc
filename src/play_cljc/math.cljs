@@ -35,7 +35,7 @@
               (recur (rest r))))))
       (let [e (aget mc i i)]
         (when (= 0 e)
-          (throw (js/Error. "Not invertable")))
+          (throw (ex-info "Not invertable" {})))
         (dotimes [j size]
           (aset mc i j (/ (aget mc i j) e))
           (aset mi i j (/ (aget mi i j) e))))

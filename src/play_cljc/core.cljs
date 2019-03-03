@@ -19,8 +19,7 @@
 (defn- convert-type [gl attr-name attr-type data]
   (if (vector? data)
     (let [arr-type (or (attribute-type->array-type gl attr-type)
-                       (parse/throw-error
-                         (str "The type for " attr-name " is invalid")))]
+                       (throw (ex-info (str "The type for " attr-name " is invalid") {})))]
       (new arr-type data))
     data))
 
@@ -67,9 +66,7 @@
 (defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
       (get-in fragment [:uniforms uni-name])
-      (parse/throw-error
-        (str "You must define " uni-name
-          " in your vertex or fragment shader"))))
+      (throw (ex-info (str "You must define " uni-name " in your vertex or fragment shader") {}))))
 
 (defn- call-uniform [game {:keys [uniform-locations] :as m} [uni-name uni-data]]
   (let [uni-type (get-uniform-type m uni-name)
@@ -149,9 +146,9 @@
       (doseq [[texture-name inner-entity] render-to-texture
               :let [texture (get textures texture-name)]]
         (when-not texture
-          (parse/throw-error (str "Can't find " texture-name)))
+          (throw (ex-info (str "Can't find " texture-name) {})))
         (when-not (:framebuffer texture)
-          (parse/throw-error (str texture-name " must have :data set to nil")))
+          (throw (ex-info (str texture-name " must have :data set to nil") {})))
         (.bindFramebuffer gl gl.FRAMEBUFFER (:framebuffer texture))
         (render-entity game inner-entity)
         (.bindFramebuffer gl gl.FRAMEBUFFER nil)))
