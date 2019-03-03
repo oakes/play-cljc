@@ -1,6 +1,6 @@
 (ns play-cljc.utils)
 
-(defn create-shader [gl type source]
+(defn- create-shader [gl type source]
   (let [shader (.createShader gl type)]
     (.shaderSource gl shader source)
     (.compileShader gl shader)
@@ -10,7 +10,7 @@
         (js/console.log (.getShaderInfoLog gl shader))
         (.deleteShader gl shader)))))
 
-(defn create-program [gl v-source f-source]
+(defn create-program [{:keys [gl]} v-source f-source]
   (let [vertex-shader (create-shader gl gl.VERTEX_SHADER v-source)
         fragment-shader (create-shader gl gl.FRAGMENT_SHADER f-source)
         program (.createProgram gl)]
@@ -24,9 +24,9 @@
         (.deleteProgram gl program)))))
 
 (defn create-buffer
-  ([gl program attrib-name src-data]
-   (create-buffer gl program attrib-name src-data {}))
-  ([gl program attrib-name src-data
+  ([game program attrib-name src-data]
+   (create-buffer game program attrib-name src-data {}))
+  ([{:keys [gl]} program attrib-name src-data
     {:keys [size type normalize stride offset]}]
    (let [attrib-location (.getAttribLocation gl program attrib-name)
          buffer (.createBuffer gl)]
@@ -37,7 +37,7 @@
      (.bufferData gl gl.ARRAY_BUFFER src-data gl.STATIC_DRAW)
      (/ (.-length src-data) size))))
 
-(defn create-index-buffer [gl indices]
+(defn create-index-buffer [{:keys [gl]} indices]
   (let [index-buffer (.createBuffer gl)]
     (.bindBuffer gl gl.ELEMENT_ARRAY_BUFFER index-buffer)
     (.bufferData gl gl.ELEMENT_ARRAY_BUFFER indices gl.STATIC_DRAW)

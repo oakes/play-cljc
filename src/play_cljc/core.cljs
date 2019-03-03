@@ -78,16 +78,16 @@
                      {:keys [vertex fragment attributes uniforms indices] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
-        program (u/create-program gl vertex-source fragment-source)
+        program (u/create-program game vertex-source fragment-source)
         _ (.useProgram gl program)
         vao (.createVertexArray gl)
         _ (.bindVertexArray gl vao)
         counts (mapv (fn [[attr-name {:keys [data type] :as opts}]]
-                       (u/create-buffer gl program (name attr-name)
+                       (u/create-buffer game program (name attr-name)
                          (convert-type gl attr-name type data)
                          opts))
                  attributes)
-        index-count (some->> indices (u/create-index-buffer gl))
+        index-count (some->> indices (u/create-index-buffer game))
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
