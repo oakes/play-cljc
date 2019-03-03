@@ -1,4 +1,12 @@
-(ns play-cljc.math)
+(ns play-cljc.math
+  #?(:clj (:require [play-cljc.math-java :refer [math math-prop]])
+     :cljs (:require-macros [play-cljc.math-js :refer [math math-prop]])))
+
+(defn vector->array [v]
+  (#?(:clj float-array :cljs clj->js) v))
+
+(defn vector->2d-array [v]
+  (#?(:clj to-array-2d :cljs clj->js) v))
 
 (defn multiply-matrices [size m1 m2]
   (let [m1 (mapv vec (partition size m1))
@@ -18,8 +26,8 @@
         mi (mapv vec (for [i (range size)]
                        (for [j (range size)]
                          (if (= i j) 1 0))))
-        mc (clj->js mc)
-        mi (clj->js mi)]
+        mc (vector->2d-array mc)
+        mi (vector->2d-array mi)]
     (dotimes [i size]
       (when (= 0 (aget mc i i))
         (loop [r (range (+ i 1) size)]
@@ -49,13 +57,13 @@
               (aset mi ii j
                 (- (aget mi ii j)
                    (* e (aget mi i j)))))))))
-    (->> mi seq (map seq) flatten vec)))
+    (->> mi seq (apply concat) vec)))
 
 (defn deg->rad [d]
-  (-> d (* js/Math.PI) (/ 180)))
+  (-> d (* (math-prop PI)) (/ 180)))
 
 (defn transform-vector [m v]
-  (let [dst (array)]
+  (let [dst (vector->array [])]
     (dotimes [i 4]
       (aset dst i 0.0)
       (dotimes [j 4]
@@ -63,7 +71,7 @@
           (+ (aget dst i)
              (* (nth v j)
                 (nth m (-> j (* 4) (+ i))))))))
-    (js->clj dst)))
+    (vec dst)))
 
 ;; two-d
 
@@ -73,8 +81,8 @@
    tx ty 1])
 
 (defn rotation-matrix [angle-in-radians]
-  (let [c (js/Math.cos angle-in-radians)
-        s (js/Math.sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [c (- s) 0
      s c 0
      0 0 1]))
@@ -98,24 +106,24 @@
    tx, ty, tz, 1,])
 
 (defn x-rotation-matrix-3d [angle-in-radians]
-  (let [c (js/Math.cos angle-in-radians)
-        s (js/Math.sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [1, 0, 0, 0,
      0, c, s, 0,
      0, (- s), c, 0,
      0, 0, 0, 1]))
 
 (defn y-rotation-matrix-3d [angle-in-radians]
-  (let [c (js/Math.cos angle-in-radians)
-        s (js/Math.sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [c, 0, (- s), 0,
      0, 1, 0, 0,
      s, 0, c, 0,
      0, 0, 0, 1,]))
 
 (defn z-rotation-matrix-3d [angle-in-radians]
-  (let [c (js/Math.cos angle-in-radians)
-        s (js/Math.sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [c, s, 0, 0,
      (- s), c, 0, 0,
      0, 0, 1, 0,
@@ -144,8 +152,8 @@
      1]))
 
 (defn perspective-matrix-3d [{:keys [field-of-view aspect near far]}]
-  (let [f (js/Math.tan (- (* js/Math.PI 0.5)
-                          (* field-of-view 0.5)))
+  (let [f (math tan (- (* (math-prop PI) 0.5)
+                       (* field-of-view 0.5)))
         range-inv (/ 1 (- near far))]
     [(/ f aspect) 0 0 0
      0 f 0 0
@@ -178,7 +186,7 @@
    (- (nth a 2) (nth b 2))])
 
 (defn normalize [v]
-  (let [length (js/Math.sqrt
+  (let [length (math sqrt
                  (+ (* (nth v 0) (nth v 0))
                     (* (nth v 1) (nth v 1))
                     (* (nth v 2) (nth v 2))))]
