@@ -48,13 +48,6 @@
     (.bufferData gl gl.ELEMENT_ARRAY_BUFFER indices gl.STATIC_DRAW)
     (.-length indices)))
 
-(defn create-vao [gl *create-buffers]
-   (let [vao (.createVertexArray gl)]
-     (.bindVertexArray gl vao)
-     @*create-buffers
-     (.bindVertexArray gl nil)
-     vao))
-
 (defn multiply-matrices [size m1 m2]
   (let [m1 (mapv vec (partition size m1))
         m2 (mapv vec (partition size m2))

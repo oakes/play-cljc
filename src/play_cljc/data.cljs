@@ -20,9 +20,6 @@
              0 1]]
            [:= v_texCoord a_position])}})
 
-(def image-vertex-shader-source
-  (ig/iglu->glsl :vertex image-vertex-shader))
-
 (def image-fragment-shader
   '{:version "300 es"
     :precision "mediump float"
@@ -36,9 +33,6 @@
     {main ([] void)}
     :functions
     {main ([] [:= outColor [:-bgra [:texture u_image v_texCoord]]])}})
-
-(def image-fragment-shader-source
-  (ig/iglu->glsl :fragment image-fragment-shader))
 
 (def two-d-vertex-shader
   '{:version "300 es"
@@ -55,9 +49,6 @@
              [:-xy [:* u_matrix [:vec3 a_position 1]]]
              0 1]])}})
 
-(def two-d-vertex-shader-source
-  (ig/iglu->glsl :vertex two-d-vertex-shader))
-
 (def two-d-fragment-shader
   '{:version "300 es"
     :precision "mediump float"
@@ -69,9 +60,6 @@
     {main ([] void)}
     :functions
     {main ([] [:= outColor u_color])}})
-
-(def two-d-fragment-shader-source
-  (ig/iglu->glsl :fragment two-d-fragment-shader))
 
 (def three-d-vertex-shader
   '{:version "300 es"
@@ -89,9 +77,6 @@
            [:= gl_Position [:* u_matrix a_position]]
            [:= v_color a_color])}})
 
-(def three-d-vertex-shader-source
-  (ig/iglu->glsl :vertex three-d-vertex-shader))
-
 (def three-d-fragment-shader
   '{:version "300 es"
     :precision "mediump float"
@@ -103,9 +88,6 @@
     {main ([] void)}
     :functions
     {main ([] [:= outColor v_color])}})
-
-(def three-d-fragment-shader-source
-  (ig/iglu->glsl :fragment three-d-fragment-shader))
 
 (def texture-vertex-shader
   '{:version "300 es"
@@ -124,9 +106,6 @@
            [:= gl_Position [:* u_matrix a_position]]
            [:= v_texcoord a_texcoord])}})
 
-(def texture-vertex-shader-source
-  (ig/iglu->glsl :vertex texture-vertex-shader))
-
 (def texture-fragment-shader
   '{:version "300 es"
     :precision "mediump float"
@@ -140,9 +119,6 @@
     {main ([] void)}
     :functions
     {main ([] [:= outColor [:texture u_texture v_texcoord]])}})
-
-(def texture-fragment-shader-source
-  (ig/iglu->glsl :fragment texture-fragment-shader))
 
 (def advanced-vertex-shader
   '{:version "300 es"
@@ -172,9 +148,6 @@
            [:= v_surfaceToLight [:- u_lightWorldPos [:-xyz [:* u_world a_position]]]]
            [:= v_surfaceToView [:-xyz [:- [3 u_viewInverse] [:* u_world a_position]]]]
            [:= gl_Position v_position])}})
-
-(def advanced-vertex-shader-source
-  (ig/iglu->glsl :vertex advanced-vertex-shader))
 
 (def advanced-fragment-shader
   '{:version "300 es"
@@ -222,9 +195,6 @@
                 [:* [:-y litR] u_color]
                 [:* u_specular [:-z litR] u_specularFactor]]]]
              1]])}})
-
-(def advanced-fragment-shader-source
-  (ig/iglu->glsl :fragment advanced-fragment-shader))
 
 (def rect
   ;; x1 y1, x2 y1, x1 y2, x1 y2, x2 y1, x2 y2
