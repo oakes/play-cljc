@@ -38,3 +38,9 @@
                    u/deg->rad)]
         (callback {:x x :y y :rx rx :ry ry :r r :cx cx :cy cy :cr cr})))))
 
+(defn get-image [fname callback]
+  (let [image (js/Image.)]
+    (doto image
+      (-> .-src (set! fname))
+      (-> .-onload (set! #(callback image))))))
+

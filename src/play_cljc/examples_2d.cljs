@@ -68,11 +68,7 @@
                         (u/multiply-matrices 3 (u/scaling-matrix image.width image.height)))}))))
 
 (defn image-load [game]
-  (let [image (js/Image.)]
-    (doto image
-      (-> .-src (set! "leaves.jpg"))
-      (-> .-onload (set! (fn []
-                           (image-init game image)))))))
+  (eu/get-image "leaves.jpg" (partial image-init game)))
 
 (defexample play-cljc.examples-2d/image
   {:with-card card}

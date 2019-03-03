@@ -362,11 +362,7 @@
     (perspective-texture-3d-render game entity state)))
 
 (defn perspective-texture-3d-load [game]
-  (let [image (js/Image.)]
-    (doto image
-      (-> .-src (set! "f-texture.png"))
-      (-> .-onload (set! (fn []
-                           (perspective-texture-3d-init game image)))))))
+  (eu/get-image "f-texture.png" (partial perspective-texture-3d-init game)))
 
 (defexample play-cljc.examples-3d/perspective-texture-3d
   {:with-card card}
