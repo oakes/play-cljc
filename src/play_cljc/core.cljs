@@ -41,6 +41,7 @@
 
 (defn- call-uniform* [{:keys [gl] :as game} m glsl-type uni-loc uni-name data]
   (case glsl-type
+    float (.uniform1f gl uni-loc data)
     vec2 (.uniform2fv gl uni-loc data)
     vec3 (.uniform3fv gl uni-loc data)
     vec4 (.uniform4fv gl uni-loc data)
@@ -64,7 +65,7 @@
         m)))
 
 (defn create-entity [{:keys [gl] :as game}
-                     {:keys [vertex fragment attributes uniforms] :as m}]
+                     {:keys [vertex fragment attributes uniforms indices] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
         program (u/create-program gl vertex-source fragment-source)
@@ -86,6 +87,7 @@
                              (new attr-type data))
                            opts)))
                  attributes)
+        index-count (some->> indices (u/create-index-buffer gl))
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
@@ -104,7 +106,7 @@
                            :vao vao
                            :uniform-locations uniform-locations
                            :textures {}
-                           :index-count (apply max counts)}))
+                           :index-count (or index-count (apply max counts))}))
         entity (reduce
                  (partial call-uniform game)
                  entity
@@ -128,7 +130,7 @@
   (.viewport gl x y width height))
 
 (defn render-entity [{:keys [gl] :as game}
-                     {:keys [program vao index-count uniforms
+                     {:keys [program vao index-count uniforms indices
                              viewport clear render-to-texture]
                       :as entity}]
   (let [previous-program (.getParameter gl gl.CURRENT_PROGRAM)
@@ -152,7 +154,9 @@
         (.bindFramebuffer gl gl.FRAMEBUFFER nil)))
     (some->> viewport (render-viewport gl))
     (some->> clear (render-clear gl))
-    (.drawArrays gl gl.TRIANGLES 0 index-count)
+    (if indices
+      (.drawElements gl gl.TRIANGLES index-count gl.UNSIGNED_SHORT 0)
+      (.drawArrays gl gl.TRIANGLES 0 index-count))
     (.bindVertexArray gl previous-vao)
     (.useProgram gl previous-program)))
 
