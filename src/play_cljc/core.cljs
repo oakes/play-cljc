@@ -7,12 +7,22 @@
   {:tex-count (atom 0)
    :gl gl})
 
-(defn- glsl-type->platform-type [glsl-type]
-  (case glsl-type
-    (vec2 vec3 vec4)    js/Float32Array
-    (dvec2 dvec3 dvec4) js/Float64Array
-    (ivec2 ivec3 ivec4) js/Int32Array
-    (uvec2 uvec3 uvec4) js/Uint32Array))
+(defn- attribute-type->array-type [gl attr-type]
+  (condp = attr-type
+    gl.BYTE js/Int8Array
+    gl.SHORT js/Int16Array
+    gl.UNSIGNED_BYTE js/Uint8Array
+    gl.UNSIGNED_SHORT js/Uint16Array
+    gl.FLOAT js/Float32Array
+    gl.HALF_FLOAT js/Float32Array))
+
+(defn- convert-type [gl attr-name attr-type data]
+  (if (vector? data)
+    (let [arr-type (or (attribute-type->array-type gl attr-type)
+                       (parse/throw-error
+                         (str "The type for " attr-name " is invalid")))]
+      (new arr-type data))
+    data))
 
 (defn- create-texture [{:keys [gl tex-count]} m uni-loc {:keys [data params opts mipmap alignment]}]
   (let [unit (dec (swap! tex-count inc))
@@ -49,7 +59,10 @@
     mat3 (.uniformMatrix3fv gl uni-loc false data)
     mat4 (.uniformMatrix4fv gl uni-loc false data)
     sampler2D (assoc-in m [:textures uni-name]
-                (create-texture game m uni-loc data))))
+                (create-texture game m uni-loc (update data :data
+                                                 (fn [d]
+                                                   (convert-type gl uni-name
+                                                     (-> data :opts :src-type) d)))))))
 
 (defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
@@ -72,20 +85,10 @@
         _ (.useProgram gl program)
         vao (.createVertexArray gl)
         _ (.bindVertexArray gl vao)
-        counts (mapv (fn [[attr-name {:keys [data] :as opts}]]
-                       (let [attr-type (or (get-in vertex [:attributes attr-name])
-                                           (parse/throw-error
-                                             (str "You must define " attr-name
-                                               " in your vertex shader")))
-                             attr-type (or (glsl-type->platform-type attr-type)
-                                           (parse/throw-error
-                                             (str "The type " attr-type
-                                               " is invalid for attribute " attr-name)))]
-                         (u/create-buffer gl program (name attr-name)
-                           (if (js/ArrayBuffer.isView data)
-                             data
-                             (new attr-type data))
-                           opts)))
+        counts (mapv (fn [[attr-name {:keys [data type] :as opts}]]
+                       (u/create-buffer gl program (name attr-name)
+                         (convert-type gl attr-name type data)
+                         opts))
                  attributes)
         index-count (some->> indices (u/create-index-buffer gl))
         uniform-locations (reduce

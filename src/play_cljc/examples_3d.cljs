@@ -16,7 +16,7 @@
                                :normalize false
                                :stride 0
                                :offset 0}
-                  'a_color {:data (js/Uint8Array. data/f-3d-colors)
+                  'a_color {:data data/f-3d-colors
                             :type gl.UNSIGNED_BYTE
                             :size 3
                             :normalize true
@@ -469,7 +469,7 @@
                                             :normalize true
                                             :stride 0
                                             :offset 0}}
-                  :uniforms {'u_texture {:data (js/Uint8Array. [128 64 128 0 192 0])
+                  :uniforms {'u_texture {:data [128 64 128 0 192 0]
                                          :opts {:mip-level 0
                                                 :internal-fmt gl.R8
                                                 :width 3
@@ -577,7 +577,7 @@
                                                   :normalize true
                                                   :stride 0
                                                   :offset 0}}
-                        :uniforms {'u_texture {:data (js/Uint8Array. [128 64 128 0 192 0])
+                        :uniforms {'u_texture {:data [128 64 128 0 192 0]
                                                :opts {:mip-level 0
                                                       :internal-fmt gl.R8
                                                       :width 3
