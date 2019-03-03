@@ -22,9 +22,9 @@
     (dotimes [_ 50]
       (c/render-entity game
         (assoc entity
-          :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
+          :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
           :uniforms {'u_color [(rand) (rand) (rand) 1]
-                     'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                     'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
                                     (u/multiply-matrices 3 (u/translation-matrix (rand-int 300) (rand-int 300)))
                                     (u/multiply-matrices 3 (u/scaling-matrix (rand-int 300) (rand-int 300))))})))))
 
@@ -58,9 +58,9 @@
     (eu/resize-example game)
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
+        :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
         :uniforms {'u_matrix
-                   (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+                   (->> (u/projection-matrix (u/get-width game) (u/get-height game))
                         (u/multiply-matrices 3 (u/translation-matrix 0 0))
                         (u/multiply-matrices 3 (u/scaling-matrix image.width image.height)))}))))
 
@@ -82,8 +82,8 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
-      :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
                                 (u/multiply-matrices 3 (u/translation-matrix x y)))})))
 
 (defn translation-init [{:keys [gl canvas] :as game}]
@@ -118,8 +118,8 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
-      :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
                                 (u/multiply-matrices 3 (u/translation-matrix tx ty))
                                 (u/multiply-matrices 3 (u/rotation-matrix r))
                                 ;; make it rotate around its center
@@ -161,8 +161,8 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
-      :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
+      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
                                 (u/multiply-matrices 3 (u/translation-matrix tx ty))
                                 (u/multiply-matrices 3 (u/rotation-matrix 0))
                                 (u/multiply-matrices 3 (u/scaling-matrix sx sy)))})))
@@ -202,14 +202,14 @@
 (defn rotation-multi-render [{:keys [gl] :as game} entity {:keys [tx ty r]}]
   (eu/resize-example game)
   (loop [i 0
-         matrix (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)]
+         matrix (u/projection-matrix (u/get-width game) (u/get-height game))]
     (when (< i 5)
       (let [matrix (->> matrix
                         (u/multiply-matrices 3 (u/translation-matrix tx ty))
                         (u/multiply-matrices 3 (u/rotation-matrix r)))]
         (c/render-entity game
           (assoc entity
-            :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
+            :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
             :uniforms {'u_matrix matrix}))
         (recur (inc i) matrix)))))
 

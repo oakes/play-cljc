@@ -43,6 +43,12 @@
     (.bufferData gl gl.ELEMENT_ARRAY_BUFFER indices gl.STATIC_DRAW)
     (.-length indices)))
 
+(defn get-width [{:keys [gl]}]
+  gl.canvas.clientWidth)
+
+(defn get-height [{:keys [gl]}]
+  gl.canvas.clientHeight)
+
 (defn multiply-matrices [size m1 m2]
   (let [m1 (mapv vec (partition size m1))
         m2 (mapv vec (partition size m2))

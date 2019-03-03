@@ -18,3 +18,4 @@
               (not= canvas.height display-height))
       (set! canvas.width display-width)
       (set! canvas.height display-height))))
+

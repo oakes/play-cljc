@@ -13,8 +13,8 @@
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
-                                                    :aspect (/ gl.canvas.clientWidth
-                                                               gl.canvas.clientHeight)
+                                                    :aspect (/ (u/get-width game)
+                                                               (u/get-height game))
                                                     :near 1
                                                     :far 2000})
         camera-pos [0 0 100]
@@ -35,7 +35,7 @@
                               (u/multiply-matrices 4 (u/translation-matrix-3d 0 0 tz)))]
         (c/render-entity game
           (-> entity
-              (assoc :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight})
+              (assoc :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)})
               (update :uniforms assoc
                 'u_world world-matrix
                 'u_worldViewProjection (->> view-projection-matrix
