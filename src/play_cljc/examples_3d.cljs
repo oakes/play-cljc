@@ -47,7 +47,7 @@
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
                                           :right gl.canvas.clientWidth
@@ -84,7 +84,7 @@
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
                                           :right gl.canvas.clientWidth
@@ -127,7 +127,7 @@
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix
                  (->> (u/ortho-matrix-3d {:left 0
                                           :right gl.canvas.clientWidth
@@ -169,7 +169,7 @@
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix
                  (->> (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                 :aspect (/ gl.canvas.clientWidth
@@ -225,7 +225,7 @@
                      view-projection-matrix)]
         (c/render-entity game
           (assoc entity
-            :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+            :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
             :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-3d-init [{:keys [canvas] :as game}]
@@ -278,7 +278,7 @@
                      view-projection-matrix)]
         (c/render-entity game
           (assoc entity
-            :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+            :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
             :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-target-3d-init [{:keys [canvas] :as game}]
@@ -306,7 +306,7 @@
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix
                  (->> (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                 :aspect (/ gl.canvas.clientWidth
@@ -355,7 +355,7 @@
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+        :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
         :uniforms {'u_matrix
                    (->> view-projection-matrix
                         (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
@@ -426,7 +426,7 @@
         view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)]
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+        :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
         :uniforms {'u_matrix
                    (->> view-projection-matrix
                         (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))

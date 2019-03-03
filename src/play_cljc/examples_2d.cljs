@@ -22,7 +22,7 @@
     (dotimes [_ 50]
       (c/render-entity game
         (assoc entity
-          :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+          :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
           :uniforms {'u_color [(rand) (rand) (rand) 1]
                      'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
                                     (u/multiply-matrices 3 (u/translation-matrix (rand-int 300) (rand-int 300)))
@@ -58,7 +58,7 @@
     (eu/resize-example game)
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+        :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
         :uniforms {'u_matrix
                    (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
                         (u/multiply-matrices 3 (u/translation-matrix 0 0))
@@ -82,7 +82,7 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
                                 (u/multiply-matrices 3 (u/translation-matrix x y)))})))
 
@@ -118,7 +118,7 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
                                 (u/multiply-matrices 3 (u/translation-matrix tx ty))
                                 (u/multiply-matrices 3 (u/rotation-matrix r))
@@ -161,7 +161,7 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+      :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
       :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
                                 (u/multiply-matrices 3 (u/translation-matrix tx ty))
                                 (u/multiply-matrices 3 (u/rotation-matrix 0))
@@ -209,7 +209,7 @@
                         (u/multiply-matrices 3 (u/rotation-matrix r)))]
         (c/render-entity game
           (assoc entity
-            :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
+            :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight}
             :uniforms {'u_matrix matrix}))
         (recur (inc i) matrix)))))
 

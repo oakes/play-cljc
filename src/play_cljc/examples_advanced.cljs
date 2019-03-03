@@ -35,7 +35,7 @@
                               (u/multiply-matrices 4 (u/translation-matrix-3d 0 0 tz)))]
         (c/render-entity game
           (-> entity
-              (assoc :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height})
+              (assoc :viewport {:x 0 :y 0 :width gl.canvas.clientWidth :height gl.canvas.clientHeight})
               (update :uniforms assoc
                 'u_world world-matrix
                 'u_worldViewProjection (->> view-projection-matrix
