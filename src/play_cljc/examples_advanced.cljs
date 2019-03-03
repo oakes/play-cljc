@@ -3,13 +3,14 @@
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
-            [play-cljc.primitives :as primitives])
+            [play-cljc.primitives :as primitives]
+            [play-cljc.math :as m])
   (:require-macros [dynadoc.example :refer [defexample]]))
 
 (defn advanced-render [game entity objects
                        {:keys [then now] :as state}]
   (eu/resize-example game)
-  (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
+  (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
                                                     :aspect (/ (u/get-width game)
                                                                (u/get-height game))
                                                     :near 1
@@ -17,29 +18,29 @@
         camera-pos [0 0 100]
         target [0 0 0]
         up [0 1 0]
-        camera-matrix (u/look-at camera-pos target up)
-        view-matrix (u/inverse-matrix 4 camera-matrix)
-        view-projection-matrix (u/multiply-matrices 4 view-matrix projection-matrix)
+        camera-matrix (m/look-at camera-pos target up)
+        view-matrix (m/inverse-matrix 4 camera-matrix)
+        view-projection-matrix (m/multiply-matrices 4 view-matrix projection-matrix)
         entity (assoc entity
                  :uniforms {'u_lightWorldPos [-50 30 100]
                             'u_viewInverse camera-matrix
                             'u_lightColor [1 1 1 1]})]
     (doseq [{:keys [rx ry tz mat-uniforms]}
             objects]
-      (let [world-matrix (->> (u/identity-matrix-3d)
-                              (u/multiply-matrices 4 (u/x-rotation-matrix-3d (* rx now)))
-                              (u/multiply-matrices 4 (u/y-rotation-matrix-3d (* ry now)))
-                              (u/multiply-matrices 4 (u/translation-matrix-3d 0 0 tz)))]
+      (let [world-matrix (->> (m/identity-matrix-3d)
+                              (m/multiply-matrices 4 (m/x-rotation-matrix-3d (* rx now)))
+                              (m/multiply-matrices 4 (m/y-rotation-matrix-3d (* ry now)))
+                              (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 tz)))]
         (c/render-entity game
           (-> entity
               (assoc :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)})
               (update :uniforms assoc
                 'u_world world-matrix
                 'u_worldViewProjection (->> view-projection-matrix
-                                            (u/multiply-matrices 4 world-matrix))
+                                            (m/multiply-matrices 4 world-matrix))
                 'u_worldInverseTranspose (->> world-matrix
-                                              (u/inverse-matrix 4)
-                                              (u/transpose-matrix-3d))
+                                              (m/inverse-matrix 4)
+                                              (m/transpose-matrix-3d))
                 'u_color (:u_color mat-uniforms)
                 'u_specular (:u_specular mat-uniforms)
                 'u_shininess (:u_shininess mat-uniforms)

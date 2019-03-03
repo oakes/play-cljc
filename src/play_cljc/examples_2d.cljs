@@ -2,7 +2,8 @@
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
-            [play-cljc.example-data :as data])
+            [play-cljc.example-data :as data]
+            [play-cljc.math :as m])
   (:require-macros [dynadoc.example :refer [defexample]]))
 
 ;; rand-rects
@@ -23,9 +24,9 @@
         (assoc entity
           :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
           :uniforms {'u_color [(rand) (rand) (rand) 1]
-                     'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
-                                    (u/multiply-matrices 3 (u/translation-matrix (rand-int 300) (rand-int 300)))
-                                    (u/multiply-matrices 3 (u/scaling-matrix (rand-int 300) (rand-int 300))))})))))
+                     'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                                    (m/multiply-matrices 3 (m/translation-matrix (rand-int 300) (rand-int 300)))
+                                    (m/multiply-matrices 3 (m/scaling-matrix (rand-int 300) (rand-int 300))))})))))
 
 (defexample play-cljc.examples-2d/rand-rects
   {:with-card card}
@@ -63,9 +64,9 @@
       (assoc entity
         :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
         :uniforms {'u_matrix
-                   (->> (u/projection-matrix (u/get-width game) (u/get-height game))
-                        (u/multiply-matrices 3 (u/translation-matrix 0 0))
-                        (u/multiply-matrices 3 (u/scaling-matrix image.width image.height)))}))))
+                   (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                        (m/multiply-matrices 3 (m/translation-matrix 0 0))
+                        (m/multiply-matrices 3 (m/scaling-matrix image.width image.height)))}))))
 
 (defn image-load [game]
   (eu/get-image "leaves.jpg" (partial image-init game)))
@@ -82,8 +83,8 @@
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-      :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
-                                (u/multiply-matrices 3 (u/translation-matrix x y)))})))
+      :uniforms {'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                                (m/multiply-matrices 3 (m/translation-matrix x y)))})))
 
 (defn translation-init [game]
   (let [entity (c/create-entity game
@@ -113,11 +114,11 @@
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-      :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
-                                (u/multiply-matrices 3 (u/translation-matrix tx ty))
-                                (u/multiply-matrices 3 (u/rotation-matrix r))
+      :uniforms {'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                                (m/multiply-matrices 3 (m/translation-matrix tx ty))
+                                (m/multiply-matrices 3 (m/rotation-matrix r))
                                 ;; make it rotate around its center
-                                (u/multiply-matrices 3 (u/translation-matrix -50 -75)))})))
+                                (m/multiply-matrices 3 (m/translation-matrix -50 -75)))})))
 
 (defn rotation-init [game]
   (let [entity (c/create-entity game
@@ -150,10 +151,10 @@
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-      :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
-                                (u/multiply-matrices 3 (u/translation-matrix tx ty))
-                                (u/multiply-matrices 3 (u/rotation-matrix 0))
-                                (u/multiply-matrices 3 (u/scaling-matrix rx ry)))})))
+      :uniforms {'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                                (m/multiply-matrices 3 (m/translation-matrix tx ty))
+                                (m/multiply-matrices 3 (m/rotation-matrix 0))
+                                (m/multiply-matrices 3 (m/scaling-matrix rx ry)))})))
 
 (defn scale-init [game]
   (let [entity (c/create-entity game
@@ -184,11 +185,11 @@
 (defn rotation-multi-render [game entity {:keys [tx ty r]}]
   (eu/resize-example game)
   (loop [i 0
-         matrix (u/projection-matrix (u/get-width game) (u/get-height game))]
+         matrix (m/projection-matrix (u/get-width game) (u/get-height game))]
     (when (< i 5)
       (let [matrix (->> matrix
-                        (u/multiply-matrices 3 (u/translation-matrix tx ty))
-                        (u/multiply-matrices 3 (u/rotation-matrix r)))]
+                        (m/multiply-matrices 3 (m/translation-matrix tx ty))
+                        (m/multiply-matrices 3 (m/rotation-matrix r)))]
         (c/render-entity game
           (assoc entity
             :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}

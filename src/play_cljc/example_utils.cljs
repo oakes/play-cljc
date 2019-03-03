@@ -1,6 +1,6 @@
 (ns play-cljc.example-utils
   (:require [play-cljc.core :as c]
-            [play-cljc.utils :as u]
+            [play-cljc.math :as m]
             [goog.events :as events]))
 
 (defn init-example [card]
@@ -35,7 +35,7 @@
                   (- (.-clientY event) (.-top bounds)))
             cr (-> (/ cx (.-width bounds))
                    (* 360)
-                   u/deg->rad)]
+                   m/deg->rad)]
         (callback {:x x :y y :rx rx :ry ry :r r :cx cx :cy cy :cr cr})))))
 
 (defn get-image [fname callback]
