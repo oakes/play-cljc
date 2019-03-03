@@ -27,12 +27,7 @@
   ([gl program attrib-name src-data]
    (create-buffer gl program attrib-name src-data {}))
   ([gl program attrib-name src-data
-    {:keys [size type normalize stride offset]
-     :or {size 2
-          type gl.FLOAT
-          normalize false
-          stride 0
-          offset 0}}]
+    {:keys [size type normalize stride offset]}]
    (let [attrib-location (.getAttribLocation gl program attrib-name)
          buffer (.createBuffer gl)]
      (.bindBuffer gl gl.ARRAY_BUFFER buffer)
