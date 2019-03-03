@@ -1,5 +1,4 @@
-(ns play-cljc.data
-  (:require [iglu.core :as ig]))
+(ns play-cljc.example-data)
 
 (def image-vertex-shader
   '{:version "300 es"
