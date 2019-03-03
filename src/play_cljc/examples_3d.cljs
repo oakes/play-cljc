@@ -23,20 +23,22 @@
                             :offset 0}}}))
 
 (defn transform-f-data [f-data]
-  (let [positions (js/Float32Array. f-data)
-        matrix (u/multiply-matrices 4
+  (let [matrix (u/multiply-matrices 4
                  (u/translation-matrix-3d -50 -75 -15)
                  (u/x-rotation-matrix-3d js/Math.PI))]
-    (doseq [i (range 0 (.-length positions) 3)]
-      (let [v (u/transform-vector matrix
-                [(aget positions (+ i 0))
-                 (aget positions (+ i 1))
-                 (aget positions (+ i 2))
-                 1])]
-        (aset positions (+ i 0) (nth v 0))
-        (aset positions (+ i 1) (nth v 1))
-        (aset positions (+ i 2) (nth v 2))))
-    positions))
+    (reduce
+      (fn [positions i]
+        (let [v (u/transform-vector matrix
+                  [(nth f-data (+ i 0))
+                   (nth f-data (+ i 1))
+                   (nth f-data (+ i 2))
+                   1])]
+          (-> positions
+              (assoc (+ i 0) (nth v 0))
+              (assoc (+ i 1) (nth v 1))
+              (assoc (+ i 2) (nth v 2)))))
+      f-data
+      (range 0 (count f-data) 3))))
 
 ;; translation-3d
 
