@@ -1,6 +1,6 @@
 (ns play-cljc.math-java)
 
-(defmacro math [method & args]
+(defmacro math-call [method & args]
   (cons (symbol (str 'Math "/" method)) args))
 
 (defmacro math-prop [prop]

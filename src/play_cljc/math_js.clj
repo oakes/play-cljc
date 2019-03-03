@@ -1,6 +1,6 @@
 (ns play-cljc.math-js)
 
-(defmacro math [method & args]
+(defmacro math-call [method & args]
   (cons (symbol (str 'js "/Math." method)) args))
 
 (defmacro math-prop [prop]
