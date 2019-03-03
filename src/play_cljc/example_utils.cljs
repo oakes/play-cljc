@@ -8,10 +8,10 @@
     (.removeChild card canvas))
   (let [canvas (doto (js/document.createElement "canvas")
                  (-> .-style .-width (set! "100%"))
-                 (-> .-style .-height (set! "100%")))]
+                 (-> .-style .-height (set! "100%")))
+        gl (.getContext canvas "webgl2")]
     (.appendChild card canvas)
-    (assoc (c/create-game (.getContext canvas "webgl2"))
-      :canvas canvas)))
+    (assoc (c/create-game gl) :canvas canvas)))
 
 (defn resize-example [{:keys [canvas]}]
   (let [display-width canvas.clientWidth

@@ -5,18 +5,18 @@
             [play-cljc.example-data :as data])
   (:require-macros [dynadoc.example :refer [defexample]]))
 
-(defn f-entity [{:keys [gl] :as game} f-data]
+(defn f-entity [game f-data]
   (c/create-entity game
     {:vertex data/three-d-vertex-shader
      :fragment data/three-d-fragment-shader
      :attributes {'a_position {:data f-data
-                               :type gl.FLOAT
+                               :type (u/get-enum game :float)
                                :size 3
                                :normalize false
                                :stride 0
                                :offset 0}
                   'a_color {:data data/f-3d-colors
-                            :type gl.UNSIGNED_BYTE
+                            :type (u/get-enum game :unsigned-byte)
                             :size 3
                             :normalize true
                             :stride 0
@@ -40,10 +40,8 @@
 
 ;; translation-3d
 
-(defn translation-3d-render [{:keys [gl] :as game} entity {:keys [x y]}]
+(defn translation-3d-render [game entity {:keys [x y]}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
@@ -59,7 +57,9 @@
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d (u/deg->rad 25)))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325))))})))
 
-(defn translation-3d-init [{:keys [canvas] :as game}]
+(defn translation-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (f-entity game data/f-3d)
         *state (atom {:x 0 :y 0})]
     (eu/listen-for-mouse game #(translation-3d-render game entity (swap! *state merge %)))
@@ -72,10 +72,8 @@
 
 ;; rotation-3d
 
-(defn rotation-3d-render [{:keys [gl] :as game} entity {:keys [tx ty r]}]
+(defn rotation-3d-render [game entity {:keys [tx ty r]}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
@@ -93,7 +91,9 @@
                       ;; make it rotate around its center
                       (u/multiply-matrices 4 (u/translation-matrix-3d -50 -75 0)))})))
 
-(defn rotation-3d-init [{:keys [canvas] :as game}]
+(defn rotation-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (f-entity game data/f-3d)
         tx 100
         ty 100
@@ -109,10 +109,8 @@
 
 ;; scale-3d
 
-(defn scale-3d-render [{:keys [gl] :as game} entity {:keys [tx ty rx ry]}]
+(defn scale-3d-render [game entity {:keys [tx ty rx ry]}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
@@ -129,7 +127,9 @@
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325)))
                       (u/multiply-matrices 4 (u/scaling-matrix-3d rx ry 1)))})))
 
-(defn scale-3d-init [{:keys [canvas] :as game}]
+(defn scale-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (f-entity game data/f-3d)
         tx 100
         ty 100
@@ -145,10 +145,8 @@
 
 ;; perspective-3d
 
-(defn perspective-3d-render [{:keys [gl] :as game} entity {:keys [cx cy]}]
+(defn perspective-3d-render [game entity {:keys [cx cy]}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
@@ -163,7 +161,9 @@
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d 0))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d 0)))})))
 
-(defn perspective-3d-init [{:keys [canvas] :as game}]
+(defn perspective-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (f-entity game data/f-3d)
         *state (atom {:cx 0 :cy 0})]
     (eu/listen-for-mouse game #(perspective-3d-render game entity (swap! *state merge %)))
@@ -176,10 +176,8 @@
 
 ;; perspective-camera-3d
 
-(defn perspective-camera-3d-render [{:keys [gl] :as game} entity {:keys [cr]}]
+(defn perspective-camera-3d-render [game entity {:keys [cr]}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (let [radius 200
         num-fs 5
         projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -204,7 +202,9 @@
             :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
             :uniforms {'u_matrix matrix}))))))
 
-(defn perspective-camera-3d-init [{:keys [canvas] :as game}]
+(defn perspective-camera-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
     (eu/listen-for-mouse game
@@ -218,10 +218,8 @@
 
 ;; perspective-camera-target-3d
 
-(defn perspective-camera-target-3d-render [{:keys [gl] :as game} entity {:keys [cr]}]
+(defn perspective-camera-target-3d-render [game entity {:keys [cr]}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (let [radius 200
         num-fs 5
         projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -252,7 +250,9 @@
             :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
             :uniforms {'u_matrix matrix}))))))
 
-(defn perspective-camera-target-3d-init [{:keys [canvas] :as game}]
+(defn perspective-camera-target-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
     (eu/listen-for-mouse game
@@ -266,10 +266,8 @@
 
 ;; perspective-animation-3d
 
-(defn perspective-animation-3d-render [{:keys [gl] :as game} entity {:keys [rx ry rz then now] :as state}]
+(defn perspective-animation-3d-render [game entity {:keys [rx ry rz then now] :as state}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
@@ -289,6 +287,8 @@
                                    (assoc :then now :now (* % 0.001))))))
 
 (defn perspective-animation-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (f-entity game data/f-3d)
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
@@ -304,10 +304,8 @@
 
 ;; perspective-texture-3d
 
-(defn perspective-texture-3d-render [{:keys [gl] :as game} entity {:keys [rx ry then now] :as state}]
+(defn perspective-texture-3d-render [game entity {:keys [rx ry then now] :as state}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ (u/get-width game)
                                                                (u/get-height game))
@@ -332,27 +330,29 @@
                                      (update :ry + (* 0.7 (- now then)))
                                      (assoc :then now :now (* % 0.001)))))))
 
-(defn perspective-texture-3d-init [{:keys [gl] :as game} image]
+(defn perspective-texture-3d-init [game image]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data (transform-f-data data/f-3d)
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 3
                                             :normalize false
                                             :stride 0
                                             :offset 0}
                                'a_texcoord {:data data/f-texcoords
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize true
                                             :stride 0
                                             :offset 0}}
                   :uniforms {'u_texture {:data image
                                          :opts {:mip-level 0
-                                                :internal-fmt gl.RGBA
-                                                :src-fmt gl.RGBA
-                                                :src-type gl.UNSIGNED_BYTE}
+                                                :internal-fmt (u/get-enum game :rgba)
+                                                :src-fmt (u/get-enum game :rgba)
+                                                :src-type (u/get-enum game :unsigned-byte)}
                                          :mipmap true}}
                   :clear {:color [0 0 0 0] :depth 1}})
         state {:rx (u/deg->rad 190)
@@ -375,10 +375,8 @@
 
 ;; perspective-texture-data-3d
 
-(defn perspective-texture-data-3d-render [{:keys [gl] :as game} entity {:keys [rx ry then now] :as state}]
+(defn perspective-texture-data-3d-render [game entity {:keys [rx ry then now] :as state}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
                                                     :aspect (/ (u/get-width game)
                                                                (u/get-height game))
@@ -403,35 +401,41 @@
                                      (update :ry + (* 0.7 (- now then)))
                                      (assoc :then now :now (* % 0.001)))))))
 
-(defn perspective-texture-data-3d-init [{:keys [gl] :as game}]
+(defn perspective-texture-data-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 3
                                             :normalize false
                                             :stride 0
                                             :offset 0}
                                'a_texcoord {:data data/cube-texcoords
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize true
                                             :stride 0
                                             :offset 0}}
                   :uniforms {'u_texture {:data [128 64 128 0 192 0]
                                          :opts {:mip-level 0
-                                                :internal-fmt gl.R8
+                                                :internal-fmt (u/get-enum game :r8)
                                                 :width 3
                                                 :height 2
                                                 :border 0
-                                                :src-fmt gl.RED
-                                                :src-type gl.UNSIGNED_BYTE}
+                                                :src-fmt (u/get-enum game :red)
+                                                :src-type (u/get-enum game :unsigned-byte)}
                                          :alignment 1
-                                         :params {gl.TEXTURE_MIN_FILTER gl.NEAREST
-                                                  gl.TEXTURE_MAG_FILTER gl.NEAREST
-                                                  gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
-                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
+                                         :params {(u/get-enum game :texture-wrap-s)
+                                                  (u/get-enum game :clamp-to-edge),
+                                                  (u/get-enum game :texture-wrap-t)
+                                                  (u/get-enum game :clamp-to-edge),
+                                                  (u/get-enum game :texture-min-filter)
+                                                  (u/get-enum game :nearest),
+                                                  (u/get-enum game :texture-mag-filter)
+                                                  (u/get-enum game :nearest)}}}
                   :clear {:color [0 0 0 0] :depth 1}})
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
@@ -464,10 +468,8 @@
          (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
          (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))))
 
-(defn perspective-texture-meta-3d-render [{:keys [gl] :as game} entities {:keys [then now] :as state}]
+(defn perspective-texture-meta-3d-render [game entities {:keys [then now] :as state}]
   (eu/resize-example game)
-  (.enable gl gl.CULL_FACE)
-  (.enable gl gl.DEPTH_TEST)
   (let [[inner-entity entity] entities]
     (c/render-entity game
       (assoc entity
@@ -482,62 +484,71 @@
                                    (update :ry + (* 0.7 (- now then)))
                                    (assoc :then now :now (* % 0.001))))))
 
-(defn perspective-texture-meta-3d-init [{:keys [gl] :as game}]
+(defn perspective-texture-meta-3d-init [game]
+  (u/enable game :cull-face)
+  (u/enable game :depth-test)
   (let [entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 3
                                             :normalize false
                                             :stride 0
                                             :offset 0}
                                'a_texcoord {:data data/cube-texcoords
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize true
                                             :stride 0
                                             :offset 0}}
                   :uniforms {'u_texture {:data nil
                                          :opts {:mip-level 0
-                                                :internal-fmt gl.RGBA
+                                                :internal-fmt (u/get-enum game :rgba)
                                                 :width target-width
                                                 :height target-height
                                                 :border 0
-                                                :src-fmt gl.RGBA
-                                                :src-type gl.UNSIGNED_BYTE}
-                                         :params {gl.TEXTURE_MIN_FILTER gl.LINEAR
-                                                  gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
-                                                  gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
+                                                :src-fmt (u/get-enum game :rgba)
+                                                :src-type (u/get-enum game :unsigned-byte)}
+                                         :params {(u/get-enum game :texture-wrap-s)
+                                                  (u/get-enum game :clamp-to-edge),
+                                                  (u/get-enum game :texture-wrap-t)
+                                                  (u/get-enum game :clamp-to-edge),
+                                                  (u/get-enum game :texture-min-filter)
+                                                  (u/get-enum game :linear)}}}
                   :clear {:color [1 1 1 1] :depth 1}})
         inner-entity (c/create-entity game
                        {:vertex data/texture-vertex-shader
                         :fragment data/texture-fragment-shader
                         :attributes {'a_position {:data data/cube
-                                                  :type gl.FLOAT
+                                                  :type (u/get-enum game :float)
                                                   :size 3
                                                   :normalize false
                                                   :stride 0
                                                   :offset 0}
                                      'a_texcoord {:data data/cube-texcoords
-                                                  :type gl.FLOAT
+                                                  :type (u/get-enum game :float)
                                                   :size 2
                                                   :normalize true
                                                   :stride 0
                                                   :offset 0}}
                         :uniforms {'u_texture {:data [128 64 128 0 192 0]
                                                :opts {:mip-level 0
-                                                      :internal-fmt gl.R8
+                                                      :internal-fmt (u/get-enum game :r8)
                                                       :width 3
                                                       :height 2
                                                       :border 0
-                                                      :src-fmt gl.RED
-                                                      :src-type gl.UNSIGNED_BYTE}
+                                                      :src-fmt (u/get-enum game :red)
+                                                      :src-type (u/get-enum game :unsigned-byte)}
                                                :alignment 1
-                                               :params {gl.TEXTURE_MIN_FILTER gl.NEAREST
-                                                        gl.TEXTURE_MAG_FILTER gl.NEAREST
-                                                        gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
-                                                        gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE}}}
+                                               :params {(u/get-enum game :texture-wrap-s)
+                                                        (u/get-enum game :clamp-to-edge),
+                                                        (u/get-enum game :texture-wrap-t)
+                                                        (u/get-enum game :clamp-to-edge),
+                                                        (u/get-enum game :texture-min-filter)
+                                                        (u/get-enum game :nearest),
+                                                        (u/get-enum game :texture-mag-filter)
+                                                        (u/get-enum game :nearest)}}}
                         :clear {:color [0 0 1 1] :depth 1}})
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)

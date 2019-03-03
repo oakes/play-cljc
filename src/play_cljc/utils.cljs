@@ -1,4 +1,5 @@
-(ns play-cljc.utils)
+(ns play-cljc.utils
+  (:require [clojure.string :as str]))
 
 (defn create-shader [gl type source]
   (let [shader (.createShader gl type)]
@@ -48,6 +49,16 @@
 
 (defn get-height [{:keys [gl]}]
   gl.canvas.clientHeight)
+
+(defn get-enum [{:keys [gl]} k]
+  (aget gl
+    (-> k
+        name
+        str/upper-case
+        (str/replace #"-" "_"))))
+
+(defn enable [{:keys [gl] :as game} k]
+  (.enable gl (get-enum game k)))
 
 (defn multiply-matrices [size m1 m2]
   (let [m1 (mapv vec (partition size m1))

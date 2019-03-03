@@ -7,12 +7,12 @@
 
 ;; rand-rects
 
-(defn rand-rects-init [{:keys [gl] :as game}]
+(defn rand-rects-init [game]
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/rect
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -34,25 +34,29 @@
 
 ;; image
 
-(defn image-init [{:keys [gl] :as game} image]
+(defn image-init [game image]
   (let [entity (c/create-entity game
                  {:vertex data/image-vertex-shader
                   :fragment data/image-fragment-shader
                   :attributes {'a_position {:data data/rect
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize false
                                             :stride 0
                                             :offset 0}}
                   :uniforms {'u_image {:data image
                                        :opts {:mip-level 0
-                                              :internal-fmt gl.RGBA
-                                              :src-fmt gl.RGBA
-                                              :src-type gl.UNSIGNED_BYTE}
-                                       :params {gl.TEXTURE_WRAP_S gl.CLAMP_TO_EDGE
-                                                gl.TEXTURE_WRAP_T gl.CLAMP_TO_EDGE
-                                                gl.TEXTURE_MIN_FILTER gl.NEAREST
-                                                gl.TEXTURE_MAG_FILTER gl.NEAREST}}}
+                                              :internal-fmt (u/get-enum game :rgba)
+                                              :src-fmt (u/get-enum game :rgba)
+                                              :src-type (u/get-enum game :unsigned-byte)}
+                                       :params {(u/get-enum game :texture-wrap-s)
+                                                (u/get-enum game :clamp-to-edge),
+                                                (u/get-enum game :texture-wrap-t)
+                                                (u/get-enum game :clamp-to-edge),
+                                                (u/get-enum game :texture-min-filter)
+                                                (u/get-enum game :nearest),
+                                                (u/get-enum game :texture-mag-filter)
+                                                (u/get-enum game :nearest)}}}
                   :clear {:color [0 0 0 0] :depth 1}})]
     (eu/resize-example game)
     (c/render-entity game
@@ -77,7 +81,7 @@
 
 ;; translation
 
-(defn translation-render [{:keys [gl] :as game} entity {:keys [x y]}]
+(defn translation-render [game entity {:keys [x y]}]
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
@@ -85,12 +89,12 @@
       :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
                                 (u/multiply-matrices 3 (u/translation-matrix x y)))})))
 
-(defn translation-init [{:keys [gl canvas] :as game}]
+(defn translation-init [game]
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -108,7 +112,7 @@
 
 ;; rotation
 
-(defn rotation-render [{:keys [gl] :as game} entity {:keys [tx ty r]}]
+(defn rotation-render [game entity {:keys [tx ty r]}]
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
@@ -119,12 +123,12 @@
                                 ;; make it rotate around its center
                                 (u/multiply-matrices 3 (u/translation-matrix -50 -75)))})))
 
-(defn rotation-init [{:keys [gl canvas] :as game}]
+(defn rotation-init [game]
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -145,7 +149,7 @@
 
 ;; scale
 
-(defn scale-render [{:keys [gl] :as game} entity {:keys [tx ty rx ry]}]
+(defn scale-render [game entity {:keys [tx ty rx ry]}]
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
@@ -155,12 +159,12 @@
                                 (u/multiply-matrices 3 (u/rotation-matrix 0))
                                 (u/multiply-matrices 3 (u/scaling-matrix rx ry)))})))
 
-(defn scale-init [{:keys [gl canvas] :as game}]
+(defn scale-init [game]
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -181,7 +185,7 @@
 
 ;; rotation-multi
 
-(defn rotation-multi-render [{:keys [gl] :as game} entity {:keys [tx ty r]}]
+(defn rotation-multi-render [game entity {:keys [tx ty r]}]
   (eu/resize-example game)
   (loop [i 0
          matrix (u/projection-matrix (u/get-width game) (u/get-height game))]
@@ -195,12 +199,12 @@
             :uniforms {'u_matrix matrix}))
         (recur (inc i) matrix)))))
 
-(defn rotation-multi-init [{:keys [gl canvas] :as game}]
+(defn rotation-multi-init [game]
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type gl.FLOAT
+                                            :type (u/get-enum game :float)
                                             :size 2
                                             :normalize false
                                             :stride 0
