@@ -2,7 +2,6 @@
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
-            [goog.events :as events]
             [play-cljc.example-data :as data]
             [play-cljc.primitives :as primitives])
   (:require-macros [dynadoc.example :refer [defexample]]))

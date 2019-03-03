@@ -2,7 +2,6 @@
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
-            [goog.events :as events]
             [play-cljc.example-data :as data])
   (:require-macros [dynadoc.example :refer [defexample]]))
 
@@ -63,12 +62,7 @@
 (defn translation-3d-init [{:keys [canvas] :as game}]
   (let [entity (f-entity game data/f-3d)
         *state (atom {:x 0 :y 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              x (- (.-clientX event) (.-left bounds))
-              y (- (.-clientY event) (.-top bounds))]
-          (translation-3d-render game entity (swap! *state assoc :x x :y y)))))
+    (eu/listen-for-mouse game #(translation-3d-render game entity (swap! *state merge %)))
     (translation-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/translation-3d
@@ -104,14 +98,8 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              rx (/ (- (.-clientX event) (.-left bounds) tx)
-                    (.-width bounds))
-              ry (/ (- (.-clientY event) (.-top bounds) ty)
-                    (.-height bounds))]
-          (rotation-3d-render game entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (eu/listen-for-mouse (merge game @*state)
+      #(rotation-3d-render game entity (swap! *state merge %)))
     (rotation-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/rotation-3d
@@ -121,7 +109,7 @@
 
 ;; scale-3d
 
-(defn scale-3d-render [{:keys [gl] :as game} entity {:keys [tx ty sx sy]}]
+(defn scale-3d-render [{:keys [gl] :as game} entity {:keys [tx ty rx ry]}]
   (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
@@ -139,21 +127,15 @@
                       (u/multiply-matrices 4 (u/x-rotation-matrix-3d (u/deg->rad 40)))
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d (u/deg->rad 25)))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325)))
-                      (u/multiply-matrices 4 (u/scaling-matrix-3d sx sy 1)))})))
+                      (u/multiply-matrices 4 (u/scaling-matrix-3d rx ry 1)))})))
 
 (defn scale-3d-init [{:keys [canvas] :as game}]
   (let [entity (f-entity game data/f-3d)
         tx 100
         ty 100
-        *state (atom {:tx tx :ty ty :sx 1 :sy 1})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              sx (/ (- (.-clientX event) (.-left bounds) tx)
-                    (.-width bounds))
-              sy (/ (- (.-clientY event) (.-top bounds) ty)
-                    (.-height bounds))]
-          (scale-3d-render game entity (swap! *state assoc :sx sx :sy sy)))))
+        *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
+    (eu/listen-for-mouse (merge game @*state)
+      #(scale-3d-render game entity (swap! *state merge %)))
     (scale-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/scale-3d
@@ -163,7 +145,7 @@
 
 ;; perspective-3d
 
-(defn perspective-3d-render [{:keys [gl] :as game} entity {:keys [tx ty]}]
+(defn perspective-3d-render [{:keys [gl] :as game} entity {:keys [cx cy]}]
   (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
@@ -176,21 +158,15 @@
                                                            (u/get-height game))
                                                 :near 1
                                                 :far 2000})
-                      (u/multiply-matrices 4 (u/translation-matrix-3d tx ty -150))
+                      (u/multiply-matrices 4 (u/translation-matrix-3d cx cy -150))
                       (u/multiply-matrices 4 (u/x-rotation-matrix-3d (u/deg->rad 180)))
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d 0))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d 0)))})))
 
 (defn perspective-3d-init [{:keys [canvas] :as game}]
   (let [entity (f-entity game data/f-3d)
-        *state (atom {:tx 0 :ty 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              x (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
-              y (- (.-height bounds)
-                   (- (.-clientY event) (.-top bounds)))]
-          (perspective-3d-render game entity (swap! *state assoc :tx x :ty y)))))
+        *state (atom {:cx 0 :cy 0})]
+    (eu/listen-for-mouse game #(perspective-3d-render game entity (swap! *state merge %)))
     (perspective-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-3d
@@ -200,7 +176,7 @@
 
 ;; perspective-camera-3d
 
-(defn perspective-camera-3d-render [{:keys [gl] :as game} entity {:keys [r]}]
+(defn perspective-camera-3d-render [{:keys [gl] :as game} entity {:keys [cr]}]
   (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
@@ -211,7 +187,7 @@
                                                                (u/get-height game))
                                                     :near 1
                                                     :far 2000})
-        camera-matrix (->> (u/y-rotation-matrix-3d r)
+        camera-matrix (->> (u/y-rotation-matrix-3d cr)
                            (u/multiply-matrices 4
                              (u/translation-matrix-3d 0 0 (* radius 1.5))))
         view-matrix (u/inverse-matrix 4 camera-matrix)
@@ -231,13 +207,8 @@
 (defn perspective-camera-3d-init [{:keys [canvas] :as game}]
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              r (/ (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
-                   (.-width bounds))]
-          (perspective-camera-3d-render game entity
-            (swap! *state assoc :r (-> r (* 360) u/deg->rad))))))
+    (eu/listen-for-mouse game
+      #(perspective-camera-3d-render game entity (swap! *state merge %)))
     (perspective-camera-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-camera-3d
@@ -247,7 +218,7 @@
 
 ;; perspective-camera-target-3d
 
-(defn perspective-camera-target-3d-render [{:keys [gl] :as game} entity {:keys [r]}]
+(defn perspective-camera-target-3d-render [{:keys [gl] :as game} entity {:keys [cr]}]
   (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
@@ -258,7 +229,7 @@
                                                                (u/get-height game))
                                                     :near 1
                                                     :far 2000})
-        camera-matrix (->> (u/y-rotation-matrix-3d r)
+        camera-matrix (->> (u/y-rotation-matrix-3d cr)
                            (u/multiply-matrices 4
                              (u/translation-matrix-3d 0 50 (* radius 1.5))))
         camera-pos [(nth camera-matrix 12)
@@ -284,13 +255,8 @@
 (defn perspective-camera-target-3d-init [{:keys [canvas] :as game}]
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              r (/ (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
-                   (.-width bounds))]
-          (perspective-camera-target-3d-render game entity
-            (swap! *state assoc :r (-> r (* 360) u/deg->rad))))))
+    (eu/listen-for-mouse game
+      #(perspective-camera-target-3d-render game entity (swap! *state merge %)))
     (perspective-camera-target-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-camera-target-3d

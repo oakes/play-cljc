@@ -2,7 +2,6 @@
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
-            [goog.events :as events]
             [play-cljc.example-data :as data])
   (:require-macros [dynadoc.example :refer [defexample]]))
 
@@ -99,12 +98,7 @@
                   :uniforms {'u_color [1 0 0.5 1]}
                   :clear {:color [0 0 0 0] :depth 1}})
         *state (atom {:x 0 :y 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              x (- (.-clientX event) (.-left bounds))
-              y (- (.-clientY event) (.-top bounds))]
-          (translation-render game entity (swap! *state assoc :x x :y y)))))
+    (eu/listen-for-mouse game #(translation-render game entity (swap! *state merge %)))
     (translation-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/translation
@@ -140,14 +134,8 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              rx (/ (- (.-clientX event) (.-left bounds) tx)
-                    (.-width bounds))
-              ry (/ (- (.-clientY event) (.-top bounds) ty)
-                    (.-height bounds))]
-          (rotation-render game entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (eu/listen-for-mouse (merge game @*state)
+      #(rotation-render game entity (swap! *state merge %)))
     (rotation-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation
@@ -157,7 +145,7 @@
 
 ;; scale
 
-(defn scale-render [{:keys [gl] :as game} entity {:keys [tx ty sx sy]}]
+(defn scale-render [{:keys [gl] :as game} entity {:keys [tx ty rx ry]}]
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
@@ -165,7 +153,7 @@
       :uniforms {'u_matrix (->> (u/projection-matrix (u/get-width game) (u/get-height game))
                                 (u/multiply-matrices 3 (u/translation-matrix tx ty))
                                 (u/multiply-matrices 3 (u/rotation-matrix 0))
-                                (u/multiply-matrices 3 (u/scaling-matrix sx sy)))})))
+                                (u/multiply-matrices 3 (u/scaling-matrix rx ry)))})))
 
 (defn scale-init [{:keys [gl canvas] :as game}]
   (let [entity (c/create-entity game
@@ -181,15 +169,9 @@
                   :clear {:color [0 0 0 0] :depth 1}})
         tx 100
         ty 100
-        *state (atom {:tx tx :ty ty :sx 1 :sy 1})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              sx (/ (- (.-clientX event) (.-left bounds) tx)
-                    (.-width bounds))
-              sy (/ (- (.-clientY event) (.-top bounds) ty)
-                    (.-height bounds))]
-          (scale-render game entity (swap! *state assoc :sx sx :sy sy)))))
+        *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
+    (eu/listen-for-mouse (merge game @*state)
+      #(scale-render game entity (swap! *state merge %)))
     (scale-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/scale
@@ -227,14 +209,8 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
-    (events/listen js/window "mousemove"
-      (fn [event]
-        (let [bounds (.getBoundingClientRect canvas)
-              rx (/ (- (.-clientX event) (.-left bounds) tx)
-                    (.-width bounds))
-              ry (/ (- (.-clientY event) (.-top bounds) ty)
-                    (.-height bounds))]
-          (rotation-multi-render game entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (eu/listen-for-mouse (merge game @*state)
+      #(rotation-multi-render game entity (swap! *state merge %)))
     (rotation-multi-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation-multi

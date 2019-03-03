@@ -1,5 +1,7 @@
 (ns play-cljc.example-utils
-  (:require [play-cljc.core :as c]))
+  (:require [play-cljc.core :as c]
+            [play-cljc.utils :as u]
+            [goog.events :as events]))
 
 (defn init-example [card]
   (when-let [canvas (.querySelector card "canvas")]
@@ -18,4 +20,21 @@
               (not= canvas.height display-height))
       (set! canvas.width display-width)
       (set! canvas.height display-height))))
+
+(defn listen-for-mouse [{:keys [canvas tx ty] :or {tx 0 ty 0}} callback]
+  (events/listen js/window "mousemove"
+    (fn [event]
+      (let [bounds (.getBoundingClientRect canvas)
+            x (- (.-clientX event) (.-left bounds) tx)
+            y (- (.-clientY event) (.-top bounds) ty)
+            rx (/ x (.-width bounds))
+            ry (/ y (.-height bounds))
+            r (Math/atan2 rx ry)
+            cx (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
+            cy (- (.-height bounds)
+                  (- (.-clientY event) (.-top bounds)))
+            cr (-> (/ cx (.-width bounds))
+                   (* 360)
+                   u/deg->rad)]
+        (callback {:x x :y y :rx rx :ry ry :r r :cx cx :cy cy :cr cr})))))
 
