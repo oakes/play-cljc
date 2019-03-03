@@ -1,5 +1,4 @@
-(ns play-cljc.utils
-  (:require [clojure.string :as str]))
+(ns play-cljc.utils)
 
 (defn create-shader [gl type source]
   (let [shader (.createShader gl type)]
@@ -51,11 +50,7 @@
   gl.canvas.clientHeight)
 
 (defn get-enum [{:keys [gl]} k]
-  (aget gl
-    (-> k
-        name
-        str/upper-case
-        (str/replace #"-" "_"))))
+  (aget gl (name k)))
 
 (defn enable [{:keys [gl] :as game} k]
   (.enable gl (get-enum game k)))

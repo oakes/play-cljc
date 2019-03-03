@@ -12,7 +12,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/rect
-                                            :type (u/get-enum game :float)
+                                            :type (u/get-enum game :FLOAT)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -39,24 +39,24 @@
                  {:vertex data/image-vertex-shader
                   :fragment data/image-fragment-shader
                   :attributes {'a_position {:data data/rect
-                                            :type (u/get-enum game :float)
+                                            :type (u/get-enum game :FLOAT)
                                             :size 2
                                             :normalize false
                                             :stride 0
                                             :offset 0}}
                   :uniforms {'u_image {:data image
                                        :opts {:mip-level 0
-                                              :internal-fmt (u/get-enum game :rgba)
-                                              :src-fmt (u/get-enum game :rgba)
-                                              :src-type (u/get-enum game :unsigned-byte)}
-                                       :params {(u/get-enum game :texture-wrap-s)
-                                                (u/get-enum game :clamp-to-edge),
-                                                (u/get-enum game :texture-wrap-t)
-                                                (u/get-enum game :clamp-to-edge),
-                                                (u/get-enum game :texture-min-filter)
-                                                (u/get-enum game :nearest),
-                                                (u/get-enum game :texture-mag-filter)
-                                                (u/get-enum game :nearest)}}}
+                                              :internal-fmt (u/get-enum game :RGBA)
+                                              :src-fmt (u/get-enum game :RGBA)
+                                              :src-type (u/get-enum game :UNSIGNED_BYTE)}
+                                       :params {(u/get-enum game :TEXTURE_WRAP_S)
+                                                (u/get-enum game :CLAMP_TO_EDGE),
+                                                (u/get-enum game :TEXTURE_WRAP_T)
+                                                (u/get-enum game :CLAMP_TO_EDGE),
+                                                (u/get-enum game :TEXTURE_MIN_FILTER)
+                                                (u/get-enum game :NEAREST),
+                                                (u/get-enum game :TEXTURE_MAG_FILTER)
+                                                (u/get-enum game :NEAREST)}}}
                   :clear {:color [0 0 0 0] :depth 1}})]
     (eu/resize-example game)
     (c/render-entity game
@@ -94,7 +94,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type (u/get-enum game :float)
+                                            :type (u/get-enum game :FLOAT)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -128,7 +128,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type (u/get-enum game :float)
+                                            :type (u/get-enum game :FLOAT)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -164,7 +164,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type (u/get-enum game :float)
+                                            :type (u/get-enum game :FLOAT)
                                             :size 2
                                             :normalize false
                                             :stride 0
@@ -204,7 +204,7 @@
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
-                                            :type (u/get-enum game :float)
+                                            :type (u/get-enum game :FLOAT)
                                             :size 2
                                             :normalize false
                                             :stride 0

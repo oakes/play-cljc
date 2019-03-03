@@ -52,19 +52,19 @@
     {:vertex data/advanced-vertex-shader
      :fragment data/advanced-fragment-shader
      :attributes {'a_position {:data positions
-                               :type (u/get-enum game :float)
+                               :type (u/get-enum game :FLOAT)
                                :size 3
                                :normalize false
                                :stride 0
                                :offset 0}
                   'a_normal {:data normals
-                             :type (u/get-enum game :float)
+                             :type (u/get-enum game :FLOAT)
                              :size 3
                              :normalize false
                              :stride 0
                              :offset 0}
                   'a_texCoord {:data texcoords
-                               :type (u/get-enum game :float)
+                               :type (u/get-enum game :FLOAT)
                                :size 2
                                :normalize false
                                :stride 0
@@ -74,8 +74,8 @@
 ;; balls-3d
 
 (defn balls-3d-init [game]
-  (u/enable game :cull-face)
-  (u/enable game :depth-test)
+  (u/enable game :CULL_FACE)
+  (u/enable game :DEPTH_TEST)
   (let [entity (shape-entity game
                  (primitives/sphere {:radius 10 :subdivisions-axis 48 :subdivisions-height 24}))
         objects (vec
@@ -99,8 +99,8 @@
 ;; planes-3d
 
 (defn planes-3d-init [game]
-  (u/enable game :cull-face)
-  (u/enable game :depth-test)
+  (u/enable game :CULL_FACE)
+  (u/enable game :DEPTH_TEST)
   (let [entity (shape-entity game
                  (primitives/plane {:width 20 :depth 20}))
         objects (vec
@@ -124,8 +124,8 @@
 ;; cubes-3d
 
 (defn cubes-3d-init [game]
-  (u/enable game :cull-face)
-  (u/enable game :depth-test)
+  (u/enable game :CULL_FACE)
+  (u/enable game :DEPTH_TEST)
   (let [entity (shape-entity game
                  (primitives/cube {:size 20}))
         objects (vec
@@ -149,8 +149,8 @@
 ;; cylinder-3d
 
 (defn cylinder-3d-init [game]
-  (u/enable game :cull-face)
-  (u/enable game :depth-test)
+  (u/enable game :CULL_FACE)
+  (u/enable game :DEPTH_TEST)
   (let [entity (shape-entity game
                  (primitives/cylinder {:bottom-radius 10 :top-radius 10 :height 30
                                        :radial-subdivisions 10 :vertical-subdivisions 10}))
@@ -175,8 +175,8 @@
 ;; crescent-3d
 
 (defn crescent-3d-init [game]
-  (u/enable game :cull-face)
-  (u/enable game :depth-test)
+  (u/enable game :CULL_FACE)
+  (u/enable game :DEPTH_TEST)
   (let [entity (shape-entity game
                  (primitives/crescent {:vertical-radius 20 :outer-radius 20 :inner-radius 15
                                        :thickness 10 :subdivisions-down 30}))
@@ -201,8 +201,8 @@
 ;; torus-3d
 
 (defn torus-3d-init [game]
-  (u/enable game :cull-face)
-  (u/enable game :depth-test)
+  (u/enable game :CULL_FACE)
+  (u/enable game :DEPTH_TEST)
   (let [entity (shape-entity game
                  (primitives/torus {:radius 20 :thickness 5 :radial-subdivisions 20 :body-subdivisions 20}))
         objects (vec
@@ -226,8 +226,8 @@
 ;; disc-3d
 
 (defn disc-3d-init [game]
-  (u/enable game :cull-face)
-  (u/enable game :depth-test)
+  (u/enable game :CULL_FACE)
+  (u/enable game :DEPTH_TEST)
   (let [entity (shape-entity game
                  (primitives/disc {:radius 20 :divisions 20}))
         objects (vec
