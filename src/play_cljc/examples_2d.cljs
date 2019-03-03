@@ -1,17 +1,15 @@
 (ns play-cljc.examples-2d
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
-            [play-cljc.client-utils :as cu]
+            [play-cljc.example-utils :as eu]
             [goog.events :as events]
             [play-cljc.data :as data])
   (:require-macros [dynadoc.example :refer [defexample]]))
 
 ;; rand-rects
 
-(defn rand-rects-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn rand-rects-init [{:keys [gl] :as game}]
+  (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/rect
@@ -20,7 +18,7 @@
                                             :normalize false
                                             :stride 0
                                             :offset 0}}})]
-    (cu/resize-canvas canvas)
+    (eu/resize-example game)
     (dotimes [_ 50]
       (c/render-entity game
         (assoc entity
@@ -32,15 +30,13 @@
 
 (defexample play-cljc.examples-2d/rand-rects
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-2d/rand-rects-init)))
 
 ;; image
 
-(defn image-init [canvas image]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn image-init [{:keys [gl] :as game} image]
+  (let [entity (c/create-entity game
                  {:vertex data/image-vertex-shader
                   :fragment data/image-fragment-shader
                   :attributes {'a_position {:data data/rect
@@ -59,7 +55,7 @@
                                                 gl.TEXTURE_MIN_FILTER gl.NEAREST
                                                 gl.TEXTURE_MAG_FILTER gl.NEAREST}}}
                   :clear {:color [0 0 0 0] :depth 1}})]
-    (cu/resize-canvas canvas)
+    (eu/resize-example game)
     (c/render-entity game
       (assoc entity
         :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
@@ -68,32 +64,30 @@
                         (u/multiply-matrices 3 (u/translation-matrix 0 0))
                         (u/multiply-matrices 3 (u/scaling-matrix image.width image.height)))}))))
 
-(defn image-load [canvas]
+(defn image-load [game]
   (let [image (js/Image.)]
     (doto image
       (-> .-src (set! "leaves.jpg"))
       (-> .-onload (set! (fn []
-                           (image-init canvas image)))))))
+                           (image-init game image)))))))
 
 (defexample play-cljc.examples-2d/image
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-2d/image-load)))
 
 ;; translation
 
-(defn translation-render [{:keys [gl] :as game} canvas entity {:keys [x y]}]
-  (cu/resize-canvas canvas)
+(defn translation-render [{:keys [gl] :as game} entity {:keys [x y]}]
+  (eu/resize-example game)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
       :uniforms {'u_matrix (->> (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)
                                 (u/multiply-matrices 3 (u/translation-matrix x y)))})))
 
-(defn translation-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn translation-init [{:keys [gl canvas] :as game}]
+  (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
@@ -110,18 +104,18 @@
         (let [bounds (.getBoundingClientRect canvas)
               x (- (.-clientX event) (.-left bounds))
               y (- (.-clientY event) (.-top bounds))]
-          (translation-render game canvas entity (swap! *state assoc :x x :y y)))))
-    (translation-render game canvas entity @*state)))
+          (translation-render game entity (swap! *state assoc :x x :y y)))))
+    (translation-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/translation
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-2d/translation-init)))
 
 ;; rotation
 
-(defn rotation-render [{:keys [gl] :as game} canvas entity {:keys [tx ty r]}]
-  (cu/resize-canvas canvas)
+(defn rotation-render [{:keys [gl] :as game} entity {:keys [tx ty r]}]
+  (eu/resize-example game)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
@@ -131,10 +125,8 @@
                                 ;; make it rotate around its center
                                 (u/multiply-matrices 3 (u/translation-matrix -50 -75)))})))
 
-(defn rotation-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn rotation-init [{:keys [gl canvas] :as game}]
+  (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
@@ -155,18 +147,18 @@
                     (.-width bounds))
               ry (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (rotation-render game canvas entity (swap! *state assoc :r (Math/atan2 rx ry))))))
-    (rotation-render game canvas entity @*state)))
+          (rotation-render game entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (rotation-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-2d/rotation-init)))
 
 ;; scale
 
-(defn scale-render [{:keys [gl] :as game} canvas entity {:keys [tx ty sx sy]}]
-  (cu/resize-canvas canvas)
+(defn scale-render [{:keys [gl] :as game} entity {:keys [tx ty sx sy]}]
+  (eu/resize-example game)
   (c/render-entity game
     (assoc entity
       :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
@@ -175,10 +167,8 @@
                                 (u/multiply-matrices 3 (u/rotation-matrix 0))
                                 (u/multiply-matrices 3 (u/scaling-matrix sx sy)))})))
 
-(defn scale-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn scale-init [{:keys [gl canvas] :as game}]
+  (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
@@ -199,18 +189,18 @@
                     (.-width bounds))
               sy (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (scale-render game canvas entity (swap! *state assoc :sx sx :sy sy)))))
-    (scale-render game canvas entity @*state)))
+          (scale-render game entity (swap! *state assoc :sx sx :sy sy)))))
+    (scale-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/scale
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-2d/scale-init)))
 
 ;; rotation-multi
 
-(defn rotation-multi-render [{:keys [gl] :as game} canvas entity {:keys [tx ty r]}]
-  (cu/resize-canvas canvas)
+(defn rotation-multi-render [{:keys [gl] :as game} entity {:keys [tx ty r]}]
+  (eu/resize-example game)
   (loop [i 0
          matrix (u/projection-matrix gl.canvas.clientWidth gl.canvas.clientHeight)]
     (when (< i 5)
@@ -223,10 +213,8 @@
             :uniforms {'u_matrix matrix}))
         (recur (inc i) matrix)))))
 
-(defn rotation-multi-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn rotation-multi-init [{:keys [gl canvas] :as game}]
+  (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
@@ -246,11 +234,11 @@
                     (.-width bounds))
               ry (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (rotation-multi-render game canvas entity (swap! *state assoc :r (Math/atan2 rx ry))))))
-    (rotation-multi-render game canvas entity @*state)))
+          (rotation-multi-render game entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (rotation-multi-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation-multi
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-2d/rotation-multi-init)))
 

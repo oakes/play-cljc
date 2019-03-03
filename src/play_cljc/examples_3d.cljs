@@ -1,7 +1,7 @@
 (ns play-cljc.examples-3d
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
-            [play-cljc.client-utils :as cu]
+            [play-cljc.example-utils :as eu]
             [goog.events :as events]
             [play-cljc.data :as data])
   (:require-macros [dynadoc.example :refer [defexample]]))
@@ -41,8 +41,8 @@
 
 ;; translation-3d
 
-(defn translation-3d-render [{:keys [gl] :as game} canvas entity {:keys [x y]}]
-  (cu/resize-canvas canvas)
+(defn translation-3d-render [{:keys [gl] :as game} entity {:keys [x y]}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
@@ -60,27 +60,26 @@
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d (u/deg->rad 25)))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325))))})))
 
-(defn translation-3d-init [canvas]
-  (let [game (c/create-game (.getContext canvas "webgl2"))
-        entity (f-entity game data/f-3d)
+(defn translation-3d-init [{:keys [canvas] :as game}]
+  (let [entity (f-entity game data/f-3d)
         *state (atom {:x 0 :y 0})]
     (events/listen js/window "mousemove"
       (fn [event]
         (let [bounds (.getBoundingClientRect canvas)
               x (- (.-clientX event) (.-left bounds))
               y (- (.-clientY event) (.-top bounds))]
-          (translation-3d-render game canvas entity (swap! *state assoc :x x :y y)))))
-    (translation-3d-render game canvas entity @*state)))
+          (translation-3d-render game entity (swap! *state assoc :x x :y y)))))
+    (translation-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/translation-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/translation-3d-init)))
 
 ;; rotation-3d
 
-(defn rotation-3d-render [{:keys [gl] :as game} canvas entity {:keys [tx ty r]}]
-  (cu/resize-canvas canvas)
+(defn rotation-3d-render [{:keys [gl] :as game} entity {:keys [tx ty r]}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
@@ -100,10 +99,8 @@
                       ;; make it rotate around its center
                       (u/multiply-matrices 4 (u/translation-matrix-3d -50 -75 0)))})))
 
-(defn rotation-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (f-entity game data/f-3d)
+(defn rotation-3d-init [{:keys [canvas] :as game}]
+  (let [entity (f-entity game data/f-3d)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
@@ -114,18 +111,18 @@
                     (.-width bounds))
               ry (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (rotation-3d-render game canvas entity (swap! *state assoc :r (Math/atan2 rx ry))))))
-    (rotation-3d-render game canvas entity @*state)))
+          (rotation-3d-render game entity (swap! *state assoc :r (Math/atan2 rx ry))))))
+    (rotation-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/rotation-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/rotation-3d-init)))
 
 ;; scale-3d
 
-(defn scale-3d-render [{:keys [gl] :as game} canvas entity {:keys [tx ty sx sy]}]
-  (cu/resize-canvas canvas)
+(defn scale-3d-render [{:keys [gl] :as game} entity {:keys [tx ty sx sy]}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
@@ -144,10 +141,8 @@
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d (u/deg->rad 325)))
                       (u/multiply-matrices 4 (u/scaling-matrix-3d sx sy 1)))})))
 
-(defn scale-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (f-entity game data/f-3d)
+(defn scale-3d-init [{:keys [canvas] :as game}]
+  (let [entity (f-entity game data/f-3d)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :sx 1 :sy 1})]
@@ -158,18 +153,18 @@
                     (.-width bounds))
               sy (/ (- (.-clientY event) (.-top bounds) ty)
                     (.-height bounds))]
-          (scale-3d-render game canvas entity (swap! *state assoc :sx sx :sy sy)))))
-    (scale-3d-render game canvas entity @*state)))
+          (scale-3d-render game entity (swap! *state assoc :sx sx :sy sy)))))
+    (scale-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/scale-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/scale-3d-init)))
 
 ;; perspective-3d
 
-(defn perspective-3d-render [{:keys [gl] :as game} canvas entity {:keys [tx ty]}]
-  (cu/resize-canvas canvas)
+(defn perspective-3d-render [{:keys [gl] :as game} entity {:keys [tx ty]}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
@@ -186,10 +181,8 @@
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d 0))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d 0)))})))
 
-(defn perspective-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (f-entity game data/f-3d)
+(defn perspective-3d-init [{:keys [canvas] :as game}]
+  (let [entity (f-entity game data/f-3d)
         *state (atom {:tx 0 :ty 0})]
     (events/listen js/window "mousemove"
       (fn [event]
@@ -197,18 +190,18 @@
               x (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
               y (- (.-height bounds)
                    (- (.-clientY event) (.-top bounds)))]
-          (perspective-3d-render game canvas entity (swap! *state assoc :tx x :ty y)))))
-    (perspective-3d-render game canvas entity @*state)))
+          (perspective-3d-render game entity (swap! *state assoc :tx x :ty y)))))
+    (perspective-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/perspective-3d-init)))
 
 ;; perspective-camera-3d
 
-(defn perspective-camera-3d-render [{:keys [gl] :as game} canvas entity {:keys [r]}]
-  (cu/resize-canvas canvas)
+(defn perspective-camera-3d-render [{:keys [gl] :as game} entity {:keys [r]}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [radius 200
@@ -235,29 +228,27 @@
             :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
             :uniforms {'u_matrix matrix}))))))
 
-(defn perspective-camera-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (f-entity game (transform-f-data data/f-3d))
+(defn perspective-camera-3d-init [{:keys [canvas] :as game}]
+  (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
     (events/listen js/window "mousemove"
       (fn [event]
         (let [bounds (.getBoundingClientRect canvas)
               r (/ (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
                    (.-width bounds))]
-          (perspective-camera-3d-render game canvas entity
+          (perspective-camera-3d-render game entity
             (swap! *state assoc :r (-> r (* 360) u/deg->rad))))))
-    (perspective-camera-3d-render game canvas entity @*state)))
+    (perspective-camera-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-camera-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/perspective-camera-3d-init)))
 
 ;; perspective-camera-target-3d
 
-(defn perspective-camera-target-3d-render [{:keys [gl] :as game} canvas entity {:keys [r]}]
-  (cu/resize-canvas canvas)
+(defn perspective-camera-target-3d-render [{:keys [gl] :as game} entity {:keys [r]}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [radius 200
@@ -290,29 +281,27 @@
             :viewport {:x 0 :y 0 :width gl.canvas.width :height gl.canvas.height}
             :uniforms {'u_matrix matrix}))))))
 
-(defn perspective-camera-target-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (f-entity game (transform-f-data data/f-3d))
+(defn perspective-camera-target-3d-init [{:keys [canvas] :as game}]
+  (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
     (events/listen js/window "mousemove"
       (fn [event]
         (let [bounds (.getBoundingClientRect canvas)
               r (/ (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
                    (.-width bounds))]
-          (perspective-camera-target-3d-render game canvas entity
+          (perspective-camera-target-3d-render game entity
             (swap! *state assoc :r (-> r (* 360) u/deg->rad))))))
-    (perspective-camera-target-3d-render game canvas entity @*state)))
+    (perspective-camera-target-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-camera-target-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/perspective-camera-target-3d-init)))
 
 ;; perspective-animation-3d
 
-(defn perspective-animation-3d-render [{:keys [gl] :as game} canvas entity {:keys [rx ry rz then now] :as state}]
-  (cu/resize-canvas canvas)
+(defn perspective-animation-3d-render [{:keys [gl] :as game} entity {:keys [rx ry rz then now] :as state}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (c/render-entity game
@@ -328,30 +317,29 @@
                       (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
                       (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry))
                       (u/multiply-matrices 4 (u/z-rotation-matrix-3d rz)))}))
-  (js/requestAnimationFrame #(perspective-animation-3d-render game canvas entity
+  (js/requestAnimationFrame #(perspective-animation-3d-render game entity
                                (-> state
                                    (update :ry + (* 1.2 (- now then)))
                                    (assoc :then now :now (* % 0.001))))))
 
-(defn perspective-animation-3d-init [canvas]
-  (let [game (c/create-game (.getContext canvas "webgl2"))
-        entity (f-entity game data/f-3d)
+(defn perspective-animation-3d-init [game]
+  (let [entity (f-entity game data/f-3d)
         state {:rx (u/deg->rad 190)
                :ry (u/deg->rad 40)
                :rz (u/deg->rad 320)
                :then 0
                :now 0}]
-    (perspective-animation-3d-render game canvas entity state)))
+    (perspective-animation-3d-render game entity state)))
 
 (defexample play-cljc.examples-3d/perspective-animation-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/perspective-animation-3d-init)))
 
 ;; perspective-texture-3d
 
-(defn perspective-texture-3d-render [{:keys [gl] :as game} canvas entity {:keys [rx ry then now] :as state}]
-  (cu/resize-canvas canvas)
+(defn perspective-texture-3d-render [{:keys [gl] :as game} entity {:keys [rx ry then now] :as state}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -372,16 +360,14 @@
                    (->> view-projection-matrix
                         (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
                         (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))}))
-    (js/requestAnimationFrame #(perspective-texture-3d-render game canvas entity
+    (js/requestAnimationFrame #(perspective-texture-3d-render game entity
                                  (-> state
                                      (update :rx + (* 1.2 (- now then)))
                                      (update :ry + (* 0.7 (- now then)))
                                      (assoc :then now :now (* % 0.001)))))))
 
-(defn perspective-texture-3d-init [canvas image]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn perspective-texture-3d-init [{:keys [gl] :as game} image]
+  (let [entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data (transform-f-data data/f-3d)
@@ -407,24 +393,24 @@
                :ry (u/deg->rad 40)
                :then 0
                :now 0}]
-    (perspective-texture-3d-render game canvas entity state)))
+    (perspective-texture-3d-render game entity state)))
 
-(defn perspective-texture-3d-load [canvas]
+(defn perspective-texture-3d-load [game]
   (let [image (js/Image.)]
     (doto image
       (-> .-src (set! "f-texture.png"))
       (-> .-onload (set! (fn []
-                           (perspective-texture-3d-init canvas image)))))))
+                           (perspective-texture-3d-init game image)))))))
 
 (defexample play-cljc.examples-3d/perspective-texture-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/perspective-texture-3d-load)))
 
 ;; perspective-texture-data-3d
 
-(defn perspective-texture-data-3d-render [{:keys [gl] :as game} canvas entity {:keys [rx ry then now] :as state}]
-  (cu/resize-canvas canvas)
+(defn perspective-texture-data-3d-render [{:keys [gl] :as game} entity {:keys [rx ry then now] :as state}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -445,16 +431,14 @@
                    (->> view-projection-matrix
                         (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
                         (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))}))
-    (js/requestAnimationFrame #(perspective-texture-data-3d-render game canvas entity
+    (js/requestAnimationFrame #(perspective-texture-data-3d-render game entity
                                  (-> state
                                      (update :rx + (* 1.2 (- now then)))
                                      (update :ry + (* 0.7 (- now then)))
                                      (assoc :then now :now (* % 0.001)))))))
 
-(defn perspective-texture-data-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn perspective-texture-data-3d-init [{:keys [gl] :as game}]
+  (let [entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
@@ -487,11 +471,11 @@
                :ry (u/deg->rad 40)
                :then 0
                :now 0}]
-    (perspective-texture-data-3d-render game canvas entity state)))
+    (perspective-texture-data-3d-render game entity state)))
 
 (defexample play-cljc.examples-3d/perspective-texture-data-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/perspective-texture-data-3d-init)))
 
 ;; perspective-texture-meta-3d
@@ -514,8 +498,8 @@
          (u/multiply-matrices 4 (u/x-rotation-matrix-3d rx))
          (u/multiply-matrices 4 (u/y-rotation-matrix-3d ry)))))
 
-(defn perspective-texture-meta-3d-render [{:keys [gl] :as game} canvas entities {:keys [then now] :as state}]
-  (cu/resize-canvas canvas)
+(defn perspective-texture-meta-3d-render [{:keys [gl] :as game} entities {:keys [then now] :as state}]
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [[inner-entity entity] entities]
@@ -526,16 +510,14 @@
         :render-to-texture {'u_texture (assoc inner-entity
                                          :viewport {:x 0 :y 0 :width target-width :height target-height}
                                          :uniforms {'u_matrix (cube state (/ target-width target-height))})})))
-  (js/requestAnimationFrame #(perspective-texture-meta-3d-render game canvas entities
+  (js/requestAnimationFrame #(perspective-texture-meta-3d-render game entities
                                (-> state
                                    (update :rx + (* 1.2 (- now then)))
                                    (update :ry + (* 0.7 (- now then)))
                                    (assoc :then now :now (* % 0.001))))))
 
-(defn perspective-texture-meta-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (c/create-entity game
+(defn perspective-texture-meta-3d-init [{:keys [gl] :as game}]
+  (let [entity (c/create-entity game
                  {:vertex data/texture-vertex-shader
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
@@ -595,10 +577,10 @@
                :ry (u/deg->rad 40)
                :then 0
                :now 0}]
-    (perspective-texture-meta-3d-render game canvas [inner-entity entity] state)))
+    (perspective-texture-meta-3d-render game [inner-entity entity] state)))
 
 (defexample play-cljc.examples-3d/perspective-texture-meta-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-3d/perspective-texture-meta-3d-init)))
 

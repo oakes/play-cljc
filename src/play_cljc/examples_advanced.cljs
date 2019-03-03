@@ -1,15 +1,15 @@
 (ns play-cljc.examples-advanced
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
-            [play-cljc.client-utils :as cu]
+            [play-cljc.example-utils :as eu]
             [goog.events :as events]
             [play-cljc.data :as data]
             [play-cljc.primitives :as primitives])
   (:require-macros [dynadoc.example :refer [defexample]]))
 
-(defn advanced-render [{:keys [gl] :as game} canvas entity objects
+(defn advanced-render [{:keys [gl] :as game} entity objects
                        {:keys [then now] :as state}]
-  (cu/resize-canvas canvas)
+  (eu/resize-example game)
   (.enable gl gl.CULL_FACE)
   (.enable gl gl.DEPTH_TEST)
   (let [projection-matrix (u/perspective-matrix-3d {:field-of-view (u/deg->rad 60)
@@ -47,7 +47,7 @@
                 'u_specular (:u_specular mat-uniforms)
                 'u_shininess (:u_shininess mat-uniforms)
                 'u_specularFactor (:u_specularFactor mat-uniforms)))))))
-  (js/requestAnimationFrame #(advanced-render game canvas entity objects
+  (js/requestAnimationFrame #(advanced-render game entity objects
                                (assoc state :then now :now (* % 0.0001)))))
 
 (defn shape-entity [{:keys [gl] :as game} {:keys [positions normals texcoords indices]}]
@@ -76,10 +76,8 @@
 
 ;; balls-3d
 
-(defn balls-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (shape-entity game
+(defn balls-3d-init [game]
+  (let [entity (shape-entity game
                  (primitives/sphere {:radius 10 :subdivisions-axis 48 :subdivisions-height 24}))
         objects (vec
                   (for [i (range 100)]
@@ -92,19 +90,17 @@
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game canvas entity objects state)))
+    (advanced-render game entity objects state)))
 
 (defexample play-cljc.examples-advanced/balls-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-advanced/balls-3d-init)))
 
 ;; planes-3d
 
-(defn planes-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (shape-entity game
+(defn planes-3d-init [game]
+  (let [entity (shape-entity game
                  (primitives/plane {:width 20 :depth 20}))
         objects (vec
                   (for [i (range 100)]
@@ -117,19 +113,17 @@
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game canvas entity objects state)))
+    (advanced-render game entity objects state)))
 
 (defexample play-cljc.examples-advanced/planes-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-advanced/planes-3d-init)))
 
 ;; cubes-3d
 
-(defn cubes-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (shape-entity game
+(defn cubes-3d-init [game]
+  (let [entity (shape-entity game
                  (primitives/cube {:size 20}))
         objects (vec
                   (for [i (range 100)]
@@ -142,19 +136,17 @@
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game canvas entity objects state)))
+    (advanced-render game entity objects state)))
 
 (defexample play-cljc.examples-advanced/cubes-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-advanced/cubes-3d-init)))
 
 ;; cylinder-3d
 
-(defn cylinder-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (shape-entity game
+(defn cylinder-3d-init [game]
+  (let [entity (shape-entity game
                  (primitives/cylinder {:bottom-radius 10 :top-radius 10 :height 30
                                        :radial-subdivisions 10 :vertical-subdivisions 10}))
         objects (vec
@@ -168,19 +160,17 @@
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game canvas entity objects state)))
+    (advanced-render game entity objects state)))
 
 (defexample play-cljc.examples-advanced/cylinder-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-advanced/cylinder-3d-init)))
 
 ;; crescent-3d
 
-(defn crescent-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (shape-entity game
+(defn crescent-3d-init [game]
+  (let [entity (shape-entity game
                  (primitives/crescent {:vertical-radius 20 :outer-radius 20 :inner-radius 15
                                        :thickness 10 :subdivisions-down 30}))
         objects (vec
@@ -194,19 +184,17 @@
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game canvas entity objects state)))
+    (advanced-render game entity objects state)))
 
 (defexample play-cljc.examples-advanced/crescent-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-advanced/crescent-3d-init)))
 
 ;; torus-3d
 
-(defn torus-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (shape-entity game
+(defn torus-3d-init [game]
+  (let [entity (shape-entity game
                  (primitives/torus {:radius 20 :thickness 5 :radial-subdivisions 20 :body-subdivisions 20}))
         objects (vec
                   (for [i (range 100)]
@@ -219,19 +207,17 @@
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game canvas entity objects state)))
+    (advanced-render game entity objects state)))
 
 (defexample play-cljc.examples-advanced/torus-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-advanced/torus-3d-init)))
 
 ;; disc-3d
 
-(defn disc-3d-init [canvas]
-  (let [gl (.getContext canvas "webgl2")
-        game (c/create-game gl)
-        entity (shape-entity game
+(defn disc-3d-init [game]
+  (let [entity (shape-entity game
                  (primitives/disc {:radius 20 :divisions 20}))
         objects (vec
                   (for [i (range 100)]
@@ -244,10 +230,10 @@
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game canvas entity objects state)))
+    (advanced-render game entity objects state)))
 
 (defexample play-cljc.examples-advanced/disc-3d
   {:with-card card}
-  (->> (play-cljc.client-utils/create-canvas card)
+  (->> (play-cljc.example-utils/init-example card)
        (play-cljc.examples-advanced/disc-3d-init)))
 
