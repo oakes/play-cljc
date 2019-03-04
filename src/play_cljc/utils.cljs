@@ -45,9 +45,3 @@
 (defn get-height [{:keys [gl]}]
   gl.canvas.clientHeight)
 
-(defn get-enum [{:keys [gl]} k]
-  (aget gl (name k)))
-
-(defn enable [{:keys [gl] :as game} k]
-  (.enable gl (get-enum game k)))
-

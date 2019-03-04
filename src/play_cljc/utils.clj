@@ -46,9 +46,3 @@
 (defn get-height [_]
   0)
 
-(defmacro get-enum [_ k]
-  (symbol (str "GL41/GL_" (name k))))
-
-(defmacro enable [_ k]
-  (list 'GL41/glEnable (symbol (str "GL41/GL_" (name k)))))
-
