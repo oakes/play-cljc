@@ -80,6 +80,8 @@
                      {:keys [vertex fragment attributes uniforms indices] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex vertex)
         fragment-source (ig/iglu->glsl :fragment fragment)
+        previous-program (.getParameter gl gl.CURRENT_PROGRAM)
+        previous-vao (.getParameter gl gl.VERTEX_ARRAY_BINDING)
         program (u/create-program game vertex-source fragment-source)
         _ (.useProgram gl program)
         vao (.createVertexArray gl)
@@ -113,7 +115,8 @@
                  (partial call-uniform game)
                  entity
                  uniforms)]
-    (.bindVertexArray gl nil)
+    (.useProgram gl previous-program)
+    (.bindVertexArray gl previous-vao)
     entity))
 
 (defn- render-clear [gl {:keys [color depth stencil]}]
@@ -160,6 +163,6 @@
     (if indices
       (.drawElements gl gl.TRIANGLES index-count gl.UNSIGNED_SHORT 0)
       (.drawArrays gl gl.TRIANGLES 0 index-count))
-    (.bindVertexArray gl previous-vao)
-    (.useProgram gl previous-program)))
+    (.useProgram gl previous-program)
+    (.bindVertexArray gl previous-vao)))
 
