@@ -44,7 +44,13 @@
       (GL/createCapabilities)
       (let [program (u/create-program nil
                       (ig/iglu->glsl :vertex data/two-d-vertex-shader)
-                      (ig/iglu->glsl :fragment data/two-d-fragment-shader))]
+                      (ig/iglu->glsl :fragment data/two-d-fragment-shader))
+            cnt (u/create-buffer nil program "a_position" (float-array data/rect)
+                                 {:type GL41/GL_FLOAT
+                                  :size 2
+                                  :normalize false
+                                  :stride 0
+                                  :offset 0})]
         (GL41/glClearColor (float 1) (float 1) (float 1) (float 1))
         (while (not (GLFW/glfwWindowShouldClose window))
           (GL41/glClear (bit-or GL41/GL_COLOR_BUFFER_BIT GL41/GL_DEPTH_BUFFER_BIT))

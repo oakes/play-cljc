@@ -35,13 +35,13 @@
      (gl game vertexAttribPointer attrib-location size type normalize stride offset)
      (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)
      (gl game bufferData (gl game ARRAY_BUFFER) src-data (gl game STATIC_DRAW))
-     (/ (.-length src-data) size))))
+     (/ (#?(:clj count :cljs .-length) src-data) size))))
 
 (defn create-index-buffer [game indices]
   (let [index-buffer (gl game #?(:clj genBuffers :cljs createBuffer))]
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) index-buffer)
     (gl game bufferData (gl game ELEMENT_ARRAY_BUFFER) indices (gl game STATIC_DRAW))
-    (.-length indices)))
+    (#?(:clj count :cljs .-length) indices)))
 
 (defn get-width [game]
   #?(:clj 0 :cljs (-> game :gl .-canvas .-clientWidth)))
