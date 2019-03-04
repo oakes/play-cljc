@@ -6,9 +6,7 @@
     (.compileShader gl shader)
     (if (.getShaderParameter gl shader gl.COMPILE_STATUS)
       shader
-      (do
-        (js/console.log (.getShaderInfoLog gl shader))
-        (.deleteShader gl shader)))))
+      (throw (js/Error. (.getShaderInfoLog gl shader))))))
 
 (defn create-program [{:keys [gl]} v-source f-source]
   (let [vertex-shader (create-shader gl gl.VERTEX_SHADER v-source)
@@ -19,9 +17,7 @@
     (.linkProgram gl program)
     (if (.getProgramParameter gl program gl.LINK_STATUS)
       program
-      (do
-        (js/console.log (.getProgramInfoLog gl program))
-        (.deleteProgram gl program)))))
+      (throw (js/Error. (.getProgramInfoLog gl program))))))
 
 (defn create-buffer
   ([game program attrib-name src-data]
