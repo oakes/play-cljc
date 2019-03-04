@@ -1,8 +1,8 @@
 (ns play-cljc.example-utils
   (:require [play-cljc.core :as c]))
 
-(defn init-example [_]
-  (u/create-game))
+(defn init-example [window]
+  (c/create-game window))
 
 (defn resize-example [game])
 

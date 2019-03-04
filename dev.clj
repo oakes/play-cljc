@@ -20,10 +20,12 @@
         '[org.lwjgl.opengl GL GL41])
 
 (require
-  '[iglu.core :as ig]
   '[play-cljc.utils :as u]
   '[play-cljc.example-data :as data]
-  '[play-cljc.math :as m])
+  '[play-cljc.math :as m]
+  '[play-cljc.core :as c]
+  '[play-cljc.example-utils :as eu]
+  '[play-cljc.macros-java :refer [gl]])
 
 (defmethod task "native"
   [_]
@@ -43,31 +45,24 @@
       (GLFW/glfwShowWindow window)
       ;; loop
       (GL/createCapabilities)
-      (let [program (u/create-program nil
-                      (ig/iglu->glsl :vertex data/two-d-vertex-shader)
-                      (ig/iglu->glsl :fragment data/two-d-fragment-shader))
-            vao (GL41/glGenVertexArrays)
-            _ (GL41/glBindVertexArray vao)
-            cnt (u/create-buffer nil program "a_position" (float-array data/rect)
-                                 {:type GL41/GL_FLOAT
-                                  :size 2
-                                  :normalize false
-                                  :stride 0
-                                  :offset 0})
-            color-location (GL41/glGetUniformLocation program "u_color")
-            matrix-location (GL41/glGetUniformLocation program "u_matrix")]
-        (GL41/glUseProgram program)
-        (GL41/glViewport 0 0 300 300)
-        (GL41/glUniform4fv color-location (float-array [(rand) (rand) (rand) 1]))
-        (GL41/glUniformMatrix3fv matrix-location false
-                                 (->> (m/projection-matrix 300 300)
-                                      (m/multiply-matrices 3 (m/translation-matrix 0 0))
-                                      (m/multiply-matrices 3 (m/scaling-matrix 100 100))
-                                      float-array))
-        (GL41/glClearColor (float 1) (float 1) (float 1) (float 1))
+      (let [game (eu/init-example window)
+            entity (c/create-entity game
+                     {:vertex data/two-d-vertex-shader
+                      :fragment data/two-d-fragment-shader
+                      :attributes {'a_position {:data data/rect
+                                                :type (gl game FLOAT)
+                                                :size 2}}})
+            color [(rand) (rand) (rand) 1]]
         (while (not (GLFW/glfwWindowShouldClose window))
-          (GL41/glClear (bit-or GL41/GL_COLOR_BUFFER_BIT GL41/GL_DEPTH_BUFFER_BIT))
-          (GL41/glDrawArrays GL41/GL_TRIANGLES 0 cnt)
+          (c/render-entity game
+            (assoc entity
+              :clear {:color [1 1 1 1] :depth 1}
+              :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+              :uniforms {'u_color color
+                         'u_matrix (->> (m/projection-matrix 300 300)
+                                        (m/multiply-matrices 3 (m/translation-matrix 0 0))
+                                        (m/multiply-matrices 3 (m/scaling-matrix 100 100))
+                                        float-array)}))
           (GLFW/glfwSwapBuffers window)
           (GLFW/glfwPollEvents)))
       ;; clean up

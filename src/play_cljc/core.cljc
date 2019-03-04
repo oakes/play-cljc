@@ -5,9 +5,9 @@
             [iglu.parse :as parse]
             [play-cljc.utils :as u]))
 
-(defn create-game [#?(:cljs context)]
+(defn create-game [context]
   {:tex-count (atom 0)
-   #?@(:cljs [:context context])})
+   :context context})
 
 (defn- attribute-type->array-type [game attr-type]
   (condp = attr-type
@@ -59,13 +59,13 @@
 
 (defn- call-uniform* [game m glsl-type uni-loc uni-name data]
   (case glsl-type
-    float     (gl game uniform1f uni-loc data)
-    vec2      (gl game uniform2fv uni-loc data)
-    vec3      (gl game uniform3fv uni-loc data)
-    vec4      (gl game uniform4fv uni-loc data)
-    mat2      (gl game uniformMatrix2fv uni-loc false data)
-    mat3      (gl game uniformMatrix3fv uni-loc false data)
-    mat4      (gl game uniformMatrix4fv uni-loc false data)
+    float     (gl game uniform1f uni-loc #?(:clj (float data) :cljs data))
+    vec2      (gl game uniform2fv uni-loc #?(:clj (float-array data) :cljs data))
+    vec3      (gl game uniform3fv uni-loc #?(:clj (float-array data) :cljs data))
+    vec4      (gl game uniform4fv uni-loc #?(:clj (float-array data) :cljs data))
+    mat2      (gl game uniformMatrix2fv uni-loc false #?(:clj (float-array data) :cljs data))
+    mat3      (gl game uniformMatrix3fv uni-loc false #?(:clj (float-array data) :cljs data))
+    mat4      (gl game uniformMatrix4fv uni-loc false #?(:clj (float-array data) :cljs data))
     sampler2D (assoc-in m [:textures uni-name]
                 (create-texture game m uni-loc (update data :data
                                                  (fn [d]
