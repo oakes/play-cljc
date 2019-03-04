@@ -1,6 +1,6 @@
 (ns play-cljc.math
-  #?(:clj (:require [play-cljc.macros-java :refer [math]])
-     :cljs (:require-macros [play-cljc.macros-js :refer [math]])))
+  (:require #?(:clj  [play-cljc.macros-java :refer [math]]
+               :cljs [play-cljc.macros-js :refer-macros [math]])))
 
 (defn vector->array [v]
   (#?(:clj float-array :cljs clj->js) v))

@@ -1,6 +1,6 @@
 (ns play-cljc.utils
-  #?(:clj (:require [play-cljc.macros-java :refer [gl]])
-     :cljs (:require-macros [play-cljc.macros-js :refer [gl]])))
+  (:require #?(:clj  [play-cljc.macros-java :refer [gl]]
+               :cljs [play-cljc.macros-js :refer-macros [gl]])))
 
 (defn- create-shader [game type source]
   (let [shader (gl game createShader type)]

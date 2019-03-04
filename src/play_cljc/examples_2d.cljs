@@ -3,9 +3,9 @@
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
-            [play-cljc.math :as m])
-  (:require-macros [dynadoc.example :refer [defexample]]
-                   [play-cljc.macros-js :refer [gl]]))
+            [play-cljc.math :as m]
+            [play-cljc.macros-js :refer-macros [gl]])
+  (:require-macros [dynadoc.example :refer [defexample]]))
 
 ;; rand-rects
 
