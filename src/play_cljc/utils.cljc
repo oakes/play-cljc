@@ -45,8 +45,8 @@
     (#?(:clj count :cljs .-length) indices)))
 
 (defn get-width [game]
-  #?(:clj 0 :cljs (-> game :gl .-canvas .-clientWidth)))
+  #?(:clj 0 :cljs (-> game :context .-canvas .-clientWidth)))
 
 (defn get-height [game]
-  #?(:clj 0 :cljs (-> game :gl .-canvas .-clientHeight)))
+  #?(:clj 0 :cljs (-> game :context .-canvas .-clientHeight)))
 

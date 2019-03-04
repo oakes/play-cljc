@@ -11,6 +11,6 @@
   (let [s (str n)
         l (nth s 0)]
     (if (Character/isUpperCase l)
-      `(goog.object/get (:gl ~game) ~s)
-      (concat [(symbol (str "." s)) `(:gl ~game)] args))))
+      `(goog.object/get (:context ~game) ~s)
+      (concat [(symbol (str "." s)) `(:context ~game)] args))))
 
