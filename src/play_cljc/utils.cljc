@@ -27,7 +27,8 @@
   ([game program attrib-name src-data]
    (create-buffer game program attrib-name src-data {}))
   ([game program attrib-name src-data
-    {:keys [size type normalize stride offset]}]
+    {:keys [size type normalize stride offset]
+     :or {normalize false stride 0 offset 0}}]
    (let [attrib-location (gl game getAttribLocation program attrib-name)
          buffer (gl game #?(:clj genBuffers :cljs createBuffer))]
      (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)

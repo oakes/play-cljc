@@ -13,16 +13,11 @@
      :fragment data/three-d-fragment-shader
      :attributes {'a_position {:data f-data
                                :type (gl game FLOAT)
-                               :size 3
-                               :normalize false
-                               :stride 0
-                               :offset 0}
+                               :size 3}
                   'a_color {:data data/f-3d-colors
                             :type (gl game UNSIGNED_BYTE)
                             :size 3
-                            :normalize true
-                            :stride 0
-                            :offset 0}}}))
+                            :normalize true}}}))
 
 (defn transform-f-data [f-data]
   (let [matrix (m/multiply-matrices 4
@@ -342,16 +337,11 @@
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data (transform-f-data data/f-3d)
                                             :type (gl game FLOAT)
-                                            :size 3
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}
+                                            :size 3}
                                'a_texcoord {:data data/f-texcoords
                                             :type (gl game FLOAT)
                                             :size 2
-                                            :normalize true
-                                            :stride 0
-                                            :offset 0}}
+                                            :normalize true}}
                   :uniforms {'u_texture {:data image
                                          :opts {:mip-level 0
                                                 :internal-fmt (gl game RGBA)
@@ -409,16 +399,11 @@
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
                                             :type (gl game FLOAT)
-                                            :size 3
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}
+                                            :size 3}
                                'a_texcoord {:data data/cube-texcoords
                                             :type (gl game FLOAT)
                                             :size 2
-                                            :normalize true
-                                            :stride 0
-                                            :offset 0}}
+                                            :normalize true}}
                   :uniforms {'u_texture {:data [128 64 128 0 192 0]
                                          :opts {:mip-level 0
                                                 :internal-fmt (gl game R8)
@@ -492,16 +477,11 @@
                   :fragment data/texture-fragment-shader
                   :attributes {'a_position {:data data/cube
                                             :type (gl game FLOAT)
-                                            :size 3
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}
+                                            :size 3}
                                'a_texcoord {:data data/cube-texcoords
                                             :type (gl game FLOAT)
                                             :size 2
-                                            :normalize true
-                                            :stride 0
-                                            :offset 0}}
+                                            :normalize true}}
                   :uniforms {'u_texture {:data nil
                                          :opts {:mip-level 0
                                                 :internal-fmt (gl game RGBA)
@@ -522,16 +502,11 @@
                         :fragment data/texture-fragment-shader
                         :attributes {'a_position {:data data/cube
                                                   :type (gl game FLOAT)
-                                                  :size 3
-                                                  :normalize false
-                                                  :stride 0
-                                                  :offset 0}
+                                                  :size 3}
                                      'a_texcoord {:data data/cube-texcoords
                                                   :type (gl game FLOAT)
                                                   :size 2
-                                                  :normalize true
-                                                  :stride 0
-                                                  :offset 0}}
+                                                  :normalize true}}
                         :uniforms {'u_texture {:data [128 64 128 0 192 0]
                                                :opts {:mip-level 0
                                                       :internal-fmt (gl game R8)

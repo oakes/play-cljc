@@ -15,10 +15,7 @@
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/rect
                                             :type (gl game FLOAT)
-                                            :size 2
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}}})]
+                                            :size 2}}})]
     (eu/resize-example game)
     (dotimes [_ 50]
       (c/render-entity game
@@ -42,10 +39,7 @@
                   :fragment data/image-fragment-shader
                   :attributes {'a_position {:data data/rect
                                             :type (gl game FLOAT)
-                                            :size 2
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}}
+                                            :size 2}}
                   :uniforms {'u_image {:data image
                                        :opts {:mip-level 0
                                               :internal-fmt (gl game RGBA)
@@ -93,10 +87,7 @@
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type (gl game FLOAT)
-                                            :size 2
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}}
+                                            :size 2}}
                   :uniforms {'u_color [1 0 0.5 1]}
                   :clear {:color [0 0 0 0] :depth 1}})
         *state (atom {:x 0 :y 0})]
@@ -127,10 +118,7 @@
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type (gl game FLOAT)
-                                            :size 2
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}}
+                                            :size 2}}
                   :uniforms {'u_color [1 0 0.5 1]}
                   :clear {:color [0 0 0 0] :depth 1}})
         tx 100
@@ -163,10 +151,7 @@
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type (gl game FLOAT)
-                                            :size 2
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}}
+                                            :size 2}}
                   :uniforms {'u_color [1 0 0.5 1]}
                   :clear {:color [0 0 0 0] :depth 1}})
         tx 100
@@ -203,10 +188,7 @@
                   :fragment data/two-d-fragment-shader
                   :attributes {'a_position {:data data/f-2d
                                             :type (gl game FLOAT)
-                                            :size 2
-                                            :normalize false
-                                            :stride 0
-                                            :offset 0}}
+                                            :size 2}}
                   :uniforms {'u_color [1 0 0.5 1]}})
         tx 100
         ty 100

@@ -55,22 +55,13 @@
      :fragment data/advanced-fragment-shader
      :attributes {'a_position {:data positions
                                :type (gl game FLOAT)
-                               :size 3
-                               :normalize false
-                               :stride 0
-                               :offset 0}
+                               :size 3}
                   'a_normal {:data normals
                              :type (gl game FLOAT)
-                             :size 3
-                             :normalize false
-                             :stride 0
-                             :offset 0}
+                             :size 3}
                   'a_texCoord {:data texcoords
                                :type (gl game FLOAT)
-                               :size 2
-                               :normalize false
-                               :stride 0
-                               :offset 0}}
+                               :size 2}}
      :indices (js/Uint16Array. indices)}))
 
 ;; balls-3d
