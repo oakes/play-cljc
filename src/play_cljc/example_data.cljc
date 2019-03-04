@@ -1,18 +1,20 @@
 (ns play-cljc.example-data)
 
+(def version #?(:clj "410" :cljs "300 es"))
+
 (def image-vertex-shader
-  '{:version "300 es"
-    :attributes
-    {a_position vec2}
-    :uniforms
-    {u_matrix mat3
+  {:version version
+   :attributes
+   '{a_position vec2}
+   :uniforms
+   '{u_matrix mat3
      u_image sampler2D}
-    :varyings
-    {v_texCoord vec2}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([]
+   :varyings
+   '{v_texCoord vec2}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
            [:= gl_Position
             [:vec4
              [:-xy [:* u_matrix [:vec3 a_position 1]]]
@@ -20,127 +22,127 @@
            [:= v_texCoord a_position])}})
 
 (def image-fragment-shader
-  '{:version "300 es"
-    :precision "mediump float"
-    :uniforms
-    {u_image sampler2D}
-    :varyings
-    {v_texCoord vec2}
-    :outputs
-    {outColor vec4}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([] [:= outColor [:-bgra [:texture u_image v_texCoord]]])}})
+  {:version version
+   :precision "mediump float"
+   :uniforms
+   '{u_image sampler2D}
+   :varyings
+   '{v_texCoord vec2}
+   :outputs
+   '{outColor vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] [:= outColor [:-bgra [:texture u_image v_texCoord]]])}})
 
 (def two-d-vertex-shader
-  '{:version "300 es"
-    :attributes
-    {a_position vec2}
-    :uniforms
-    {u_matrix mat3}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([]
+  {:version version
+   :attributes
+   '{a_position vec2}
+   :uniforms
+   '{u_matrix mat3}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
            [:= gl_Position
             [:vec4
              [:-xy [:* u_matrix [:vec3 a_position 1]]]
              0 1]])}})
 
 (def two-d-fragment-shader
-  '{:version "300 es"
-    :precision "mediump float"
-    :uniforms
-    {u_color vec4}
-    :outputs
-    {outColor vec4}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([] [:= outColor u_color])}})
+  {:version version
+   :precision "mediump float"
+   :uniforms
+   '{u_color vec4}
+   :outputs
+   '{outColor vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] [:= outColor u_color])}})
 
 (def three-d-vertex-shader
-  '{:version "300 es"
-    :attributes
-    {a_position vec4
+  {:version version
+   :attributes
+   '{a_position vec4
      a_color vec4}
-    :uniforms
-    {u_matrix mat4}
-    :varyings
-    {v_color vec4}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([]
+   :uniforms
+   '{u_matrix mat4}
+   :varyings
+   '{v_color vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
            [:= gl_Position [:* u_matrix a_position]]
            [:= v_color a_color])}})
 
 (def three-d-fragment-shader
-  '{:version "300 es"
-    :precision "mediump float"
-    :varyings
-    {v_color vec4}
-    :outputs
-    {outColor vec4}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([] [:= outColor v_color])}})
+  {:version version
+   :precision "mediump float"
+   :varyings
+   '{v_color vec4}
+   :outputs
+   '{outColor vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] [:= outColor v_color])}})
 
 (def texture-vertex-shader
-  '{:version "300 es"
-    :attributes
-    {a_position vec4
+  {:version version
+   :attributes
+   '{a_position vec4
      a_color vec4
      a_texcoord vec2}
-    :uniforms
-    {u_matrix mat4}
-    :varyings
-    {v_texcoord vec2}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([]
+   :uniforms
+   '{u_matrix mat4}
+   :varyings
+   '{v_texcoord vec2}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
            [:= gl_Position [:* u_matrix a_position]]
            [:= v_texcoord a_texcoord])}})
 
 (def texture-fragment-shader
-  '{:version "300 es"
-    :precision "mediump float"
-    :uniforms
-    {u_texture sampler2D}
-    :varyings
-    {v_texcoord vec2}
-    :outputs
-    {outColor vec4}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([] [:= outColor [:texture u_texture v_texcoord]])}})
+  {:version version
+   :precision "mediump float"
+   :uniforms
+   '{u_texture sampler2D}
+   :varyings
+   '{v_texcoord vec2}
+   :outputs
+   '{outColor vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] [:= outColor [:texture u_texture v_texcoord]])}})
 
 (def advanced-vertex-shader
-  '{:version "300 es"
-    :uniforms
-    {u_worldViewProjection mat4
+  {:version version
+   :uniforms
+   '{u_worldViewProjection mat4
      u_lightWorldPos vec3
      u_world mat4
      u_viewInverse mat4
      u_worldInverseTranspose mat4}
-    :attributes
-    {a_position vec4
+   :attributes
+   '{a_position vec4
      a_normal vec3
      a_texCoord vec2}
-    :varyings
-    {v_position vec4
+   :varyings
+   '{v_position vec4
      v_texCoord vec2
      v_normal vec3
      v_surfaceToLight vec3
      v_surfaceToView vec3}
-    :signatures
-    {main ([] void)}
-    :functions
-    {main ([]
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
            [:= v_texCoord a_texCoord]
            [:= v_position [:* u_worldViewProjection a_position]]
            [:= v_normal [:-xyz [:* u_worldInverseTranspose [:vec4 a_normal 0]]]]
@@ -149,27 +151,27 @@
            [:= gl_Position v_position])}})
 
 (def advanced-fragment-shader
-  '{:version "300 es"
-    :precision "mediump float"
-    :uniforms
-    {u_lightColor vec4
+  {:version version
+   :precision "mediump float"
+   :uniforms
+   '{u_lightColor vec4
      u_color vec4
      u_specular vec4
      u_shininess float
      u_specularFactor float}
-    :varyings
-    {v_position vec4
+   :varyings
+   '{v_position vec4
      v_texCoord vec2
      v_normal vec3
      v_surfaceToLight vec3
      v_surfaceToView vec3}
-    :outputs
-    {outColor vec4}
-    :signatures
-    {lit ([float float float] vec4)
+   :outputs
+   '{outColor vec4}
+   :signatures
+   '{lit ([float float float] vec4)
      main ([] void)}
-    :functions
-    {lit ([l h m]
+   :functions
+   '{lit ([l h m]
           [:vec4
            "1.0"
            [:abs l]
