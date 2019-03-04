@@ -42,10 +42,12 @@
      :texture texture
      :location uni-loc
      :framebuffer (when (nil? data)
-                    (let [fb (.createFramebuffer gl)]
+                    (let [fb (.createFramebuffer gl)
+                          previous-framebuffer (.getParameter gl gl.FRAMEBUFFER_BINDING)]
                       (.bindFramebuffer gl gl.FRAMEBUFFER fb)
                       (.framebufferTexture2D gl gl.FRAMEBUFFER gl.COLOR_ATTACHMENT0
                         gl.TEXTURE_2D texture 0)
+                      (.bindFramebuffer gl gl.FRAMEBUFFER previous-framebuffer)
                       fb))}))
 
 (defn- call-uniform* [{:keys [gl] :as game} m glsl-type uni-loc uni-name data]
@@ -149,9 +151,10 @@
           (throw (ex-info (str "Can't find " texture-name) {})))
         (when-not (:framebuffer texture)
           (throw (ex-info (str texture-name " must have :data set to nil") {})))
-        (.bindFramebuffer gl gl.FRAMEBUFFER (:framebuffer texture))
-        (render-entity game inner-entity)
-        (.bindFramebuffer gl gl.FRAMEBUFFER nil)))
+        (let [previous-framebuffer (.getParameter gl gl.FRAMEBUFFER_BINDING)]
+          (.bindFramebuffer gl gl.FRAMEBUFFER (:framebuffer texture))
+          (render-entity game inner-entity)
+          (.bindFramebuffer gl gl.FRAMEBUFFER previous-framebuffer))))
     (some->> viewport (render-viewport gl))
     (some->> clear (render-clear gl))
     (if indices
