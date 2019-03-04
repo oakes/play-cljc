@@ -172,7 +172,7 @@
    (nth m 2) (nth m 6) (nth m 10) (nth m 14)
    (nth m 3) (nth m 7) (nth m 11) (nth m 15)])
 
-(defn cross [a b]
+(defn- cross [a b]
   [(- (* (nth a 1) (nth b 2))
       (* (nth a 2) (nth b 1)))
    (- (* (nth a 2) (nth b 0))
@@ -180,12 +180,12 @@
    (- (* (nth a 0) (nth b 1))
       (* (nth a 1) (nth b 0)))])
 
-(defn subtract-vectors [a b]
+(defn- subtract-vectors [a b]
   [(- (nth a 0) (nth b 0))
    (- (nth a 1) (nth b 1))
    (- (nth a 2) (nth b 2))])
 
-(defn normalize [v]
+(defn- normalize [v]
   (let [length (math sqrt
                  (+ (* (nth v 0) (nth v 0))
                     (* (nth v 1) (nth v 1))
