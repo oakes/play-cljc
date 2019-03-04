@@ -1,6 +1,6 @@
 (ns play-cljc.math
-  #?(:clj (:require [play-cljc.math-java :refer [math-call math-prop]])
-     :cljs (:require-macros [play-cljc.math-js :refer [math-call math-prop]])))
+  #?(:clj (:require [play-cljc.math-java :refer [math]])
+     :cljs (:require-macros [play-cljc.math-js :refer [math]])))
 
 (defn vector->array [v]
   (#?(:clj float-array :cljs clj->js) v))
@@ -60,7 +60,7 @@
     (->> mi seq (apply concat) vec)))
 
 (defn deg->rad [d]
-  (-> d (* (math-prop PI)) (/ 180)))
+  (-> d (* (math PI)) (/ 180)))
 
 (defn transform-vector [m v]
   (let [dst (vector->array [])]
@@ -81,8 +81,8 @@
    tx ty 1])
 
 (defn rotation-matrix [angle-in-radians]
-  (let [c (math-call cos angle-in-radians)
-        s (math-call sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [c (- s) 0
      s c 0
      0 0 1]))
@@ -106,24 +106,24 @@
    tx, ty, tz, 1,])
 
 (defn x-rotation-matrix-3d [angle-in-radians]
-  (let [c (math-call cos angle-in-radians)
-        s (math-call sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [1, 0, 0, 0,
      0, c, s, 0,
      0, (- s), c, 0,
      0, 0, 0, 1]))
 
 (defn y-rotation-matrix-3d [angle-in-radians]
-  (let [c (math-call cos angle-in-radians)
-        s (math-call sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [c, 0, (- s), 0,
      0, 1, 0, 0,
      s, 0, c, 0,
      0, 0, 0, 1,]))
 
 (defn z-rotation-matrix-3d [angle-in-radians]
-  (let [c (math-call cos angle-in-radians)
-        s (math-call sin angle-in-radians)]
+  (let [c (math cos angle-in-radians)
+        s (math sin angle-in-radians)]
     [c, s, 0, 0,
      (- s), c, 0, 0,
      0, 0, 1, 0,
@@ -152,8 +152,8 @@
      1]))
 
 (defn perspective-matrix-3d [{:keys [field-of-view aspect near far]}]
-  (let [f (math-call tan (- (* (math-prop PI) 0.5)
-                            (* field-of-view 0.5)))
+  (let [f (math tan (- (* (math PI) 0.5)
+                       (* field-of-view 0.5)))
         range-inv (/ 1 (- near far))]
     [(/ f aspect) 0 0 0
      0 f 0 0
@@ -186,7 +186,7 @@
    (- (nth a 2) (nth b 2))])
 
 (defn normalize [v]
-  (let [length (math-call sqrt
+  (let [length (math sqrt
                  (+ (* (nth v 0) (nth v 0))
                     (* (nth v 1) (nth v 1))
                     (* (nth v 2) (nth v 2))))]
