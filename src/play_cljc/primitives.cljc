@@ -1,5 +1,7 @@
 (ns play-cljc.primitives
-  (:require [clojure.spec.alpha :as s]))
+  (:require #?(:clj  [play-cljc.macros-java :refer [math]]
+               :cljs [play-cljc.macros-js :refer-macros [math]])
+            [clojure.spec.alpha :as s]))
 
 (s/def ::width number?)
 (s/def ::depth number?)
@@ -89,9 +91,9 @@
 
 (defn sphere [{:keys [radius subdivisions-axis subdivisions-height]}]
   (let [start-latitude 0
-        end-latitude js/Math.PI
+        end-latitude (math PI)
         start-longitude 0
-        end-longitude (* 2 js/Math.PI)
+        end-longitude (* 2 (math PI))
         lat-range (- end-latitude start-latitude)
         long-range (- end-longitude start-longitude)
         num-vertices (* (inc subdivisions-axis) (inc subdivisions-height))
@@ -103,10 +105,10 @@
                     v (/ y subdivisions-height)
                     theta (+ (* long-range u) start-longitude)
                     phi (+ (* lat-range v) start-latitude)
-                    sin-theta (js/Math.sin theta)
-                    cos-theta (js/Math.cos theta)
-                    sin-phi (js/Math.sin phi)
-                    cos-phi (js/Math.cos phi)
+                    sin-theta (math sin theta)
+                    cos-theta (math cos theta)
+                    sin-phi (math sin phi)
+                    cos-phi (math cos phi)
                     ux (* cos-theta sin-phi)
                     uy cos-phi
                     uz (* sin-theta sin-phi)]
@@ -244,9 +246,9 @@
         num-vertices (* (inc radial-subdivisions)
                         (+ vertical-subdivisions 1 extra))
         verts-around-edge (inc radial-subdivisions)
-        slant (js/Math.atan2 (- bottom-radius top-radius) height)
-        cos-slant (js/Math.cos slant)
-        sin-slant (js/Math.sin slant)
+        slant (math atan2 (- bottom-radius top-radius) height)
+        cos-slant (math cos slant)
+        sin-slant (math sin slant)
         start (if top-cap? -2 0)
         end (+ vertical-subdivisions (if bottom-cap? 2 0))]
     (-> (fn [m yy]
@@ -276,8 +278,8 @@
                 y (- y (/ height 2))]
             (reduce
               (fn [m ii]
-                (let [sin (js/Math.sin (-> ii (* js/Math.PI) (* 2) (/ radial-subdivisions)))
-                      cos (js/Math.cos (-> ii (* js/Math.PI) (* 2) (/ radial-subdivisions)))]
+                (let [sin (math sin (-> ii (* (math PI)) (* 2) (/ radial-subdivisions)))
+                      cos (math cos (-> ii (* (math PI)) (* 2) (/ radial-subdivisions)))]
                   (-> m
                       (update :positions (fn [positions]
                                            (-> positions
@@ -354,9 +356,9 @@
                          (let [u-back (/ x (dec subdivisions-thick))
                                v (/ z subdivisions-down)
                                x-back (* (- u-back 0.5) 2)
-                               angle (-> (* v offset-range) (+ start-offset) (* js/Math.PI))
-                               s (js/Math.sin angle)
-                               c (js/Math.cos angle)
+                               angle (-> (* v offset-range) (+ start-offset) (* (math PI)))
+                               s (math sin angle)
+                               c (math cos angle)
                                radius (lerp vertical-radius arc-radius s)
                                px (* x-back thickness)
                                py (* c vertical-radius)
@@ -427,24 +429,24 @@
 
 (defn torus [{:keys [radius thickness radial-subdivisions body-subdivisions
                      start-angle end-angle]
-              :or {start-angle 0 end-angle (* 2 js/Math.PI)}}]
+              :or {start-angle 0 end-angle (* 2 (math PI))}}]
   (let [angle-range (- end-angle start-angle)
         radial-parts (inc radial-subdivisions)
         body-parts (inc body-subdivisions)
         num-vertices (* radial-parts body-parts)]
     (-> (fn [m slice]
           (let [v (/ slice body-subdivisions)
-                slice-angle (* v js/Math.PI 2)
-                slice-sin (js/Math.sin slice-angle)
+                slice-angle (* v (math PI) 2)
+                slice-sin (math sin slice-angle)
                 ring-radius (+ radius (* slice-sin thickness))
-                ny (js/Math.cos slice-angle)
+                ny (math cos slice-angle)
                 y (* ny thickness)]
             (reduce
               (fn [m ring]
                 (let [u (/ ring radial-subdivisions)
                       ring-angle (+ start-angle (* u angle-range))
-                      x-sin (js/Math.sin ring-angle)
-                      z-cos (js/Math.cos ring-angle)
+                      x-sin (math sin ring-angle)
+                      z-cos (math cos ring-angle)
                       x (* x-sin ring-radius)
                       z (* z-cos ring-radius)
                       nx (* x-sin slice-sin)
@@ -508,12 +510,12 @@
         points-per-stack (inc divisions)]
     (-> (fn [m stack]
           (let [stack-radius (+ inner-radius
-                                (* radius-span (js/Math.pow (/ stack stacks) stack-power)))]
+                                (* radius-span (math pow (/ stack stacks) stack-power)))]
             (-> (fn [m i]
                   (let [first-index (:first-index m)
-                        theta (-> 2 (* js/Math.PI) (* i) (/ divisions))
-                        x (* stack-radius (js/Math.cos theta))
-                        z (* stack-radius (js/Math.sin theta))]
+                        theta (-> 2 (* (math PI)) (* i) (/ divisions))
+                        x (* stack-radius (math cos theta))
+                        z (* stack-radius (math sin theta))]
                     (-> m
                         (update :positions (fn [positions]
                                              (-> positions
