@@ -13,7 +13,7 @@
         remaining-letters (subs s 1)]
     (if-let [l (first s)]
       (if (Character/isUpperCase l)
-        `(aget (:gl ~game) ~s)
+        `(goog.object/get (:gl ~game) ~s)
         (concat [(symbol (str "." s)) `(:gl ~game)] args))
       (throw (Exception. "Invalid method or property name")))))
 
