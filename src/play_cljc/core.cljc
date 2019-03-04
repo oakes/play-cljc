@@ -5,9 +5,9 @@
             [iglu.parse :as parse]
             [play-cljc.utils :as u]))
 
-(defn create-game [context]
+(defn create-game [#?(:cljs context)]
   {:tex-count (atom 0)
-   :context context})
+   #?@(:cljs [:context context])})
 
 (defn- attribute-type->array-type [game attr-type]
   (condp = attr-type
