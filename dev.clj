@@ -22,7 +22,8 @@
 (require
   '[iglu.core :as ig]
   '[play-cljc.utils :as u]
-  '[play-cljc.example-data :as data])
+  '[play-cljc.example-data :as data]
+  '[play-cljc.math :as m])
 
 (defmethod task "native"
   [_]
@@ -50,7 +51,15 @@
                                   :size 2
                                   :normalize false
                                   :stride 0
-                                  :offset 0})]
+                                  :offset 0})
+            color-location (GL41/glGetUniformLocation program "u_color")
+            matrix-location (GL41/glGetUniformLocation program "u_matrix")]
+        (GL41/glUniform4fv color-location (float-array [(rand) (rand) (rand) 1]))
+        (GL41/glUniformMatrix3fv matrix-location false
+                                 (->> (m/projection-matrix 300 300)
+                                      (m/multiply-matrices 3 (m/translation-matrix (rand-int 300) (rand-int 300)))
+                                      (m/multiply-matrices 3 (m/scaling-matrix (rand-int 300) (rand-int 300)))
+                                      float-array))
         (GL41/glClearColor (float 1) (float 1) (float 1) (float 1))
         (while (not (GLFW/glfwWindowShouldClose window))
           (GL41/glClear (bit-or GL41/GL_COLOR_BUFFER_BIT GL41/GL_DEPTH_BUFFER_BIT))
