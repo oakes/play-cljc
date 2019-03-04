@@ -13,8 +13,8 @@
         remaining-letters (subs s 1)]
     (if-let [l (first s)]
       (if (Character/isUpperCase l)
-        (symbol (str "GL41/GL_" s))
-        (cons (symbol (str "GL41/gl" (Character/toUpperCase l) remaining-letters))
+        (symbol (str "org.lwjgl.opengl.GL41/GL_" s))
+        (cons (symbol (str "org.lwjgl.opengl.GL41/gl" (Character/toUpperCase l) remaining-letters))
               args))
       (throw (Exception. "Invalid method or property name")))))
 
