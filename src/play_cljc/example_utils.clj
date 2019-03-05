@@ -6,6 +6,9 @@
 (defn init-example [window]
   (c/create-game window))
 
+(defn game-loop [f game state]
+  [f game state])
+
 (defn resize-example [game])
 
 (defn listen-for-mouse [{:keys [tx ty] :or {tx 0 ty 0}} callback])

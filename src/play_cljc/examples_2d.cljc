@@ -11,29 +11,42 @@
 
 ;; rand-rects
 
-(defn rand-rects-init [game]
-  (let [entity (c/create-entity game
-                 {:vertex data/two-d-vertex-shader
-                  :fragment data/two-d-fragment-shader
-                  :attributes {'a_position {:data data/rect
-                                            :type (gl game FLOAT)
-                                            :size 2}}})]
-    (eu/resize-example game)
+(defn rand-rects-render [game [entity rects :as state]]
+  (eu/resize-example game)
+  (c/render-entity game
+    {:clear {:color [1 1 1 1] :depth 1}})
+  (doseq [{color :color
+           [posx posy] :position
+           [sx sy] :scale}
+          rects]
     (c/render-entity game
-      {:clear {:color [1 1 1 1] :depth 1}})
-    (dotimes [_ 50]
-      (c/render-entity game
-        (assoc entity
-          :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-          :uniforms {'u_color [(rand) (rand) (rand) 1]
-                     'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
-                                    (m/multiply-matrices 3 (m/translation-matrix (rand-int 300) (rand-int 300)))
-                                    (m/multiply-matrices 3 (m/scaling-matrix (rand-int 300) (rand-int 300))))})))))
+      (assoc entity
+        :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+        :uniforms {'u_color color
+                   'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                                  (m/multiply-matrices 3 (m/translation-matrix posx posy))
+                                  (m/multiply-matrices 3 (m/scaling-matrix sx sy)))})))
+  state)
+
+(defn rand-rects-init [game]
+  [(c/create-entity game
+     {:vertex data/two-d-vertex-shader
+      :fragment data/two-d-fragment-shader
+      :attributes {'a_position {:data data/rect
+                                :type (gl game FLOAT)
+                                :size 2}}})
+   (for [_ (range 50)]
+     {:color [(rand) (rand) (rand) 1]
+      :position [(rand-int 300) (rand-int 300)]
+      :scale [(rand-int 300) (rand-int 300)]})])
 
 (defexample play-cljc.examples-2d/rand-rects
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-2d/rand-rects-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-2d/rand-rects-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-2d/rand-rects-render
+      game state)))
 
 ;; image
 

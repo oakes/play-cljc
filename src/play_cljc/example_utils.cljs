@@ -13,6 +13,10 @@
     (.appendChild card canvas)
     (assoc (c/create-game context) :canvas canvas)))
 
+(defn game-loop [f game state]
+  (let [new-state (f game state)]
+    (js/requestAnimationFrame #(game-loop f game new-state))))
+
 (defn resize-example [{:keys [canvas]}]
   (let [display-width canvas.clientWidth
         display-height canvas.clientHeight]

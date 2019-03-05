@@ -20,8 +20,8 @@
         '[org.lwjgl.opengl GL GL41])
 
 (require
-  '[play-cljc.example-utils :as eu]
-  '[play-cljc.examples-2d :as e2d])
+  '[play-cljc.examples-2d]
+  '[dynadoc.example :as ex])
 
 (defmethod task "native"
   [_]
@@ -41,11 +41,18 @@
       (GLFW/glfwShowWindow window)
       ;; loop
       (GL/createCapabilities)
-      (let [game (eu/init-example window)]
-        (e2d/rand-rects-init game)
-        (while (not (GLFW/glfwWindowShouldClose window))
-          (GLFW/glfwSwapBuffers window)
-          (GLFW/glfwPollEvents)))
+      (let [example (-> @ex/registry-ref
+                        (get-in ['play-cljc.examples-2d 'rand-rects])
+                        first)
+            [f game state] (eval
+                             (list 'let [(:with-card example) window]
+                               (:body example)))]
+        (loop [state state]
+          (when-not (GLFW/glfwWindowShouldClose window)
+            (let [new-state (f game state)]
+              (GLFW/glfwSwapBuffers window)
+              (GLFW/glfwPollEvents)
+              (recur new-state)))))
       ;; clean up
       (Callbacks/glfwFreeCallbacks window)
       (GLFW/glfwDestroyWindow window)
