@@ -150,8 +150,8 @@
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
                        (gl game VERTEX_ARRAY_BINDING))]
-    (gl game useProgram program)
-    (gl game bindVertexArray vao)
+    (some->> program (gl game useProgram))
+    (some->> vao (gl game bindVertexArray))
     (let [{:keys [textures]} (reduce
                                (partial call-uniform game)
                                entity
@@ -171,9 +171,10 @@
           (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
-    (if indices
-      (gl game drawElements (gl game TRIANGLES) index-count (gl game UNSIGNED_SHORT) 0)
-      (gl game drawArrays (gl game TRIANGLES) 0 index-count))
+    (when index-count
+      (if indices
+        (gl game drawElements (gl game TRIANGLES) index-count (gl game UNSIGNED_SHORT) 0)
+        (gl game drawArrays (gl game TRIANGLES) 0 index-count)))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)))
 

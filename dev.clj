@@ -20,12 +20,8 @@
         '[org.lwjgl.opengl GL GL41])
 
 (require
-  '[play-cljc.utils :as u]
-  '[play-cljc.example-data :as data]
-  '[play-cljc.math :as m]
-  '[play-cljc.core :as c]
   '[play-cljc.example-utils :as eu]
-  '[play-cljc.macros-java :refer [gl]])
+  '[play-cljc.examples-2d :as e2d])
 
 (defmethod task "native"
   [_]
@@ -45,24 +41,9 @@
       (GLFW/glfwShowWindow window)
       ;; loop
       (GL/createCapabilities)
-      (let [game (eu/init-example window)
-            entity (c/create-entity game
-                     {:vertex data/two-d-vertex-shader
-                      :fragment data/two-d-fragment-shader
-                      :attributes {'a_position {:data data/rect
-                                                :type (gl game FLOAT)
-                                                :size 2}}})
-            color [(rand) (rand) (rand) 1]]
+      (let [game (eu/init-example window)]
+        (e2d/rand-rects-init game)
         (while (not (GLFW/glfwWindowShouldClose window))
-          (c/render-entity game
-            (assoc entity
-              :clear {:color [1 1 1 1] :depth 1}
-              :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-              :uniforms {'u_color color
-                         'u_matrix (->> (m/projection-matrix 300 300)
-                                        (m/multiply-matrices 3 (m/translation-matrix 0 0))
-                                        (m/multiply-matrices 3 (m/scaling-matrix 100 100))
-                                        float-array)}))
           (GLFW/glfwSwapBuffers window)
           (GLFW/glfwPollEvents)))
       ;; clean up

@@ -4,8 +4,10 @@
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
             [play-cljc.math :as m]
-            [play-cljc.macros-js :refer-macros [gl]])
-  (:require-macros [dynadoc.example :refer [defexample]]))
+            #?(:clj  [play-cljc.macros-java :refer [gl]]
+               :cljs [play-cljc.macros-js :refer-macros [gl]])
+            #?(:clj [dynadoc.example :refer [defexample]]))
+  #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
 
 ;; rand-rects
 
@@ -17,6 +19,8 @@
                                             :type (gl game FLOAT)
                                             :size 2}}})]
     (eu/resize-example game)
+    (c/render-entity game
+      {:clear {:color [1 1 1 1] :depth 1}})
     (dotimes [_ 50]
       (c/render-entity game
         (assoc entity
