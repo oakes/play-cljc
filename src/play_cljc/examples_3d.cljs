@@ -43,11 +43,11 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
       :uniforms {'u_matrix
                  (->> (m/ortho-matrix-3d {:left 0
-                                          :right (u/get-width game)
-                                          :bottom (u/get-height game)
+                                          :right (eu/get-width game)
+                                          :bottom (eu/get-height game)
                                           :top 0
                                           :near 400
                                           :far -400})
@@ -75,11 +75,11 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
       :uniforms {'u_matrix
                  (->> (m/ortho-matrix-3d {:left 0
-                                          :right (u/get-width game)
-                                          :bottom (u/get-height game)
+                                          :right (eu/get-width game)
+                                          :bottom (eu/get-height game)
                                           :top 0
                                           :near 400
                                           :far -400})
@@ -112,11 +112,11 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
       :uniforms {'u_matrix
                  (->> (m/ortho-matrix-3d {:left 0
-                                          :right (u/get-width game)
-                                          :bottom (u/get-height game)
+                                          :right (eu/get-width game)
+                                          :bottom (eu/get-height game)
                                           :top 0
                                           :near 400
                                           :far -400})
@@ -148,11 +148,11 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
       :uniforms {'u_matrix
                  (->> (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                :aspect (/ (u/get-width game)
-                                                           (u/get-height game))
+                                                :aspect (/ (eu/get-width game)
+                                                           (eu/get-height game))
                                                 :near 1
                                                 :far 2000})
                       (m/multiply-matrices 4 (m/translation-matrix-3d cx cy -150))
@@ -180,8 +180,8 @@
   (let [radius 200
         num-fs 5
         projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect (/ (u/get-width game)
-                                                               (u/get-height game))
+                                                    :aspect (/ (eu/get-width game)
+                                                               (eu/get-height game))
                                                     :near 1
                                                     :far 2000})
         camera-matrix (->> (m/y-rotation-matrix-3d cr)
@@ -198,7 +198,7 @@
                      view-projection-matrix)]
         (c/render-entity game
           (assoc entity
-            :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
             :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-3d-init [game]
@@ -222,8 +222,8 @@
   (let [radius 200
         num-fs 5
         projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect (/ (u/get-width game)
-                                                               (u/get-height game))
+                                                    :aspect (/ (eu/get-width game)
+                                                               (eu/get-height game))
                                                     :near 1
                                                     :far 2000})
         camera-matrix (->> (m/y-rotation-matrix-3d cr)
@@ -246,7 +246,7 @@
                      view-projection-matrix)]
         (c/render-entity game
           (assoc entity
-            :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
             :uniforms {'u_matrix matrix}))))))
 
 (defn perspective-camera-target-3d-init [game]
@@ -269,11 +269,11 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
       :uniforms {'u_matrix
                  (->> (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                :aspect (/ (u/get-width game)
-                                                           (u/get-height game))
+                                                :aspect (/ (eu/get-width game)
+                                                           (eu/get-height game))
                                                 :near 1
                                                 :far 2000})
                       (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 -360))
@@ -306,8 +306,8 @@
 (defn perspective-texture-3d-render [game entity {:keys [rx ry then now] :as state}]
   (eu/resize-example game)
   (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect (/ (u/get-width game)
-                                                               (u/get-height game))
+                                                    :aspect (/ (eu/get-width game)
+                                                               (eu/get-height game))
                                                     :near 1
                                                     :far 2000})
         camera-pos [0 0 200]
@@ -318,7 +318,7 @@
         view-projection-matrix (m/multiply-matrices 4 view-matrix projection-matrix)]
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
         :uniforms {'u_matrix
                    (->> view-projection-matrix
                         (m/multiply-matrices 4 (m/x-rotation-matrix-3d rx))
@@ -368,8 +368,8 @@
 (defn perspective-texture-data-3d-render [game entity {:keys [rx ry then now] :as state}]
   (eu/resize-example game)
   (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect (/ (u/get-width game)
-                                                               (u/get-height game))
+                                                    :aspect (/ (eu/get-width game)
+                                                               (eu/get-height game))
                                                     :near 1
                                                     :far 2000})
         camera-pos [0 0 2]
@@ -380,7 +380,7 @@
         view-projection-matrix (m/multiply-matrices 4 view-matrix projection-matrix)]
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
         :uniforms {'u_matrix
                    (->> view-projection-matrix
                         (m/multiply-matrices 4 (m/x-rotation-matrix-3d rx))
@@ -458,8 +458,8 @@
   (let [[inner-entity entity] entities]
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-        :uniforms {'u_matrix (cube state (/ (u/get-width game) (u/get-height game)))}
+        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+        :uniforms {'u_matrix (cube state (/ (eu/get-width game) (eu/get-height game)))}
         :render-to-texture {'u_texture (assoc inner-entity
                                          :viewport {:x 0 :y 0 :width target-width :height target-height}
                                          :uniforms {'u_matrix (cube state (/ target-width target-height))})})))

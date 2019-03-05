@@ -1,8 +1,6 @@
 (ns play-cljc.utils
   (:require #?(:clj  [play-cljc.macros-java :refer [gl]]
-               :cljs [play-cljc.macros-js :refer-macros [gl]]))
-  #?(:clj (:import [org.lwjgl.glfw GLFW]
-                   [org.lwjgl.system MemoryUtil])))
+               :cljs [play-cljc.macros-js :refer-macros [gl]])))
 
 (defn- create-shader [game type source]
   (let [shader (gl game createShader type)]
@@ -45,24 +43,4 @@
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) index-buffer)
     (gl game bufferData (gl game ELEMENT_ARRAY_BUFFER) indices (gl game STATIC_DRAW))
     (#?(:clj count :cljs .-length) indices)))
-
-(defn get-width [game]
-  #?(:clj  (let [width (MemoryUtil/memAllocInt 1)
-                 height (MemoryUtil/memAllocInt 1)
-                 _ (GLFW/glfwGetFramebufferSize (:context game) width height)
-                 n (.get width)]
-             (MemoryUtil/memFree width)
-             (MemoryUtil/memFree height)
-             n)
-     :cljs (-> game :context .-canvas .-clientWidth)))
-
-(defn get-height [game]
-  #?(:clj  (let [width (MemoryUtil/memAllocInt 1)
-                 height (MemoryUtil/memAllocInt 1)
-                 _ (GLFW/glfwGetFramebufferSize (:context game) width height)
-                 n (.get height)]
-             (MemoryUtil/memFree width)
-             (MemoryUtil/memFree height)
-             n)
-     :cljs (-> game :context .-canvas .-clientHeight)))
 

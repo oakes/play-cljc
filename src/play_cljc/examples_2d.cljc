@@ -21,9 +21,9 @@
           rects]
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
         :uniforms {'u_color color
-                   'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                   'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
                                   (m/multiply-matrices 3 (m/translation-matrix posx posy))
                                   (m/multiply-matrices 3 (m/scaling-matrix sx sy)))})))
   state)
@@ -37,7 +37,7 @@
                                 :size 2}}})
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
-      :position [(rand-int (u/get-width game)) (rand-int (u/get-height game))]
+      :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
       :scale [(rand-int 300) (rand-int 300)]})])
 
 (defexample play-cljc.examples-2d/rand-rects
@@ -52,8 +52,8 @@
 
 (defn image-render [game [entity {:keys [width height]} :as state]]
   (eu/resize-example game)
-  (let [game-width (u/get-width game)
-        game-height (u/get-height game)]
+  (let [game-width (eu/get-width game)
+        game-height (eu/get-height game)]
     (c/render-entity game
       (assoc entity
         :viewport {:x 0 :y 0 :width game-width :height game-height}
@@ -102,8 +102,8 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-      :uniforms {'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+      :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
                                 (m/multiply-matrices 3 (m/translation-matrix x y)))})))
 
 (defn translation-init [game]
@@ -130,8 +130,8 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-      :uniforms {'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+      :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
                                 (m/multiply-matrices 3 (m/translation-matrix tx ty))
                                 (m/multiply-matrices 3 (m/rotation-matrix r))
                                 ;; make it rotate around its center
@@ -164,8 +164,8 @@
   (eu/resize-example game)
   (c/render-entity game
     (assoc entity
-      :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
-      :uniforms {'u_matrix (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+      :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
                                 (m/multiply-matrices 3 (m/translation-matrix tx ty))
                                 (m/multiply-matrices 3 (m/rotation-matrix 0))
                                 (m/multiply-matrices 3 (m/scaling-matrix rx ry)))})))
@@ -196,14 +196,14 @@
 (defn rotation-multi-render [game entity {:keys [tx ty r]}]
   (eu/resize-example game)
   (loop [i 0
-         matrix (m/projection-matrix (u/get-width game) (u/get-height game))]
+         matrix (m/projection-matrix (eu/get-width game) (eu/get-height game))]
     (when (< i 5)
       (let [matrix (->> matrix
                         (m/multiply-matrices 3 (m/translation-matrix tx ty))
                         (m/multiply-matrices 3 (m/rotation-matrix r)))]
         (c/render-entity game
           (assoc entity
-            :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
             :uniforms {'u_matrix matrix}))
         (recur (inc i) matrix)))))
 

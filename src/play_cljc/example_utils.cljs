@@ -48,3 +48,9 @@
       (-> .-src (set! fname))
       (-> .-onload (set! #(callback {:data image :width image.width :height image.height}))))))
 
+(defn get-width [game]
+  (-> game :context .-canvas .-clientWidth))
+
+(defn get-height [game]
+  (-> game :context .-canvas .-clientHeight))
+

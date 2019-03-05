@@ -12,8 +12,8 @@
                        {:keys [then now] :as state}]
   (eu/resize-example game)
   (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect (/ (u/get-width game)
-                                                               (u/get-height game))
+                                                    :aspect (/ (eu/get-width game)
+                                                               (eu/get-height game))
                                                     :near 1
                                                     :far 2000})
         camera-pos [0 0 100]
@@ -34,7 +34,7 @@
                               (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 tz)))]
         (c/render-entity game
           (-> entity
-              (assoc :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)})
+              (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
               (update :uniforms assoc
                 'u_world world-matrix
                 'u_worldViewProjection (->> view-projection-matrix
