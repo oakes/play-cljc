@@ -37,7 +37,7 @@
                                 :size 2}}})
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
-      :position [(rand-int 300) (rand-int 300)]
+      :position [(rand-int (u/get-width game)) (rand-int (u/get-height game))]
       :scale [(rand-int 300) (rand-int 300)]})])
 
 (defexample play-cljc.examples-2d/rand-rects

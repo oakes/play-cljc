@@ -33,7 +33,7 @@
   (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR 1)
   (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_FORWARD_COMPAT GL41/GL_TRUE)
   (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_PROFILE GLFW/GLFW_OPENGL_CORE_PROFILE)
-  (if-let [window (GLFW/glfwCreateWindow 300 300 "Hello world!" 0 0)]
+  (if-let [window (GLFW/glfwCreateWindow 800 600 "Hello world!" 0 0)]
     (do
       ;; init
       (GLFW/glfwMakeContextCurrent window)
