@@ -14,6 +14,6 @@
 (defn listen-for-mouse [{:keys [tx ty] :or {tx 0 ty 0}} callback])
 
 (defn get-image [fname callback]
-  (let [image (ImageIO/read (io/input-stream fname))]
+  (let [image (ImageIO/read (io/input-stream (io/resource (str "dynadoc-extend/cljs/" fname))))]
     (callback {:data image :width (.getWidth image) :height (.getHeight image)})))
 
