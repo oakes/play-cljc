@@ -33,7 +33,7 @@
 
 ;; image
 
-(defn image-init [game image]
+(defn image-init [game {:keys [image width height]}]
   (let [entity (c/create-entity game
                  {:vertex data/image-vertex-shader
                   :fragment data/image-fragment-shader
@@ -61,7 +61,7 @@
         :uniforms {'u_matrix
                    (->> (m/projection-matrix (u/get-width game) (u/get-height game))
                         (m/multiply-matrices 3 (m/translation-matrix 0 0))
-                        (m/multiply-matrices 3 (m/scaling-matrix image.width image.height)))}))))
+                        (m/multiply-matrices 3 (m/scaling-matrix width height)))}))))
 
 (defn image-load [game]
   (eu/get-image "leaves.jpg" (partial image-init game)))

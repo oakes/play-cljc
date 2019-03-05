@@ -329,7 +329,7 @@
                                      (update :ry + (* 0.7 (- now then)))
                                      (assoc :then now :now (* % 0.001)))))))
 
-(defn perspective-texture-3d-init [game image]
+(defn perspective-texture-3d-init [game {:keys [image]}]
   (gl game enable (gl game CULL_FACE))
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (c/create-entity game

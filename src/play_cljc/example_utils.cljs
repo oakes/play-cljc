@@ -42,5 +42,5 @@
   (let [image (js/Image.)]
     (doto image
       (-> .-src (set! fname))
-      (-> .-onload (set! #(callback image))))))
+      (-> .-onload (set! #(callback {:image image :width image.width :height image.height}))))))
 
