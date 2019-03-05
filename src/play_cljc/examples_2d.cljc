@@ -50,43 +50,51 @@
 
 ;; image
 
-(defn image-init [game {:keys [image width height]}]
-  (let [entity (c/create-entity game
-                 {:vertex data/image-vertex-shader
-                  :fragment data/image-fragment-shader
-                  :attributes {'a_position {:data data/rect
-                                            :type (gl game FLOAT)
-                                            :size 2}}
-                  :uniforms {'u_image {:data image
-                                       :opts {:mip-level 0
-                                              :internal-fmt (gl game RGBA)
-                                              :src-fmt (gl game RGBA)
-                                              :src-type (gl game UNSIGNED_BYTE)}
-                                       :params {(gl game TEXTURE_WRAP_S)
-                                                (gl game CLAMP_TO_EDGE),
-                                                (gl game TEXTURE_WRAP_T)
-                                                (gl game CLAMP_TO_EDGE),
-                                                (gl game TEXTURE_MIN_FILTER)
-                                                (gl game NEAREST),
-                                                (gl game TEXTURE_MAG_FILTER)
-                                                (gl game NEAREST)}}}
-                  :clear {:color [0 0 0 0] :depth 1}})]
-    (eu/resize-example game)
+(defn image-render [game [entity {:keys [width height]} :as state]]
+  (eu/resize-example game)
+  (let [game-width (u/get-width game)
+        game-height (u/get-height game)]
     (c/render-entity game
       (assoc entity
-        :viewport {:x 0 :y 0 :width (u/get-width game) :height (u/get-height game)}
+        :viewport {:x 0 :y 0 :width game-width :height game-height}
         :uniforms {'u_matrix
-                   (->> (m/projection-matrix (u/get-width game) (u/get-height game))
+                   (->> (m/projection-matrix game-width game-height)
                         (m/multiply-matrices 3 (m/translation-matrix 0 0))
-                        (m/multiply-matrices 3 (m/scaling-matrix (* 200 (/ width height)) 200)))}))))
+                        (m/multiply-matrices 3 (m/scaling-matrix (* game-height (/ width height)) game-height)))})))
+  state)
 
-(defn image-load [game]
-  (eu/get-image "aintgottaexplainshit.jpg" (partial image-init game)))
+(defn image-init [game {:keys [data] :as image}]
+  [(c/create-entity game
+     {:vertex data/image-vertex-shader
+      :fragment data/image-fragment-shader
+      :attributes {'a_position {:data data/rect
+                                :type (gl game FLOAT)
+                                :size 2}}
+      :uniforms {'u_image {:data data
+                           :opts {:mip-level 0
+                                  :internal-fmt (gl game RGBA)
+                                  :src-fmt (gl game RGBA)
+                                  :src-type (gl game UNSIGNED_BYTE)}
+                           :params {(gl game TEXTURE_WRAP_S)
+                                    (gl game CLAMP_TO_EDGE),
+                                    (gl game TEXTURE_WRAP_T)
+                                    (gl game CLAMP_TO_EDGE),
+                                    (gl game TEXTURE_MIN_FILTER)
+                                    (gl game NEAREST),
+                                    (gl game TEXTURE_MAG_FILTER)
+                                    (gl game NEAREST)}}}
+      :clear {:color [0 0 0 0] :depth 1}})
+   image])
 
 (defexample play-cljc.examples-2d/image
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-2d/image-load)))
+  (let [game (play-cljc.example-utils/init-example card)]
+    (play-cljc.example-utils/get-image "aintgottaexplainshit.jpg"
+      (fn [image]
+        (let [state (play-cljc.examples-2d/image-init game image)]
+          (play-cljc.example-utils/game-loop
+            play-cljc.examples-2d/image-render
+            game state))))))
 
 ;; translation
 

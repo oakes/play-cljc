@@ -329,7 +329,7 @@
                                      (update :ry + (* 0.7 (- now then)))
                                      (assoc :then now :now (* % 0.001)))))))
 
-(defn perspective-texture-3d-init [game {:keys [image]}]
+(defn perspective-texture-3d-init [game {:keys [data]}]
   (gl game enable (gl game CULL_FACE))
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (c/create-entity game
@@ -342,7 +342,7 @@
                                             :type (gl game FLOAT)
                                             :size 2
                                             :normalize true}}
-                  :uniforms {'u_texture {:data image
+                  :uniforms {'u_texture {:data data
                                          :opts {:mip-level 0
                                                 :internal-fmt (gl game RGBA)
                                                 :src-fmt (gl game RGBA)

@@ -15,5 +15,5 @@
 
 (defn get-image [fname callback]
   (let [image (ImageIO/read (io/input-stream fname))]
-    (callback {:image image :width (.getWidth image) :height (.getHeight image)})))
+    (callback {:data image :width (.getWidth image) :height (.getHeight image)})))
 
