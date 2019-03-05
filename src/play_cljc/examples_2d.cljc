@@ -65,10 +65,10 @@
         :uniforms {'u_matrix
                    (->> (m/projection-matrix (u/get-width game) (u/get-height game))
                         (m/multiply-matrices 3 (m/translation-matrix 0 0))
-                        (m/multiply-matrices 3 (m/scaling-matrix width height)))}))))
+                        (m/multiply-matrices 3 (m/scaling-matrix (* 200 (/ width height)) 200)))}))))
 
 (defn image-load [game]
-  (eu/get-image "leaves.jpg" (partial image-init game)))
+  (eu/get-image "aintgottaexplainshit.jpg" (partial image-init game)))
 
 (defexample play-cljc.examples-2d/image
   {:with-card card}
