@@ -27,7 +27,8 @@
         direct-buffer (doto (ByteBuffer/allocateDirect (alength bytes))
                         (.put bytes)
                         (.flip))
-        decoded-image (STBImage/stbi_load_from_memory direct-buffer width height components 4)
+        decoded-image (STBImage/stbi_load_from_memory direct-buffer width height components
+                        STBImage/STBI_rgb_alpha)
         image {:data decoded-image :width (.get width) :height (.get height)}]
     (MemoryUtil/memFree width)
     (MemoryUtil/memFree height)
