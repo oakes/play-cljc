@@ -34,7 +34,6 @@
      (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)
      (gl game enableVertexAttribArray attrib-location)
      (gl game vertexAttribPointer attrib-location size type normalize stride offset)
-     (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)
      (gl game bufferData (gl game ARRAY_BUFFER) src-data (gl game STATIC_DRAW))
      (/ (#?(:clj count :cljs .-length) src-data) size))))
 
