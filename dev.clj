@@ -42,7 +42,7 @@
       ;; loop
       (GL/createCapabilities)
       (let [example (-> @ex/registry-ref
-                        (get-in ['play-cljc.examples-2d 'rotation])
+                        (get-in ['play-cljc.examples-2d 'rotation-multi])
                         first)
             [f game state] (eval
                              (list 'let [(:with-card example) window]

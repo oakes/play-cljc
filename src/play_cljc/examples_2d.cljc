@@ -62,9 +62,10 @@
         :uniforms {'u_matrix
                    (->> (m/projection-matrix game-width game-height)
                         (m/multiply-matrices 3 (m/translation-matrix 0 0))
-                        (m/multiply-matrices 3 (if (> screen-ratio image-ratio)
-                                                 (m/scaling-matrix (* game-height (/ width height)) game-height)
-                                                 (m/scaling-matrix game-width (* game-width (/ height width))))))})))
+                        (m/multiply-matrices 3
+                          (if (> screen-ratio image-ratio)
+                            (m/scaling-matrix (* game-height (/ width height)) game-height)
+                            (m/scaling-matrix game-width (* game-width (/ height width))))))})))
   state)
 
 (defn image-init [game {:keys [data width height] :as image}]
@@ -176,15 +177,17 @@
 
 ;; scale
 
-(defn scale-render [game entity {:keys [tx ty rx ry]}]
+(defn scale-render [game [entity *state :as state]]
   (eu/resize-example game)
-  (c/render-entity game
-    (assoc entity
-      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-      :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
-                                (m/multiply-matrices 3 (m/translation-matrix tx ty))
-                                (m/multiply-matrices 3 (m/rotation-matrix 0))
-                                (m/multiply-matrices 3 (m/scaling-matrix rx ry)))})))
+  (let [{:keys [tx ty rx ry]} @*state]
+    (c/render-entity game
+      (assoc entity
+        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+        :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
+                                  (m/multiply-matrices 3 (m/translation-matrix tx ty))
+                                  (m/multiply-matrices 3 (m/rotation-matrix 0))
+                                  (m/multiply-matrices 3 (m/scaling-matrix rx ry)))})))
+  state)
 
 (defn scale-init [game]
   (let [entity (c/create-entity game
@@ -199,28 +202,35 @@
         ty 100
         *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
     (eu/listen-for-mouse game *state)
-    (scale-render game entity @*state)))
+    [entity *state]))
 
 (defexample play-cljc.examples-2d/scale
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-2d/scale-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-2d/scale-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-2d/scale-render
+      game state)))
 
 ;; rotation-multi
 
-(defn rotation-multi-render [game entity {:keys [tx ty r]}]
+(defn rotation-multi-render [game [entity *state :as state]]
   (eu/resize-example game)
-  (loop [i 0
-         matrix (m/projection-matrix (eu/get-width game) (eu/get-height game))]
-    (when (< i 5)
-      (let [matrix (->> matrix
-                        (m/multiply-matrices 3 (m/translation-matrix tx ty))
-                        (m/multiply-matrices 3 (m/rotation-matrix r)))]
-        (c/render-entity game
-          (assoc entity
-            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-            :uniforms {'u_matrix matrix}))
-        (recur (inc i) matrix)))))
+  (c/render-entity game
+    {:clear {:color [1 1 1 1] :depth 1}})
+  (let [{:keys [tx ty r]} @*state]
+    (loop [i 0
+           matrix (m/projection-matrix (eu/get-width game) (eu/get-height game))]
+      (when (< i 5)
+        (let [matrix (->> matrix
+                          (m/multiply-matrices 3 (m/translation-matrix tx ty))
+                          (m/multiply-matrices 3 (m/rotation-matrix r)))]
+          (c/render-entity game
+            (assoc entity
+              :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+              :uniforms {'u_matrix matrix}))
+          (recur (inc i) matrix)))))
+  state)
 
 (defn rotation-multi-init [game]
   (let [entity (c/create-entity game
@@ -234,10 +244,13 @@
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
     (eu/listen-for-mouse game *state)
-    (rotation-multi-render game entity @*state)))
+    [entity *state]))
 
 (defexample play-cljc.examples-2d/rotation-multi
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-2d/rotation-multi-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-2d/rotation-multi-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-2d/rotation-multi-render
+      game state)))
 
