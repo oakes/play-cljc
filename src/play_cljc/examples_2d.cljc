@@ -138,16 +138,18 @@
 
 ;; rotation
 
-(defn rotation-render [game entity {:keys [tx ty r]}]
+(defn rotation-render [game [entity *state :as state]]
   (eu/resize-example game)
-  (c/render-entity game
-    (assoc entity
-      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-      :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
-                                (m/multiply-matrices 3 (m/translation-matrix tx ty))
-                                (m/multiply-matrices 3 (m/rotation-matrix r))
-                                ;; make it rotate around its center
-                                (m/multiply-matrices 3 (m/translation-matrix -50 -75)))})))
+  (let [{:keys [tx ty r]} @*state]
+    (c/render-entity game
+      (assoc entity
+        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+        :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
+                                  (m/multiply-matrices 3 (m/translation-matrix tx ty))
+                                  (m/multiply-matrices 3 (m/rotation-matrix r))
+                                  ;; make it rotate around its center
+                                  (m/multiply-matrices 3 (m/translation-matrix -50 -75)))})))
+  state)
 
 (defn rotation-init [game]
   (let [entity (c/create-entity game
@@ -162,12 +164,15 @@
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
     (eu/listen-for-mouse game *state)
-    (rotation-render game entity @*state)))
+    [entity *state]))
 
 (defexample play-cljc.examples-2d/rotation
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-2d/rotation-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-2d/rotation-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-2d/rotation-render
+      game state)))
 
 ;; scale
 
