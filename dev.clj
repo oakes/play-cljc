@@ -42,7 +42,7 @@
       ;; loop
       (GL/createCapabilities)
       (let [example (-> @ex/registry-ref
-                        (get-in ['play-cljc.examples-2d 'image])
+                        (get-in ['play-cljc.examples-2d 'translation])
                         first)
             [f game state] (eval
                              (list 'let [(:with-card example) window]

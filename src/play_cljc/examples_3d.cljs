@@ -61,7 +61,7 @@
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (f-entity game data/f-3d)
         *state (atom {:x 0 :y 0})]
-    (eu/listen-for-mouse game #(translation-3d-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (translation-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/translation-3d
@@ -97,8 +97,7 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
-    (eu/listen-for-mouse (merge game @*state)
-      #(rotation-3d-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (rotation-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/rotation-3d
@@ -133,8 +132,7 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
-    (eu/listen-for-mouse (merge game @*state)
-      #(scale-3d-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (scale-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/scale-3d
@@ -165,7 +163,7 @@
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (f-entity game data/f-3d)
         *state (atom {:cx 0 :cy 0})]
-    (eu/listen-for-mouse game #(perspective-3d-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (perspective-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-3d
@@ -206,8 +204,7 @@
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
-    (eu/listen-for-mouse game
-      #(perspective-camera-3d-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (perspective-camera-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-camera-3d
@@ -254,8 +251,7 @@
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:r 0})]
-    (eu/listen-for-mouse game
-      #(perspective-camera-target-3d-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (perspective-camera-target-3d-render game entity @*state)))
 
 (defexample play-cljc.examples-3d/perspective-camera-target-3d

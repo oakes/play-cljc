@@ -105,13 +105,15 @@
 
 ;; translation
 
-(defn translation-render [game entity {:keys [x y]}]
+(defn translation-render [game [entity *state :as state]]
   (eu/resize-example game)
-  (c/render-entity game
-    (assoc entity
-      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-      :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
-                                (m/multiply-matrices 3 (m/translation-matrix x y)))})))
+  (let [{:keys [x y]} @*state]
+    (c/render-entity game
+      (assoc entity
+        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+        :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
+                                  (m/multiply-matrices 3 (m/translation-matrix x y)))})))
+  state)
 
 (defn translation-init [game]
   (let [entity (c/create-entity game
@@ -123,13 +125,16 @@
                   :uniforms {'u_color [1 0 0.5 1]}
                   :clear {:color [0 0 0 0] :depth 1}})
         *state (atom {:x 0 :y 0})]
-    (eu/listen-for-mouse game #(translation-render game entity (swap! *state merge %)))
-    (translation-render game entity @*state)))
+    (eu/listen-for-mouse game *state)
+    [entity *state]))
 
 (defexample play-cljc.examples-2d/translation
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-2d/translation-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-2d/translation-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-2d/translation-render
+      game state)))
 
 ;; rotation
 
@@ -156,8 +161,7 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
-    (eu/listen-for-mouse (merge game @*state)
-      #(rotation-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (rotation-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation
@@ -189,8 +193,7 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
-    (eu/listen-for-mouse (merge game @*state)
-      #(scale-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (scale-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/scale
@@ -225,8 +228,7 @@
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
-    (eu/listen-for-mouse (merge game @*state)
-      #(rotation-multi-render game entity (swap! *state merge %)))
+    (eu/listen-for-mouse game *state)
     (rotation-multi-render game entity @*state)))
 
 (defexample play-cljc.examples-2d/rotation-multi
