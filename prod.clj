@@ -42,7 +42,10 @@
                   [org.lwjgl/lwjgl-glfw "3.2.1" :classifier "natives-windows"]
                   [org.lwjgl/lwjgl-opengl "3.2.1" :classifier "natives-linux"]
                   [org.lwjgl/lwjgl-opengl "3.2.1" :classifier "natives-macos"]
-                  [org.lwjgl/lwjgl-opengl "3.2.1" :classifier "natives-windows"]])
+                  [org.lwjgl/lwjgl-opengl "3.2.1" :classifier "natives-windows"]
+                  [org.lwjgl/lwjgl-stb "3.2.1" :classifier "natives-linux"]
+                  [org.lwjgl/lwjgl-stb "3.2.1" :classifier "natives-macos"]
+                  [org.lwjgl/lwjgl-stb "3.2.1" :classifier "natives-windows"]])
 
 (defmethod task "install"
   [_]

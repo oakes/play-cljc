@@ -53,17 +53,21 @@
 (defn image-render [game [entity {:keys [width height]} :as state]]
   (eu/resize-example game)
   (let [game-width (eu/get-width game)
-        game-height (eu/get-height game)]
+        game-height (eu/get-height game)
+        screen-ratio (/ game-width game-height)
+        image-ratio (/ width height)]
     (c/render-entity game
       (assoc entity
         :viewport {:x 0 :y 0 :width game-width :height game-height}
         :uniforms {'u_matrix
                    (->> (m/projection-matrix game-width game-height)
                         (m/multiply-matrices 3 (m/translation-matrix 0 0))
-                        (m/multiply-matrices 3 (m/scaling-matrix (* game-height (/ width height)) game-height)))})))
+                        (m/multiply-matrices 3 (if (> screen-ratio image-ratio)
+                                                 (m/scaling-matrix (* game-height (/ width height)) game-height)
+                                                 (m/scaling-matrix game-width (* game-width (/ height width))))))})))
   state)
 
-(defn image-init [game {:keys [data] :as image}]
+(defn image-init [game {:keys [data width height] :as image}]
   [(c/create-entity game
      {:vertex data/image-vertex-shader
       :fragment data/image-fragment-shader
@@ -73,6 +77,9 @@
       :uniforms {'u_image {:data data
                            :opts {:mip-level 0
                                   :internal-fmt (gl game RGBA)
+                                  :width width
+                                  :height height
+                                  :border 0
                                   :src-fmt (gl game RGBA)
                                   :src-type (gl game UNSIGNED_BYTE)}
                            :params {(gl game TEXTURE_WRAP_S)
@@ -83,7 +90,7 @@
                                     (gl game NEAREST),
                                     (gl game TEXTURE_MAG_FILTER)
                                     (gl game NEAREST)}}}
-      :clear {:color [0 0 0 0] :depth 1}})
+      :clear {:color [1 1 1 1] :depth 1}})
    image])
 
 (defexample play-cljc.examples-2d/image

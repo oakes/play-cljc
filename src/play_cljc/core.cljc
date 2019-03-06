@@ -36,11 +36,8 @@
     (when alignment
       (gl game pixelStorei (gl game UNPACK_ALIGNMENT) alignment))
     (let [{:keys [mip-level internal-fmt src-fmt src-type width height border]} opts]
-      (if (and width height border)
-        (gl game texImage2D (gl game TEXTURE_2D) mip-level internal-fmt
-          width height border src-fmt src-type data)
-        #?(:cljs (gl game texImage2D (gl game TEXTURE_2D) mip-level internal-fmt
-                   src-fmt src-type data))))
+      (gl game texImage2D (gl game TEXTURE_2D) mip-level internal-fmt
+        width height border src-fmt src-type data))
     (when mipmap
       (gl game generateMipmap (gl game TEXTURE_2D)))
     {:unit unit
