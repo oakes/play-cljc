@@ -16,10 +16,9 @@
      :attributes {'a_position {:data f-data
                                :type (gl game FLOAT)
                                :size 3}
-                  'a_color {:data data/f-3d-colors
-                            :type (gl game UNSIGNED_BYTE)
-                            :size 3
-                            :normalize true}}}))
+                  'a_color {:data (mapv #(/ % 255) data/f-3d-colors)
+                            :type (gl game FLOAT)
+                            :size 3}}}))
 
 (defn transform-f-data [f-data]
   (let [matrix (m/multiply-matrices 4
