@@ -44,8 +44,9 @@
       ;; loop
       (GL/createCapabilities)
       (let [example (-> @ex/registry-ref
-                        (get-in ['play-cljc.examples-2d 'image])
-                        first)
+                        (get-in ['play-cljc.examples-3d 'translation-3d])
+                        first
+                        (or (throw (Exception. "Example not found"))))
             [f game state] (eval
                              (list 'let [(:with-card example) window]
                                (:body example)))]
