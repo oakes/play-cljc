@@ -63,11 +63,11 @@
   (-> d (* (math PI)) (/ 180)))
 
 (defn transform-vector [m v]
-  (let [dst (vector->array [])]
+  (let [dst (vector->array v)]
     (dotimes [i 4]
-      (aset dst i 0.0)
+      (#?(:clj aset-float :cljs aset) dst i 0.0)
       (dotimes [j 4]
-        (aset dst i
+        (#?(:clj aset-float :cljs aset) dst i
           (+ (aget dst i)
              (* (nth v j)
                 (nth m (-> j (* 4) (+ i))))))))

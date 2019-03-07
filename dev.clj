@@ -21,6 +21,7 @@
 
 (require
   '[play-cljc.examples-2d]
+  '[play-cljc.examples-3d]
   '[dynadoc.example :as ex])
 
 (defmethod task "native"
@@ -42,14 +43,14 @@
       ;; loop
       (GL/createCapabilities)
       (let [example (-> @ex/registry-ref
-                        (get-in ['play-cljc.examples-2d 'rotation-multi])
+                        (get-in ['play-cljc.examples-3d 'perspective-texture-meta-3d])
                         first)
             [f game state] (eval
                              (list 'let [(:with-card example) window]
                                (:body example)))]
         (loop [state state]
           (when-not (GLFW/glfwWindowShouldClose window)
-            (let [new-state (f game state)]
+            (let [new-state (f (assoc game :time (GLFW/glfwGetTime)) state)]
               (GLFW/glfwSwapBuffers window)
               (GLFW/glfwPollEvents)
               (recur new-state)))))

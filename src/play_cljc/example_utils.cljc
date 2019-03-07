@@ -23,7 +23,7 @@
 (defn game-loop [f game state]
   #?(:clj  [f game state]
      :cljs (let [new-state (f game state)]
-             (js/requestAnimationFrame #(game-loop f game new-state)))))
+             (js/requestAnimationFrame #(game-loop f (assoc game :time (* % 0.001)) new-state)))))
 
 (defn resize-example [{:keys [context] :as game}]
   #?(:cljs (let [display-width context.canvas.clientWidth
@@ -55,12 +55,17 @@
                            y (- (* ypos height-ratio) ty)
                            rx (/ x fb-width)
                            ry (/ y fb-height)
-                           r (Math/atan2 rx ry)]
+                           r (Math/atan2 rx ry)
+                           cx (- (* xpos width-ratio) (/ fb-width 2))
+                           cy (- fb-height (* ypos height-ratio))
+                           cr (-> (/ cx fb-width)
+                                  (* 360)
+                                  m/deg->rad)]
                        (MemoryUtil/memFree *fb-width)
                        (MemoryUtil/memFree *fb-height)
                        (MemoryUtil/memFree *window-width)
                        (MemoryUtil/memFree *window-height)
-                       (assoc state :x x :y y :rx rx :ry ry :r r)))))))
+                       (assoc state :x x :y y :rx rx :ry ry :r r :cx cx :cy cy :cr cr)))))))
      :cljs (events/listen js/window "mousemove"
              (fn [event]
                (swap! *state
