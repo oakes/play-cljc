@@ -64,7 +64,8 @@
                   'a_texCoord {:data texcoords
                                :type (gl game FLOAT)
                                :size 2}}
-     :indices indices}))
+     :indices {:data indices
+               :type (gl game UNSIGNED_SHORT)}}))
 
 ;; balls-3d
 

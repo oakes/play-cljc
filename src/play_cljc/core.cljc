@@ -9,20 +9,20 @@
   {:tex-count (atom 0)
    :context context})
 
-(defn- attribute-type->array-type [game attr-type]
+(defn- attribute-type->constructor [game attr-type]
   (condp = attr-type
-    (gl game BYTE)           #?(:clj int-array   :cljs js/Int8Array)
-    (gl game SHORT)          #?(:clj int-array   :cljs js/Int16Array)
-    (gl game UNSIGNED_BYTE)  #?(:clj int-array   :cljs js/Uint8Array)
-    (gl game UNSIGNED_SHORT) #?(:clj int-array   :cljs js/Uint16Array)
-    (gl game FLOAT)          #?(:clj float-array :cljs js/Float32Array)
-    (gl game HALF_FLOAT)     #?(:clj float-array :cljs js/Float32Array)))
+    (gl game BYTE)           #?(:clj int-array   :cljs #(js/Int8Array. %))
+    (gl game SHORT)          #?(:clj short-array :cljs #(js/Int16Array. %))
+    (gl game UNSIGNED_BYTE)  #?(:clj int-array   :cljs #(js/Uint8Array. %))
+    (gl game UNSIGNED_SHORT) #?(:clj short-array :cljs #(js/Uint16Array. %))
+    (gl game FLOAT)          #?(:clj float-array :cljs #(js/Float32Array. %))
+    (gl game HALF_FLOAT)     #?(:clj float-array :cljs #(js/Float32Array. %))))
 
 (defn- convert-type [game attr-name attr-type data]
   (if (vector? data)
-    (let [arr-type (or (attribute-type->array-type game attr-type)
-                       (throw (ex-info (str "The type for " attr-name " is invalid") {})))]
-      (#?(:cljs new) arr-type data))
+    (let [arr-con (or (attribute-type->constructor game attr-type)
+                      (throw (ex-info (str "The type for " attr-name " is invalid") {})))]
+      (arr-con data))
     data))
 
 (defn- create-texture [{:keys [tex-count] :as game} m uni-loc
@@ -100,7 +100,9 @@
                          opts))
                  attributes)
         index-count (some->> indices
-                             #?(:clj short-array :cljs js/Uint16Array.)
+                             :data
+                             ((or (attribute-type->constructor game (:type indices))
+                                  (throw (ex-info "The :type provided to :indices is invalid" {}))))
                              (u/create-index-buffer game))
         uniform-locations (reduce
                             (fn [m uniform]
@@ -174,8 +176,8 @@
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
     (when index-count
-      (if indices
-        (gl game drawElements (gl game TRIANGLES) index-count (gl game UNSIGNED_SHORT) 0)
+      (if-let [{:keys [type]} indices]
+        (gl game drawElements (gl game TRIANGLES) index-count type 0)
         (gl game drawArrays (gl game TRIANGLES) 0 index-count)))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)))
