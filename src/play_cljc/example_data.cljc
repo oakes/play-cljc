@@ -1,10 +1,7 @@
 (ns play-cljc.example-data)
 
-(def version #?(:clj "410" :cljs "300 es"))
-
 (def image-vertex-shader
-  {:version version
-   :attributes
+  {:attributes
    '{a_position vec2}
    :uniforms
    '{u_matrix mat3
@@ -22,8 +19,7 @@
            [:= v_texCoord a_position])}})
 
 (def image-fragment-shader
-  {:version version
-   :precision "mediump float"
+  {:precision "mediump float"
    :uniforms
    '{u_image sampler2D}
    :varyings
@@ -36,8 +32,7 @@
    '{main ([] [:= outColor [:-bgra [:texture u_image v_texCoord]]])}})
 
 (def two-d-vertex-shader
-  {:version version
-   :attributes
+  {:attributes
    '{a_position vec2}
    :uniforms
    '{u_matrix mat3}
@@ -51,8 +46,7 @@
              0 1]])}})
 
 (def two-d-fragment-shader
-  {:version version
-   :precision "mediump float"
+  {:precision "mediump float"
    :uniforms
    '{u_color vec4}
    :outputs
@@ -63,8 +57,7 @@
    '{main ([] [:= outColor u_color])}})
 
 (def three-d-vertex-shader
-  {:version version
-   :attributes
+  {:attributes
    '{a_position vec4
      a_color vec4}
    :uniforms
@@ -79,8 +72,7 @@
            [:= v_color a_color])}})
 
 (def three-d-fragment-shader
-  {:version version
-   :precision "mediump float"
+  {:precision "mediump float"
    :varyings
    '{v_color vec4}
    :outputs
@@ -91,8 +83,7 @@
    '{main ([] [:= outColor v_color])}})
 
 (def texture-vertex-shader
-  {:version version
-   :attributes
+  {:attributes
    '{a_position vec4
      a_color vec4
      a_texcoord vec2}
@@ -108,8 +99,7 @@
            [:= v_texcoord a_texcoord])}})
 
 (def texture-fragment-shader
-  {:version version
-   :precision "mediump float"
+  {:precision "mediump float"
    :uniforms
    '{u_texture sampler2D}
    :varyings
@@ -122,8 +112,7 @@
    '{main ([] [:= outColor [:texture u_texture v_texcoord]])}})
 
 (def advanced-vertex-shader
-  {:version version
-   :uniforms
+  {:uniforms
    '{u_worldViewProjection mat4
      u_lightWorldPos vec3
      u_world mat4
@@ -151,8 +140,7 @@
            [:= gl_Position v_position])}})
 
 (def advanced-fragment-shader
-  {:version version
-   :precision "mediump float"
+  {:precision "mediump float"
    :uniforms
    '{u_lightColor vec4
      u_color vec4

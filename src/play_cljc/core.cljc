@@ -80,9 +80,12 @@
     (or (call-uniform* game m uni-type uni-loc uni-name uni-data)
         m)))
 
+(def ^:private
+  glsl-version #?(:clj "410" :cljs "300 es"))
+
 (defn create-entity [game {:keys [vertex fragment attributes uniforms indices] :as m}]
-  (let [vertex-source (ig/iglu->glsl :vertex vertex)
-        fragment-source (ig/iglu->glsl :fragment fragment)
+  (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
+        fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
