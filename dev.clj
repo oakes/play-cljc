@@ -44,7 +44,7 @@
       ;; loop
       (GL/createCapabilities)
       (let [example (-> @ex/registry-ref
-                        (get-in ['play-cljc.examples-3d 'translation-3d])
+                        (get-in ['play-cljc.examples-advanced 'balls-3d])
                         first
                         (or (throw (Exception. "Example not found"))))
             [f game state] (eval

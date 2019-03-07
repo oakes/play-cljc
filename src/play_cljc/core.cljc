@@ -100,7 +100,7 @@
                          opts))
                  attributes)
         index-count (some->> indices
-                             #?(:clj int-array :cljs js/Uint16Array.)
+                             #?(:clj short-array :cljs js/Uint16Array.)
                              (u/create-index-buffer game))
         uniform-locations (reduce
                             (fn [m uniform]
