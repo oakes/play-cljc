@@ -96,7 +96,9 @@
                          (convert-type game attr-name type data)
                          opts))
                  attributes)
-        index-count (some->> indices (u/create-index-buffer game))
+        index-count (some->> indices
+                             #?(:clj int-array :cljs js/Uint16Array.)
+                             (u/create-index-buffer game))
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform

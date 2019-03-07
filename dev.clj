@@ -22,6 +22,7 @@
 (require
   '[play-cljc.examples-2d]
   '[play-cljc.examples-3d]
+  '[play-cljc.examples-advanced]
   '[dynadoc.example :as ex])
 
 (defmethod task "native"
@@ -43,7 +44,7 @@
       ;; loop
       (GL/createCapabilities)
       (let [example (-> @ex/registry-ref
-                        (get-in ['play-cljc.examples-3d 'perspective-texture-meta-3d])
+                        (get-in ['play-cljc.examples-2d 'image])
                         first)
             [f game state] (eval
                              (list 'let [(:with-card example) window]

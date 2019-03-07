@@ -5,12 +5,15 @@
             [play-cljc.example-data :as data]
             [play-cljc.primitives :as primitives]
             [play-cljc.math :as m]
-            [play-cljc.macros-js :refer-macros [gl]])
-  (:require-macros [dynadoc.example :refer [defexample]]))
+            #?(:clj  [play-cljc.macros-java :refer [gl math]]
+               :cljs [play-cljc.macros-js :refer-macros [gl math]])
+            #?(:clj [dynadoc.example :refer [defexample]]))
+  #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
 
-(defn advanced-render [game entity objects
-                       {:keys [then now] :as state}]
+(defn advanced-render [game [entity objects {:keys [then now] :as state}]]
   (eu/resize-example game)
+  (c/render-entity game
+    {:clear {:color [1 1 1 1] :depth 1}})
   (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
                                                     :aspect (/ (eu/get-width game)
                                                                (eu/get-height game))
@@ -46,8 +49,7 @@
                 'u_specular (:u_specular mat-uniforms)
                 'u_shininess (:u_shininess mat-uniforms)
                 'u_specularFactor (:u_specularFactor mat-uniforms)))))))
-  (js/requestAnimationFrame #(advanced-render game entity objects
-                               (assoc state :then now :now (* % 0.0001)))))
+  [entity objects (assoc state :then now :now (:time game))])
 
 (defn shape-entity [game {:keys [positions normals texcoords indices]}]
   (c/create-entity game
@@ -62,7 +64,7 @@
                   'a_texCoord {:data texcoords
                                :type (gl game FLOAT)
                                :size 2}}
-     :indices (js/Uint16Array. indices)}))
+     :indices indices}))
 
 ;; balls-3d
 
@@ -74,20 +76,23 @@
         objects (vec
                   (for [i (range 100)]
                     {:tz (rand 150)
-                     :rx (rand (* 2 js/Math.PI))
-                     :ry (rand js/Math.PI)
+                     :rx (rand (* 2 (math PI)))
+                     :ry (rand (math PI))
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game entity objects state)))
+    [entity objects state]))
 
 (defexample play-cljc.examples-advanced/balls-3d
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-advanced/balls-3d-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-advanced/balls-3d-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-advanced/advanced-render
+      game state)))
 
 ;; planes-3d
 
@@ -95,24 +100,27 @@
   (gl game enable (gl game CULL_FACE))
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (shape-entity game
-                 (primitives/plane {:width 20 :depth 20}))
+                 (primitives/plane {:width 20 :depth 20 :subdivisions-width 10 :subdivisions-height 10}))
         objects (vec
                   (for [i (range 100)]
                     {:tz (rand 150)
-                     :rx (rand (* 2 js/Math.PI))
-                     :ry (rand js/Math.PI)
+                     :rx (rand (* 2 (math PI)))
+                     :ry (rand (math PI))
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game entity objects state)))
+    [entity objects state]))
 
 (defexample play-cljc.examples-advanced/planes-3d
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-advanced/planes-3d-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-advanced/planes-3d-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-advanced/advanced-render
+      game state)))
 
 ;; cubes-3d
 
@@ -124,20 +132,23 @@
         objects (vec
                   (for [i (range 100)]
                     {:tz (rand 150)
-                     :rx (rand (* 2 js/Math.PI))
-                     :ry (rand js/Math.PI)
+                     :rx (rand (* 2 (math PI)))
+                     :ry (rand (math PI))
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game entity objects state)))
+    [entity objects state]))
 
 (defexample play-cljc.examples-advanced/cubes-3d
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-advanced/cubes-3d-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-advanced/cubes-3d-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-advanced/advanced-render
+      game state)))
 
 ;; cylinder-3d
 
@@ -150,20 +161,23 @@
         objects (vec
                   (for [i (range 100)]
                     {:tz (rand 150)
-                     :rx (rand (* 2 js/Math.PI))
-                     :ry (rand js/Math.PI)
+                     :rx (rand (* 2 (math PI)))
+                     :ry (rand (math PI))
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game entity objects state)))
+    [entity objects state]))
 
 (defexample play-cljc.examples-advanced/cylinder-3d
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-advanced/cylinder-3d-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-advanced/cylinder-3d-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-advanced/advanced-render
+      game state)))
 
 ;; crescent-3d
 
@@ -176,20 +190,23 @@
         objects (vec
                   (for [i (range 100)]
                     {:tz (rand 150)
-                     :rx (rand (* 2 js/Math.PI))
-                     :ry (rand js/Math.PI)
+                     :rx (rand (* 2 (math PI)))
+                     :ry (rand (math PI))
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game entity objects state)))
+    [entity objects state]))
 
 (defexample play-cljc.examples-advanced/crescent-3d
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-advanced/crescent-3d-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-advanced/crescent-3d-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-advanced/advanced-render
+      game state)))
 
 ;; torus-3d
 
@@ -197,24 +214,28 @@
   (gl game enable (gl game CULL_FACE))
   (gl game enable (gl game DEPTH_TEST))
   (let [entity (shape-entity game
-                 (primitives/torus {:radius 20 :thickness 5 :radial-subdivisions 20 :body-subdivisions 20}))
+                 (primitives/torus {:radius 20 :thickness 5
+                                    :radial-subdivisions 20 :body-subdivisions 20}))
         objects (vec
                   (for [i (range 100)]
                     {:tz (rand 150)
-                     :rx (rand (* 2 js/Math.PI))
-                     :ry (rand js/Math.PI)
+                     :rx (rand (* 2 (math PI)))
+                     :ry (rand (math PI))
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game entity objects state)))
+    [entity objects state]))
 
 (defexample play-cljc.examples-advanced/torus-3d
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-advanced/torus-3d-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-advanced/torus-3d-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-advanced/advanced-render
+      game state)))
 
 ;; disc-3d
 
@@ -226,18 +247,21 @@
         objects (vec
                   (for [i (range 100)]
                     {:tz (rand 150)
-                     :rx (rand (* 2 js/Math.PI))
-                     :ry (rand js/Math.PI)
+                     :rx (rand (* 2 (math PI)))
+                     :ry (rand (math PI))
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
                                     :u_specularFactor  (rand 1)}}))
         state {:then 0
                :now 0}]
-    (advanced-render game entity objects state)))
+    [entity objects state]))
 
 (defexample play-cljc.examples-advanced/disc-3d
   {:with-card card}
-  (->> (play-cljc.example-utils/init-example card)
-       (play-cljc.examples-advanced/disc-3d-init)))
+  (let [game (play-cljc.example-utils/init-example card)
+        state (play-cljc.examples-advanced/disc-3d-init game)]
+    (play-cljc.example-utils/game-loop
+      play-cljc.examples-advanced/advanced-render
+      game state)))
 
