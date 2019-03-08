@@ -8,20 +8,22 @@
                    [org.lwjgl.system MemoryUtil]
                    [org.lwjgl.stb STBImage])))
 
-(defn init-example [window]
-  #?(:clj  (c/create-game window)
+(def textures (atom 0))
+
+(defn init-example [#?(:clj window :cljs card)]
+  #?(:clj  (assoc (c/create-game window) :tex-count textures)
      :cljs (do
-             (when-let [canvas (.querySelector window "canvas")]
-               (.removeChild window canvas))
+             (when-let [canvas (.querySelector card "canvas")]
+               (.removeChild card canvas))
              (let [canvas (doto (js/document.createElement "canvas")
                             (-> .-style .-width (set! "100%"))
                             (-> .-style .-height (set! "100%")))
                    context (.getContext canvas "webgl2")]
-               (.appendChild window canvas)
+               (.appendChild card canvas)
                (c/create-game context)))))
 
 (defn game-loop [f game state]
-  #?(:clj  [f game state]
+  #?(:clj  {:f f :game game :state state}
      :cljs (let [new-state (f game state)]
              (js/requestAnimationFrame #(game-loop f (assoc game :time (* % 0.001)) new-state)))))
 

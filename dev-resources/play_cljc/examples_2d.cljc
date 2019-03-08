@@ -12,6 +12,8 @@
 ;; rand-rects
 
 (defn rand-rects-render [game [entity rects :as state]]
+  (gl game disable (gl game CULL_FACE))
+  (gl game disable (gl game DEPTH_TEST))
   (eu/resize-example game)
   (c/render-entity game
     {:clear {:color [1 1 1 1] :depth 1}})
@@ -51,6 +53,8 @@
 ;; image
 
 (defn image-render [game [entity {:keys [width height]} :as state]]
+  (gl game disable (gl game CULL_FACE))
+  (gl game disable (gl game DEPTH_TEST))
   (eu/resize-example game)
   (let [game-width (eu/get-width game)
         game-height (eu/get-height game)
@@ -117,6 +121,8 @@
   state)
 
 (defn translation-init [game]
+  (gl game disable (gl game CULL_FACE))
+  (gl game disable (gl game DEPTH_TEST))
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
@@ -153,6 +159,8 @@
   state)
 
 (defn rotation-init [game]
+  (gl game disable (gl game CULL_FACE))
+  (gl game disable (gl game DEPTH_TEST))
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
@@ -190,6 +198,8 @@
   state)
 
 (defn scale-init [game]
+  (gl game disable (gl game CULL_FACE))
+  (gl game disable (gl game DEPTH_TEST))
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
@@ -233,6 +243,8 @@
   state)
 
 (defn rotation-multi-init [game]
+  (gl game disable (gl game CULL_FACE))
+  (gl game disable (gl game DEPTH_TEST))
   (let [entity (c/create-entity game
                  {:vertex data/two-d-vertex-shader
                   :fragment data/two-d-fragment-shader
