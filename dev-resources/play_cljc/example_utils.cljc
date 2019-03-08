@@ -56,8 +56,8 @@
                            rx (/ x fb-width)
                            ry (/ y fb-height)
                            r (Math/atan2 rx ry)
-                           cx (- (* xpos width-ratio) (/ fb-width 2))
-                           cy (- fb-height (* ypos height-ratio))
+                           cx (- x (/ fb-width 2))
+                           cy (- (/ fb-height 2) y)
                            cr (-> (/ cx fb-width)
                                   (* 360)
                                   m/deg->rad)]
@@ -76,9 +76,8 @@
                          rx (/ x (.-width bounds))
                          ry (/ y (.-height bounds))
                          r (js/Math.atan2 rx ry)
-                         cx (- (.-clientX event) (.-left bounds) (/ (.-width bounds) 2))
-                         cy (- (.-height bounds)
-                               (- (.-clientY event) (.-top bounds)))
+                         cx (- x (/ (.-width bounds) 2))
+                         cy (- (/ (.-height bounds) 2) y)
                          cr (-> (/ cx (.-width bounds))
                                 (* 360)
                                 m/deg->rad)]
