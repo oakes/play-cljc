@@ -18,7 +18,8 @@
     (gl game UNSIGNED_SHORT) #?(:clj short-array :cljs #(js/Uint16Array. %))
     (gl game UNSIGNED_INT)   #?(:clj int-array   :cljs #(js/Uint32Array. %))
     (gl game FLOAT)          #?(:clj float-array :cljs #(js/Float32Array. %))
-    (gl game HALF_FLOAT)     #?(:clj float-array :cljs #(js/Float32Array. %))))
+    (gl game HALF_FLOAT)     #?(:clj float-array :cljs #(js/Float32Array. %))
+    nil))
 
 (defn- convert-type [game attr-name attr-type data]
   (if (vector? data)
