@@ -13,8 +13,10 @@
   (condp = attr-type
     (gl game BYTE)           #?(:clj int-array   :cljs #(js/Int8Array. %))
     (gl game SHORT)          #?(:clj short-array :cljs #(js/Int16Array. %))
+    (gl game INT)            #?(:clj int-array   :cljs #(js/Int32Array. %))
     (gl game UNSIGNED_BYTE)  #?(:clj int-array   :cljs #(js/Uint8Array. %))
     (gl game UNSIGNED_SHORT) #?(:clj short-array :cljs #(js/Uint16Array. %))
+    (gl game UNSIGNED_INT)   #?(:clj int-array   :cljs #(js/Uint32Array. %))
     (gl game FLOAT)          #?(:clj float-array :cljs #(js/Float32Array. %))
     (gl game HALF_FLOAT)     #?(:clj float-array :cljs #(js/Float32Array. %))))
 
