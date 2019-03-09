@@ -12,11 +12,11 @@
    '{main ([] void)}
    :functions
    '{main ([]
-           [:= gl_Position
-            [:vec4
-             [:-xy [:* u_matrix [:vec3 a_position 1]]]
-             0 1]]
-           [:= v_texCoord a_position])}})
+           (= gl_Position
+              (vec4
+                (.xy (* u_matrix (vec3 a_position 1)))
+                0 1))
+           (= v_texCoord a_position))}})
 
 (def image-fragment-shader
   {:precision "mediump float"
@@ -29,7 +29,7 @@
    :signatures
    '{main ([] void)}
    :functions
-   '{main ([] [:= outColor [:-bgra [:texture u_image v_texCoord]]])}})
+   '{main ([] (= outColor (.bgra (texture u_image v_texCoord))))}})
 
 (def two-d-vertex-shader
   {:attributes
@@ -40,10 +40,10 @@
    '{main ([] void)}
    :functions
    '{main ([]
-           [:= gl_Position
-            [:vec4
-             [:-xy [:* u_matrix [:vec3 a_position 1]]]
-             0 1]])}})
+           (= gl_Position
+              (vec4
+                (.xy (* u_matrix (vec3 a_position 1)))
+                0 1)))}})
 
 (def two-d-fragment-shader
   {:precision "mediump float"
@@ -54,7 +54,7 @@
    :signatures
    '{main ([] void)}
    :functions
-   '{main ([] [:= outColor u_color])}})
+   '{main ([] (= outColor u_color))}})
 
 (def three-d-vertex-shader
   {:attributes
@@ -68,8 +68,8 @@
    '{main ([] void)}
    :functions
    '{main ([]
-           [:= gl_Position [:* u_matrix a_position]]
-           [:= v_color a_color])}})
+           (= gl_Position (* u_matrix a_position))
+           (= v_color a_color))}})
 
 (def three-d-fragment-shader
   {:precision "mediump float"
@@ -80,7 +80,7 @@
    :signatures
    '{main ([] void)}
    :functions
-   '{main ([] [:= outColor v_color])}})
+   '{main ([] (= outColor v_color))}})
 
 (def texture-vertex-shader
   {:attributes
@@ -95,8 +95,8 @@
    '{main ([] void)}
    :functions
    '{main ([]
-           [:= gl_Position [:* u_matrix a_position]]
-           [:= v_texcoord a_texcoord])}})
+           (= gl_Position (* u_matrix a_position))
+           (= v_texcoord a_texcoord))}})
 
 (def texture-fragment-shader
   {:precision "mediump float"
@@ -109,7 +109,7 @@
    :signatures
    '{main ([] void)}
    :functions
-   '{main ([] [:= outColor [:texture u_texture v_texcoord]])}})
+   '{main ([] (= outColor (texture u_texture v_texcoord)))}})
 
 (def advanced-vertex-shader
   {:uniforms
@@ -132,12 +132,12 @@
    '{main ([] void)}
    :functions
    '{main ([]
-           [:= v_texCoord a_texCoord]
-           [:= v_position [:* u_worldViewProjection a_position]]
-           [:= v_normal [:-xyz [:* u_worldInverseTranspose [:vec4 a_normal 0]]]]
-           [:= v_surfaceToLight [:- u_lightWorldPos [:-xyz [:* u_world a_position]]]]
-           [:= v_surfaceToView [:-xyz [:- [3 u_viewInverse] [:* u_world a_position]]]]
-           [:= gl_Position v_position])}})
+           (= v_texCoord a_texCoord)
+           (= v_position (* u_worldViewProjection a_position))
+           (= v_normal (.xyz (* u_worldInverseTranspose (vec4 a_normal 0))))
+           (= v_surfaceToLight (- u_lightWorldPos (.xyz (* u_world a_position))))
+           (= v_surfaceToView (.xyz (- (3 u_viewInverse) (* u_world a_position))))
+           (= gl_Position v_position))}})
 
 (def advanced-fragment-shader
   {:precision "mediump float"
@@ -160,30 +160,29 @@
      main ([] void)}
    :functions
    '{lit ([l h m]
-          [:vec4
-           "1.0"
-           [:abs l]
-           [:? [:> l "0.0"]
-            [:pow [:max "0.0" h] m]
-            "0.0"]
-           "1.0"])
+          (vec4
+            "1.0"
+            (abs l)
+            (? (> l "0.0")
+              (pow (max "0.0" h) m)
+              "0.0")
+            "1.0"))
      main ([]
-           [:=vec3 a_normal [:normalize v_normal]]
-           [:=vec3 surfaceToLight [:normalize v_surfaceToLight]]
-           [:=vec3 surfaceToView [:normalize v_surfaceToView]]
-           [:=vec3 halfVector [:normalize [:+ surfaceToLight surfaceToView]]]
-           [:=vec4 litR [lit
-                         [:dot a_normal surfaceToLight]
-                         [:dot a_normal halfVector]
-                         u_shininess]]
-           [:= outColor
-            [:vec4
-             [:-rgb
-              [:* u_lightColor
-               [:+
-                [:* [:-y litR] u_color]
-                [:* u_specular [:-z litR] u_specularFactor]]]]
-             1]])}})
+           (=vec3 a_normal (normalize v_normal))
+           (=vec3 surfaceToLight (normalize v_surfaceToLight))
+           (=vec3 surfaceToView (normalize v_surfaceToView))
+           (=vec3 halfVector (normalize (+ surfaceToLight surfaceToView)))
+           (=vec4 litR (lit
+                         (dot a_normal surfaceToLight)
+                         (dot a_normal halfVector)
+                         u_shininess))
+           (= outColor
+              (vec4
+                (.rgb
+                  (* u_lightColor
+                     (+ (* (.y litR) u_color)
+                        (* u_specular (.z litR) u_specularFactor))))
+                1)))}})
 
 (def rect
   ;; x1 y1, x2 y1, x1 y2, x1 y2, x2 y1, x2 y2
