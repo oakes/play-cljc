@@ -1,6 +1,6 @@
 (ns play-cljc.examples-2d
   (:require [play-cljc.core :as c]
-            [play-cljc.entities :as e]
+            [play-cljc.entities-2d :as e]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]

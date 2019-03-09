@@ -1,35 +1,8 @@
 (ns play-cljc.example-data)
 
-(def three-d-vertex-shader
-  {:attributes
-   '{a_position vec4
-     a_color vec4}
-   :uniforms
-   '{u_matrix mat4}
-   :varyings
-   '{v_color vec4}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([]
-           (= gl_Position (* u_matrix a_position))
-           (= v_color a_color))}})
-
-(def three-d-fragment-shader
-  {:precision "mediump float"
-   :varyings
-   '{v_color vec4}
-   :outputs
-   '{outColor vec4}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([] (= outColor v_color))}})
-
 (def texture-vertex-shader
   {:attributes
    '{a_position vec4
-     a_color vec4
      a_texcoord vec2}
    :uniforms
    '{u_matrix mat4}

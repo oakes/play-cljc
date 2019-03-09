@@ -1,87 +1,18 @@
 (ns play-cljc.examples-3d
   (:require [play-cljc.core :as c]
+            [play-cljc.entities-3d :as e]
+            [play-cljc.math :as m]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
-            [play-cljc.math :as m]
             [play-cljc.transforms :as t]
             #?(:clj  [play-cljc.macros-java :refer [gl math]]
                :cljs [play-cljc.macros-js :refer-macros [gl math]])
             #?(:clj [dynadoc.example :refer [defexample]]))
   #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
 
-(defrecord ThreeDEntity [])
-
-(extend-type ThreeDEntity
-  t/IProject
-  (project [entity attrs]
-    (let [matrix (cond
-                   (every? attrs [:left :right :bottom :top :near :far])
-                   (m/ortho-matrix-3d attrs)
-                   (every? attrs [:field-of-view :aspect :near :far])
-                   (m/perspective-matrix-3d attrs)
-                   :else
-                   (throw (ex-info "Can't project entity" entity)))]
-      (update-in entity [:uniforms 'u_matrix]
-        #(m/multiply-matrices 4 matrix %))))
-  t/ITranslate
-  (translate [entity {:keys [x y z]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
-  t/IScale
-  (scale [entity {:keys [x y z]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 4 (m/scaling-matrix-3d x y z) %)))
-  t/IRotate
-  (rotate [entity {:keys [angle axis]}]
-    (let [matrix (case axis
-                   :x (m/x-rotation-matrix-3d angle)
-                   :y (m/y-rotation-matrix-3d angle)
-                   :z (m/z-rotation-matrix-3d angle))]
-      (update-in entity [:uniforms 'u_matrix]
-        #(m/multiply-matrices 4 matrix %))))
-  t/ICamera
-  (camera [entity {:keys [matrix]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 4 (m/inverse-matrix 4 matrix) %))))
-
-(defrecord Camera [])
-
-(extend-type Camera
-  t/ITranslate
-  (translate [camera {:keys [x y z]}]
-    (update camera :matrix
-      #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
-  t/IRotate
-  (rotate [camera {:keys [angle axis]}]
-    (let [matrix (case axis
-                   :x (m/x-rotation-matrix-3d angle)
-                   :y (m/y-rotation-matrix-3d angle)
-                   :z (m/z-rotation-matrix-3d angle))]
-      (update camera :matrix
-        #(m/multiply-matrices 4 matrix %))))
-  t/ILookAt
-  (look-at [{:keys [matrix] :as camera} {:keys [target up] :as attrs}]
-    (let [camera-pos (if matrix
-                       [(nth matrix 12)
-                        (nth matrix 13)
-                        (nth matrix 14)]
-                       [0 0 0])]
-      (when (= camera-pos target)
-        (throw (ex-info "The camera's position is the same as the target" attrs)))
-      (assoc camera :matrix (m/look-at camera-pos target up)))))
-
 (defn f-entity [game f-data]
-  (->> {:vertex data/three-d-vertex-shader
-        :fragment data/three-d-fragment-shader
-        :attributes {'a_position {:data f-data
-                                  :type (gl game FLOAT)
-                                  :size 3}
-                     'a_color {:data (mapv #(/ % 255) data/f-3d-colors)
-                               :type (gl game FLOAT)
-                               :size 3}}}
-       (c/create-entity game)
-       map->ThreeDEntity))
+  (e/three-d-entity game f-data (mapv #(/ % 255) data/f-3d-colors)))
 
 (defn transform-f-data [f-data]
   (let [matrix (m/multiply-matrices 4
@@ -268,7 +199,7 @@
   (let [{:keys [cr]} @*state
         radius 200
         num-fs 5
-        camera (-> (->Camera)
+        camera (-> (e/->Camera)
                    (t/rotate {:angle cr :axis :y})
                    (t/translate {:x 0 :y 0 :z (* radius 1.5)}))
         entity (-> entity
@@ -312,7 +243,7 @@
   (let [{:keys [cr]} @*state
         radius 200
         num-fs 5
-        camera (-> (->Camera)
+        camera (-> (e/->Camera)
                    (t/rotate {:angle cr :axis :y})
                    (t/translate {:x 0 :y 0 :z (* radius 1.5)})
                    (t/look-at {:target [radius 0 0] :up [0 1 0]}))
@@ -395,7 +326,7 @@
 
 (defn perspective-texture-3d-render [game [entity {:keys [rx ry then now] :as state}]]
   (eu/resize-example game)
-  (let [camera (-> (->Camera)
+  (let [camera (-> (e/->Camera)
                    (t/translate {:x 0 :y 0 :z 200})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
     (c/render-entity game
@@ -438,7 +369,7 @@
                                             :mipmap true}}
                      :clear {:color [0 0 0 0] :depth 1}}
                     (c/create-entity game)
-                    map->ThreeDEntity)
+                    e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)
                :then 0
@@ -459,7 +390,7 @@
 
 (defn perspective-texture-data-3d-render [game [entity {:keys [rx ry then now] :as state}]]
   (eu/resize-example game)
-  (let [camera (-> (->Camera)
+  (let [camera (-> (e/->Camera)
                    (t/translate {:x 0 :y 0 :z 2})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
     (c/render-entity game
@@ -510,7 +441,7 @@
                                                      (gl game NEAREST)}}}
                      :clear {:color [1 1 1 1] :depth 1}}
                     (c/create-entity game)
-                    map->ThreeDEntity)
+                    e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)
                :then 0
@@ -531,7 +462,7 @@
 (def target-height 256)
 
 (defn draw-cube [entity {:keys [rx ry]} aspect]
-  (let [camera (-> (->Camera)
+  (let [camera (-> (e/->Camera)
                    (t/translate {:x 0 :y 0 :z 2})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
     (-> entity
@@ -590,7 +521,7 @@
                                                      (gl game LINEAR)}}}
                      :clear {:color [1 1 1 1] :depth 1}}
                     (c/create-entity game)
-                    map->ThreeDEntity)
+                    e/map->ThreeDEntity)
         inner-entity (->> {:vertex data/texture-vertex-shader
                            :fragment data/texture-fragment-shader
                            :attributes {'a_position {:data data/cube
@@ -619,7 +550,7 @@
                                                            (gl game NEAREST)}}}
                            :clear {:color [0 0 1 1] :depth 1}}
                           (c/create-entity game)
-                          map->ThreeDEntity)
+                          e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)
                :then 0

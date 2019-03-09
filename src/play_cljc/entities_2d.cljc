@@ -1,4 +1,4 @@
-(ns play-cljc.entities
+(ns play-cljc.entities-2d
   (:require [play-cljc.core :as c]
             [play-cljc.math :as m]
             [play-cljc.transforms :as t]
