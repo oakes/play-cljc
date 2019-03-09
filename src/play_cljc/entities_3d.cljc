@@ -117,14 +117,14 @@
    :functions
    '{main ([] (= outColor v_color))}})
 
-(defn three-d-entity
+(defn ->entity
   ([game data]
    (->> {:vertex three-d-uniform-colors-vertex-shader
          :fragment three-d-uniform-colors-fragment-shader
          :attributes {'a_position {:data data
                                    :type (gl game FLOAT)
                                    :size 3}}}
-        (c/create-entity game)
+        (c/->entity game)
         map->ThreeDEntity))
   ([game data color-data]
    (->> {:vertex three-d-attribute-colors-vertex-shader
@@ -135,6 +135,6 @@
                       'a_color {:data color-data
                                 :type (gl game FLOAT)
                                 :size 3}}}
-        (c/create-entity game)
+        (c/->entity game)
         map->ThreeDEntity)))
 

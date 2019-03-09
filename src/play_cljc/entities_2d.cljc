@@ -54,13 +54,13 @@
    :functions
    '{main ([] (= outColor u_color))}})
 
-(defn two-d-entity [game data]
+(defn ->entity [game data]
   (->> {:vertex two-d-vertex-shader
         :fragment two-d-fragment-shader
         :attributes {'a_position {:data data
                                   :type (gl game FLOAT)
                                   :size 2}}}
-       (c/create-entity game)
+       (c/->entity game)
        map->TwoDEntity))
 
 (def ^:private image-vertex-shader
@@ -94,7 +94,7 @@
    :functions
    '{main ([] (= outColor (.bgra (texture u_image v_texCoord))))}})
 
-(defn image-entity [game data width height]
+(defn ->image-entity [game data width height]
   (->> {:vertex image-vertex-shader
         :fragment image-fragment-shader
         :attributes {'a_position {:data primitives/rect
@@ -116,6 +116,6 @@
                                       (gl game NEAREST),
                                       (gl game TEXTURE_MAG_FILTER)
                                       (gl game NEAREST)}}}}
-       (c/create-entity game)
+       (c/->entity game)
        map->TwoDEntity))
 

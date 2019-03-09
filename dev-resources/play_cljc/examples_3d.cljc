@@ -13,7 +13,7 @@
   #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
 
 (defn f-entity [game f-data]
-  (e/three-d-entity game f-data (mapv #(/ % 255) data/f-3d-colors)))
+  (e/->entity game f-data (mapv #(/ % 255) data/f-3d-colors)))
 
 (defn transform-f-data [f-data]
   (let [matrix (m/multiply-matrices 4
@@ -38,7 +38,7 @@
 (defn translation-3d-render [game [entity *state :as state]]
   (eu/resize-example game)
   (let [{:keys [x y]} @*state]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
@@ -76,7 +76,7 @@
 (defn rotation-3d-render [game [entity *state :as state]]
   (eu/resize-example game)
   (let [{:keys [tx ty r]} @*state]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
@@ -118,7 +118,7 @@
 (defn scale-3d-render [game [entity *state :as state]]
   (eu/resize-example game)
   (let [{:keys [tx ty rx ry]} @*state]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
@@ -159,7 +159,7 @@
 (defn perspective-3d-render [game [entity *state :as state]]
   (eu/resize-example game)
   (let [{:keys [cx cy]} @*state]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
@@ -195,7 +195,7 @@
 
 (defn perspective-camera-3d-render [game [entity *state :as state]]
   (eu/resize-example game)
-  (c/render-entity game
+  (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
   (let [{:keys [cr]} @*state
         radius 200
@@ -215,7 +215,7 @@
       (let [angle (/ (* i (math PI) 2) num-fs)
             x (* (math cos angle) radius)
             z (* (math sin angle) radius)]
-        (c/render-entity game
+        (c/render game
           (t/translate entity {:x x :y 0 :z z})))))
   state)
 
@@ -239,7 +239,7 @@
 
 (defn perspective-camera-target-3d-render [game [entity *state :as state]]
   (eu/resize-example game)
-  (c/render-entity game
+  (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
   (let [{:keys [cr]} @*state
         radius 200
@@ -260,7 +260,7 @@
       (let [angle (/ (* i (math PI) 2) num-fs)
             x (* (math cos angle) radius)
             z (* (math sin angle) radius)]
-        (c/render-entity game
+        (c/render game
           (t/translate entity {:x x :y 0 :z z})))))
             
   state)
@@ -285,7 +285,7 @@
 
 (defn perspective-animation-3d-render [game [entity {:keys [rx ry rz then now] :as state}]]
   (eu/resize-example game)
-  (c/render-entity game
+  (c/render game
     (-> entity
         (assoc
           :clear {:color [1 1 1 1] :depth 1}
@@ -330,7 +330,7 @@
   (let [camera (-> (e/->Camera)
                    (t/translate {:x 0 :y 0 :z 200})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:field-of-view (m/deg->rad 60)
@@ -369,7 +369,7 @@
                                                    :src-type (gl game UNSIGNED_BYTE)}
                                             :mipmap true}}
                      :clear {:color [0 0 0 0] :depth 1}}
-                    (c/create-entity game)
+                    (c/->entity game)
                     e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)
@@ -394,7 +394,7 @@
   (let [camera (-> (e/->Camera)
                    (t/translate {:x 0 :y 0 :z 2})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:field-of-view (m/deg->rad 60)
@@ -441,7 +441,7 @@
                                                      (gl game TEXTURE_MAG_FILTER)
                                                      (gl game NEAREST)}}}
                      :clear {:color [1 1 1 1] :depth 1}}
-                    (c/create-entity game)
+                    (c/->entity game)
                     e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)
@@ -462,7 +462,7 @@
 (def target-width 256)
 (def target-height 256)
 
-(defn draw-cube [entity {:keys [rx ry]} aspect]
+(defn render-cube [entity {:keys [rx ry]} aspect]
   (let [camera (-> (e/->Camera)
                    (t/translate {:x 0 :y 0 :z 2})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
@@ -478,16 +478,16 @@
 (defn perspective-texture-meta-3d-render [game [entities {:keys [then now] :as state}]]
   (eu/resize-example game)
   (let [[inner-entity entity] entities]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (draw-cube state (/ (eu/get-width game) (eu/get-height game)))
+          (render-cube state (/ (eu/get-width game) (eu/get-height game)))
           (assoc :render-to-texture {'u_texture
                                      (-> inner-entity
                                          (assoc :viewport {:x 0 :y 0
                                                            :width target-width
                                                            :height target-height})
-                                         (draw-cube state (/ target-width target-height)))}))))
+                                         (render-cube state (/ target-width target-height)))}))))
   [entities
    (-> state
        (update :rx + (* 1.2 (- now then)))
@@ -521,7 +521,7 @@
                                                      (gl game TEXTURE_MIN_FILTER)
                                                      (gl game LINEAR)}}}
                      :clear {:color [1 1 1 1] :depth 1}}
-                    (c/create-entity game)
+                    (c/->entity game)
                     e/map->ThreeDEntity)
         inner-entity (->> {:vertex data/texture-vertex-shader
                            :fragment data/texture-fragment-shader
@@ -550,7 +550,7 @@
                                                            (gl game TEXTURE_MAG_FILTER)
                                                            (gl game NEAREST)}}}
                            :clear {:color [0 0 1 1] :depth 1}}
-                          (c/create-entity game)
+                          (c/->entity game)
                           e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)

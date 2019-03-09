@@ -13,7 +13,7 @@
 
 (defn advanced-render [game [entity objects {:keys [then now] :as state}]]
   (eu/resize-example game)
-  (c/render-entity game
+  (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
   (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
                                                     :aspect (/ (eu/get-width game)
@@ -36,7 +36,7 @@
                               (m/multiply-matrices 4 (m/x-rotation-matrix-3d (* rx now)))
                               (m/multiply-matrices 4 (m/y-rotation-matrix-3d (* ry now)))
                               (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 tz)))]
-        (c/render-entity game
+        (c/render game
           (-> entity
               (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
               (update :uniforms assoc
@@ -53,7 +53,7 @@
   [entity objects (assoc state :then now :now (:time game))])
 
 (defn shape-entity [game {:keys [positions normals texcoords indices]}]
-  (c/create-entity game
+  (c/->entity game
     {:vertex data/advanced-vertex-shader
      :fragment data/advanced-fragment-shader
      :attributes {'a_position {:data positions

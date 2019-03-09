@@ -5,7 +5,7 @@
             [iglu.parse :as parse]
             [play-cljc.utils :as u]))
 
-(defn create-game [context]
+(defn ->game [context]
   {:tex-count (atom 0)
    :context context})
 
@@ -86,7 +86,7 @@
 (def ^:private
   glsl-version #?(:clj "410" :cljs "300 es"))
 
-(defn create-entity [game {:keys [vertex fragment attributes uniforms indices] :as m}]
+(defn ->entity [game {:keys [vertex fragment attributes uniforms indices] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
         fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
@@ -149,10 +149,10 @@
 (defn- render-viewport [game {:keys [x y width height]}]
   (gl game viewport x y width height))
 
-(defn render-entity [game
-                     {:keys [program vao index-count uniforms indices
-                             viewport clear render-to-texture]
-                      :as entity}]
+(defn render [game
+              {:keys [program vao index-count uniforms indices
+                      viewport clear render-to-texture]
+               :as entity}]
   (let [previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
@@ -174,7 +174,7 @@
         (let [previous-framebuffer (gl game #?(:clj getInteger :cljs getParameter)
                                      (gl game FRAMEBUFFER_BINDING))]
           (gl game bindFramebuffer (gl game FRAMEBUFFER) (:framebuffer texture))
-          (render-entity game inner-entity)
+          (render game inner-entity)
           (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))

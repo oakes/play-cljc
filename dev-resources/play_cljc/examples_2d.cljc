@@ -16,13 +16,13 @@
 
 (defn rand-rects-render [game [entity rects :as state]]
   (eu/resize-example game)
-  (c/render-entity game
+  (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
   (doseq [{color :color
            [posx posy] :position
            [sx sy] :scale}
           rects]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/color color)
@@ -34,7 +34,7 @@
 (defn rand-rects-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(e/two-d-entity game primitives/rect)
+  [(e/->entity game primitives/rect)
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
@@ -59,7 +59,7 @@
         img-scale (if (> screen-ratio image-ratio)
                     {:x (* game-height (/ width height)) :y game-height}
                     {:x game-width :y (* game-width (/ height width))})]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
           (t/project {:width game-width :height game-height})
@@ -70,7 +70,7 @@
 (defn image-init [game {:keys [data width height] :as image}]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(assoc (e/image-entity game data width height)
+  [(assoc (e/->image-entity game data width height)
      :clear {:color [1 1 1 1] :depth 1})
    image])
 
@@ -89,7 +89,7 @@
 (defn translation-render [game [entity *state :as state]]
   (eu/resize-example game)
   (let [{:keys [x y]} @*state]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
@@ -99,7 +99,7 @@
 (defn translation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (-> (e/two-d-entity game data/f-2d)
+  (let [entity (-> (e/->entity game data/f-2d)
                    (t/color [1 0 0.5 1])
                    (assoc :clear {:color [0 0 0 0] :depth 1}))
         *state (atom {:x 0 :y 0})]
@@ -119,7 +119,7 @@
 (defn rotation-render [game [entity *state :as state]]
   (eu/resize-example game)
   (let [{:keys [tx ty r]} @*state]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
@@ -132,7 +132,7 @@
 (defn rotation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (-> (e/two-d-entity game data/f-2d)
+  (let [entity (-> (e/->entity game data/f-2d)
                    (t/color [1 0 0.5 1])
                    (assoc :clear {:color [0 0 0 0] :depth 1}))
         tx 100
@@ -154,7 +154,7 @@
 (defn scale-render [game [entity *state :as state]]
   (eu/resize-example game)
   (let [{:keys [tx ty rx ry]} @*state]
-    (c/render-entity game
+    (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
@@ -166,7 +166,7 @@
 (defn scale-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (-> (e/two-d-entity game data/f-2d)
+  (let [entity (-> (e/->entity game data/f-2d)
                    (t/color [1 0 0.5 1])
                    (assoc :clear {:color [0 0 0 0] :depth 1}))
         tx 100
@@ -187,7 +187,7 @@
 
 (defn rotation-multi-render [game [entity *state :as state]]
   (eu/resize-example game)
-  (c/render-entity game
+  (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
   (let [{:keys [tx ty r]} @*state]
     (loop [i 0
@@ -198,14 +198,14 @@
         (let [entity (-> entity
                          (t/translate {:x tx :y ty})
                          (t/rotate {:angle r}))]
-          (c/render-entity game entity)
+          (c/render game entity)
           (recur (inc i) entity)))))
   state)
 
 (defn rotation-multi-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (-> (e/two-d-entity game data/f-2d)
+  (let [entity (-> (e/->entity game data/f-2d)
                    (t/color [1 0 0.5 1]))
         tx 100
         ty 100

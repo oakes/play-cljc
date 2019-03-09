@@ -11,7 +11,7 @@
 (def textures (atom 0))
 
 (defn init-example [#?(:clj window :cljs card)]
-  #?(:clj  (assoc (c/create-game window) :tex-count textures)
+  #?(:clj  (assoc (c/->game window) :tex-count textures)
      :cljs (do
              (when-let [canvas (.querySelector card "canvas")]
                (.removeChild card canvas))
@@ -20,7 +20,7 @@
                             (-> .-style .-height (set! "100%")))
                    context (.getContext canvas "webgl2")]
                (.appendChild card canvas)
-               (c/create-game context)))))
+               (c/->game context)))))
 
 (defn game-loop [f game state]
   #?(:clj  {:f f :game game :state state}
