@@ -27,3 +27,6 @@
   ICamera
   (camera [entity attrs] entity))
 
+(defprotocol ILookAt
+  (look-at [camera attrs]))
+
