@@ -1,4 +1,5 @@
 (ns play-cljc.examples-2d
+  "2D examples based on content from webgl2fundamentals.org"
   (:require [play-cljc.core :as c]
             [play-cljc.entities-2d :as e]
             [play-cljc.utils :as u]

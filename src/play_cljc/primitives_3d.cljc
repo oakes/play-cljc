@@ -1,4 +1,6 @@
 (ns play-cljc.primitives-3d
+  "Low level 3D shape data, adapted from:
+  https://github.com/greggman/twgl.js/blob/master/src/primitives.js"
   (:require #?(:clj  [play-cljc.macros-java :refer [math]]
                :cljs [play-cljc.macros-js :refer-macros [math]])
             [clojure.spec.alpha :as s]))

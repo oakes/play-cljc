@@ -1,4 +1,5 @@
 (ns play-cljc.examples-advanced
+  "Advanced 3D examples based on content from webgl2fundamentals.org"
   (:require [play-cljc.core :as c]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
@@ -75,7 +76,7 @@
   (let [entity (shape-entity game
                  (primitives/sphere {:radius 10 :subdivisions-axis 48 :subdivisions-height 24}))
         objects (vec
-                  (for [i (range 100)]
+                  (for [i (range 50)]
                     {:tz (rand 150)
                      :rx (rand (* 2 (math PI)))
                      :ry (rand (math PI))
@@ -103,7 +104,7 @@
   (let [entity (shape-entity game
                  (primitives/plane {:width 20 :depth 20 :subdivisions-width 10 :subdivisions-height 10}))
         objects (vec
-                  (for [i (range 100)]
+                  (for [i (range 50)]
                     {:tz (rand 150)
                      :rx (rand (* 2 (math PI)))
                      :ry (rand (math PI))
@@ -131,7 +132,7 @@
   (let [entity (shape-entity game
                  (primitives/cube {:size 20}))
         objects (vec
-                  (for [i (range 100)]
+                  (for [i (range 50)]
                     {:tz (rand 150)
                      :rx (rand (* 2 (math PI)))
                      :ry (rand (math PI))
@@ -160,7 +161,7 @@
                  (primitives/cylinder {:bottom-radius 10 :top-radius 10 :height 30
                                        :radial-subdivisions 10 :vertical-subdivisions 10}))
         objects (vec
-                  (for [i (range 100)]
+                  (for [i (range 50)]
                     {:tz (rand 150)
                      :rx (rand (* 2 (math PI)))
                      :ry (rand (math PI))
@@ -189,7 +190,7 @@
                  (primitives/crescent {:vertical-radius 20 :outer-radius 20 :inner-radius 15
                                        :thickness 10 :subdivisions-down 30}))
         objects (vec
-                  (for [i (range 100)]
+                  (for [i (range 50)]
                     {:tz (rand 150)
                      :rx (rand (* 2 (math PI)))
                      :ry (rand (math PI))
@@ -218,7 +219,7 @@
                  (primitives/torus {:radius 20 :thickness 5
                                     :radial-subdivisions 20 :body-subdivisions 20}))
         objects (vec
-                  (for [i (range 100)]
+                  (for [i (range 50)]
                     {:tz (rand 150)
                      :rx (rand (* 2 (math PI)))
                      :ry (rand (math PI))
@@ -246,7 +247,7 @@
   (let [entity (shape-entity game
                  (primitives/disc {:radius 20 :divisions 20}))
         objects (vec
-                  (for [i (range 100)]
+                  (for [i (range 50)]
                     {:tz (rand 150)
                      :rx (rand (* 2 (math PI)))
                      :ry (rand (math PI))
