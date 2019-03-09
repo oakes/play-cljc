@@ -4,10 +4,27 @@
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
             [play-cljc.math :as m]
+            [play-cljc.transforms :as t]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])
             #?(:clj [dynadoc.example :refer [defexample]]))
   #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
+
+(defrecord TwoDEntity [])
+
+(extend-type TwoDEntity
+  t/IProject
+  (project [entity {:keys [width height]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 3 (m/projection-matrix width height) %)))
+  t/ITranslate
+  (translate [entity {:keys [x y]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
+  t/IScale
+  (scale [entity {:keys [x y]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 3 (m/scaling-matrix x y) %))))
 
 ;; rand-rects
 
@@ -20,23 +37,25 @@
            [sx sy] :scale}
           rects]
     (c/render-entity game
-      (assoc entity
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_color color
-                   'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
-                                  (m/multiply-matrices 3 (m/translation-matrix posx posy))
-                                  (m/multiply-matrices 3 (m/scaling-matrix sx sy)))})))
+      (-> (assoc entity
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+            :uniforms {'u_color color
+                       'u_matrix (m/identity-matrix)})
+          (t/project {:width (eu/get-width game) :height (eu/get-height game)})
+          (t/translate {:x posx :y posy})
+          (t/scale {:x sx :y sy}))))
   state)
 
 (defn rand-rects-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(c/create-entity game
-     {:vertex data/two-d-vertex-shader
-      :fragment data/two-d-fragment-shader
-      :attributes {'a_position {:data data/rect
-                                :type (gl game FLOAT)
-                                :size 2}}})
+  [(-> (c/create-entity game
+         {:vertex data/two-d-vertex-shader
+          :fragment data/two-d-fragment-shader
+          :attributes {'a_position {:data data/rect
+                                    :type (gl game FLOAT)
+                                    :size 2}}})
+       map->TwoDEntity)
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]

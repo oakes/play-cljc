@@ -75,6 +75,11 @@
 
 ;; two-d
 
+(defn identity-matrix []
+  [1 0 0
+   0 1 0
+   0 0 1])
+
 (defn translation-matrix [tx ty]
   [1 0 0
    0 1 0
