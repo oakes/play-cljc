@@ -528,32 +528,32 @@
 (def target-width 256)
 (def target-height 256)
 
-(defn cube [{:keys [rx ry]} aspect]
-  (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect aspect
-                                                    :near 1
-                                                    :far 2000})
-        camera-pos [0 0 2]
-        target [0 0 0]
-        up [0 1 0]
-        camera-matrix (m/look-at camera-pos target up)
-        view-matrix (m/inverse-matrix 4 camera-matrix)
-        view-projection-matrix (m/multiply-matrices 4 view-matrix projection-matrix)]
-    (->> view-projection-matrix
-         (m/multiply-matrices 4 (m/x-rotation-matrix-3d rx))
-         (m/multiply-matrices 4 (m/y-rotation-matrix-3d ry)))))
+(defn draw-cube [entity {:keys [rx ry]} aspect]
+  (let [camera (-> (->Camera)
+                   (t/translate {:x 0 :y 0 :z 2})
+                   (t/look-at {:target [0 0 0] :up [0 1 0]}))]
+    (-> entity
+        (t/project {:field-of-view (m/deg->rad 60)
+                    :aspect aspect
+                    :near 1
+                    :far 2000})
+        (t/camera camera)
+        (t/rotate {:angle rx :axis :x})
+        (t/rotate {:angle ry :axis :y}))))
 
 (defn perspective-texture-meta-3d-render [game [entities {:keys [then now] :as state}]]
   (eu/resize-example game)
   (let [[inner-entity entity] entities]
     (c/render-entity game
-      (assoc entity
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_matrix (cube state (/ (eu/get-width game) (eu/get-height game)))}
-        :render-to-texture {'u_texture
-                            (assoc inner-entity
-                              :viewport {:x 0 :y 0 :width target-width :height target-height}
-                              :uniforms {'u_matrix (cube state (/ target-width target-height))})})))
+      (-> entity
+          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+          (draw-cube state (/ (eu/get-width game) (eu/get-height game)))
+          (assoc :render-to-texture {'u_texture
+                                     (-> inner-entity
+                                         (assoc :viewport {:x 0 :y 0
+                                                           :width target-width
+                                                           :height target-height})
+                                         (draw-cube state (/ target-width target-height)))}))))
   [entities
    (-> state
        (update :rx + (* 1.2 (- now then)))
@@ -563,59 +563,61 @@
 (defn perspective-texture-meta-3d-init [game]
   (gl game enable (gl game CULL_FACE))
   (gl game enable (gl game DEPTH_TEST))
-  (let [entity (c/create-entity game
-                 {:vertex data/texture-vertex-shader
-                  :fragment data/texture-fragment-shader
-                  :attributes {'a_position {:data data/cube
-                                            :type (gl game FLOAT)
-                                            :size 3}
-                               'a_texcoord {:data data/cube-texcoords
-                                            :type (gl game FLOAT)
-                                            :size 2
-                                            :normalize true}}
-                  :uniforms {'u_texture {:data nil
-                                         :opts {:mip-level 0
-                                                :internal-fmt (gl game RGBA)
-                                                :width target-width
-                                                :height target-height
-                                                :border 0
-                                                :src-fmt (gl game RGBA)
-                                                :src-type (gl game UNSIGNED_BYTE)}
-                                         :params {(gl game TEXTURE_WRAP_S)
-                                                  (gl game CLAMP_TO_EDGE),
-                                                  (gl game TEXTURE_WRAP_T)
-                                                  (gl game CLAMP_TO_EDGE),
-                                                  (gl game TEXTURE_MIN_FILTER)
-                                                  (gl game LINEAR)}}}
-                  :clear {:color [1 1 1 1] :depth 1}})
-        inner-entity (c/create-entity game
-                       {:vertex data/texture-vertex-shader
-                        :fragment data/texture-fragment-shader
-                        :attributes {'a_position {:data data/cube
-                                                  :type (gl game FLOAT)
-                                                  :size 3}
-                                     'a_texcoord {:data data/cube-texcoords
-                                                  :type (gl game FLOAT)
-                                                  :size 2
-                                                  :normalize true}}
-                        :uniforms {'u_texture {:data [128 64 128 0 192 0]
-                                               :opts {:mip-level 0
-                                                      :internal-fmt (gl game R8)
-                                                      :width 3
-                                                      :height 2
-                                                      :border 0
-                                                      :src-fmt (gl game RED)
-                                                      :src-type (gl game UNSIGNED_BYTE)}
-                                               :alignment 1
-                                               :params {(gl game TEXTURE_WRAP_S)
-                                                        (gl game CLAMP_TO_EDGE),
-                                                        (gl game TEXTURE_WRAP_T)
-                                                        (gl game CLAMP_TO_EDGE),
-                                                        (gl game TEXTURE_MIN_FILTER)
-                                                        (gl game NEAREST),
-                                                        (gl game TEXTURE_MAG_FILTER)
-                                                        (gl game NEAREST)}}}
-                        :clear {:color [0 0 1 1] :depth 1}})
+  (let [entity (->> {:vertex data/texture-vertex-shader
+                     :fragment data/texture-fragment-shader
+                     :attributes {'a_position {:data data/cube
+                                               :type (gl game FLOAT)
+                                               :size 3}
+                                  'a_texcoord {:data data/cube-texcoords
+                                               :type (gl game FLOAT)
+                                               :size 2
+                                               :normalize true}}
+                     :uniforms {'u_texture {:data nil
+                                            :opts {:mip-level 0
+                                                   :internal-fmt (gl game RGBA)
+                                                   :width target-width
+                                                   :height target-height
+                                                   :border 0
+                                                   :src-fmt (gl game RGBA)
+                                                   :src-type (gl game UNSIGNED_BYTE)}
+                                            :params {(gl game TEXTURE_WRAP_S)
+                                                     (gl game CLAMP_TO_EDGE),
+                                                     (gl game TEXTURE_WRAP_T)
+                                                     (gl game CLAMP_TO_EDGE),
+                                                     (gl game TEXTURE_MIN_FILTER)
+                                                     (gl game LINEAR)}}}
+                     :clear {:color [1 1 1 1] :depth 1}}
+                    (c/create-entity game)
+                    map->ThreeDEntity)
+        inner-entity (->> {:vertex data/texture-vertex-shader
+                           :fragment data/texture-fragment-shader
+                           :attributes {'a_position {:data data/cube
+                                                     :type (gl game FLOAT)
+                                                     :size 3}
+                                        'a_texcoord {:data data/cube-texcoords
+                                                     :type (gl game FLOAT)
+                                                     :size 2
+                                                     :normalize true}}
+                           :uniforms {'u_texture {:data [128 64 128 0 192 0]
+                                                  :opts {:mip-level 0
+                                                         :internal-fmt (gl game R8)
+                                                         :width 3
+                                                         :height 2
+                                                         :border 0
+                                                         :src-fmt (gl game RED)
+                                                         :src-type (gl game UNSIGNED_BYTE)}
+                                                  :alignment 1
+                                                  :params {(gl game TEXTURE_WRAP_S)
+                                                           (gl game CLAMP_TO_EDGE),
+                                                           (gl game TEXTURE_WRAP_T)
+                                                           (gl game CLAMP_TO_EDGE),
+                                                           (gl game TEXTURE_MIN_FILTER)
+                                                           (gl game NEAREST),
+                                                           (gl game TEXTURE_MAG_FILTER)
+                                                           (gl game NEAREST)}}}
+                           :clear {:color [0 0 1 1] :depth 1}}
+                          (c/create-entity game)
+                          map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)
                :then 0
