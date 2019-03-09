@@ -43,7 +43,7 @@
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba)))
 
-(defrecord Camera [])
+(defrecord Camera [matrix])
 
 (extend-type Camera
   t/ITranslate
@@ -60,14 +60,15 @@
         #(m/multiply-matrices 4 matrix %))))
   t/ILookAt
   (look-at [{:keys [matrix] :as camera} {:keys [target up] :as attrs}]
-    (let [camera-pos (if matrix
-                       [(nth matrix 12)
-                        (nth matrix 13)
-                        (nth matrix 14)]
-                       [0 0 0])]
+    (let [camera-pos [(nth matrix 12)
+                      (nth matrix 13)
+                      (nth matrix 14)]]
       (when (= camera-pos target)
         (throw (ex-info "The camera's position is the same as the target" attrs)))
       (assoc camera :matrix (m/look-at camera-pos target up)))))
+
+(defn ->camera []
+  (->Camera (m/identity-matrix 4)))
 
 (def ^:private three-d-uniform-colors-vertex-shader
   {:attributes

@@ -200,7 +200,7 @@
   (let [{:keys [cr]} @*state
         radius 200
         num-fs 5
-        camera (-> (e/->Camera)
+        camera (-> (e/->camera)
                    (t/rotate {:angle cr :axis :y})
                    (t/translate {:x 0 :y 0 :z (* radius 1.5)}))
         entity (-> entity
@@ -244,7 +244,7 @@
   (let [{:keys [cr]} @*state
         radius 200
         num-fs 5
-        camera (-> (e/->Camera)
+        camera (-> (e/->camera)
                    (t/rotate {:angle cr :axis :y})
                    (t/translate {:x 0 :y 0 :z (* radius 1.5)})
                    (t/look-at {:target [radius 0 0] :up [0 1 0]}))
@@ -327,7 +327,7 @@
 
 (defn perspective-texture-3d-render [game [entity {:keys [rx ry then now] :as state}]]
   (eu/resize-example game)
-  (let [camera (-> (e/->Camera)
+  (let [camera (-> (e/->camera)
                    (t/translate {:x 0 :y 0 :z 200})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
     (c/render game
@@ -391,7 +391,7 @@
 
 (defn perspective-texture-data-3d-render [game [entity {:keys [rx ry then now] :as state}]]
   (eu/resize-example game)
-  (let [camera (-> (e/->Camera)
+  (let [camera (-> (e/->camera)
                    (t/translate {:x 0 :y 0 :z 2})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
     (c/render game
@@ -463,7 +463,7 @@
 (def target-height 256)
 
 (defn render-cube [entity {:keys [rx ry]} aspect]
-  (let [camera (-> (e/->Camera)
+  (let [camera (-> (e/->camera)
                    (t/translate {:x 0 :y 0 :z 2})
                    (t/look-at {:target [0 0 0] :up [0 1 0]}))]
     (-> entity
