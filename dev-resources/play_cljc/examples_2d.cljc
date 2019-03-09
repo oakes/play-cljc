@@ -1,34 +1,14 @@
 (ns play-cljc.examples-2d
   (:require [play-cljc.core :as c]
+            [play-cljc.entities :as e]
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
-            [play-cljc.math :as m]
             [play-cljc.transforms :as t]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])
             #?(:clj [dynadoc.example :refer [defexample]]))
   #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
-
-(defrecord TwoDEntity [])
-
-(extend-type TwoDEntity
-  t/IProject
-  (project [entity {:keys [width height]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/projection-matrix width height) %)))
-  t/ITranslate
-  (translate [entity {:keys [x y]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
-  t/IScale
-  (scale [entity {:keys [x y]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/scaling-matrix x y) %)))
-  t/IRotate
-  (rotate [entity {:keys [angle]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
 
 ;; rand-rects
 
@@ -42,9 +22,8 @@
           rects]
     (c/render-entity game
       (-> entity
-          (assoc
-            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-            :uniforms {'u_color color})
+          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+          (t/color color)
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
           (t/translate {:x posx :y posy})
           (t/scale {:x sx :y sy}))))
@@ -53,13 +32,7 @@
 (defn rand-rects-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(->> {:vertex data/two-d-vertex-shader
-         :fragment data/two-d-fragment-shader
-         :attributes {'a_position {:data data/rect
-                                   :type (gl game FLOAT)
-                                   :size 2}}}
-        (c/create-entity game)
-        map->TwoDEntity)
+  [(e/two-d-entity game e/rect)
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
@@ -95,30 +68,8 @@
 (defn image-init [game {:keys [data width height] :as image}]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(->> {:vertex data/image-vertex-shader
-         :fragment data/image-fragment-shader
-         :attributes {'a_position {:data data/rect
-                                   :type (gl game FLOAT)
-                                   :size 2}}
-         :uniforms {'u_image {:data data
-                              :opts {:mip-level 0
-                                     :internal-fmt (gl game RGBA)
-                                     :width width
-                                     :height height
-                                     :border 0
-                                     :src-fmt (gl game RGBA)
-                                     :src-type (gl game UNSIGNED_BYTE)}
-                              :params {(gl game TEXTURE_WRAP_S)
-                                       (gl game CLAMP_TO_EDGE),
-                                       (gl game TEXTURE_WRAP_T)
-                                       (gl game CLAMP_TO_EDGE),
-                                       (gl game TEXTURE_MIN_FILTER)
-                                       (gl game NEAREST),
-                                       (gl game TEXTURE_MAG_FILTER)
-                                       (gl game NEAREST)}}}
-         :clear {:color [1 1 1 1] :depth 1}}
-        (c/create-entity game)
-        map->TwoDEntity)
+  [(assoc (e/image-entity game data width height)
+     :clear {:color [1 1 1 1] :depth 1})
    image])
 
 (defexample play-cljc.examples-2d/image
@@ -146,15 +97,15 @@
 (defn translation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex data/two-d-vertex-shader
-                     :fragment data/two-d-fragment-shader
+  (let [entity (->> {:vertex e/two-d-vertex-shader
+                     :fragment e/two-d-fragment-shader
                      :attributes {'a_position {:data data/f-2d
                                                :type (gl game FLOAT)
                                                :size 2}}
                      :uniforms {'u_color [1 0 0.5 1]}
                      :clear {:color [0 0 0 0] :depth 1}}
                     (c/create-entity game)
-                    map->TwoDEntity)
+                    e/map->TwoDEntity)
         *state (atom {:x 0 :y 0})]
     (eu/listen-for-mouse game *state)
     [entity *state]))
@@ -185,15 +136,15 @@
 (defn rotation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex data/two-d-vertex-shader
-                     :fragment data/two-d-fragment-shader
+  (let [entity (->> {:vertex e/two-d-vertex-shader
+                     :fragment e/two-d-fragment-shader
                      :attributes {'a_position {:data data/f-2d
                                                :type (gl game FLOAT)
                                                :size 2}}
                      :uniforms {'u_color [1 0 0.5 1]}
                      :clear {:color [0 0 0 0] :depth 1}}
                     (c/create-entity game)
-                    map->TwoDEntity)
+                    e/map->TwoDEntity)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
@@ -225,15 +176,15 @@
 (defn scale-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex data/two-d-vertex-shader
-                     :fragment data/two-d-fragment-shader
+  (let [entity (->> {:vertex e/two-d-vertex-shader
+                     :fragment e/two-d-fragment-shader
                      :attributes {'a_position {:data data/f-2d
                                                :type (gl game FLOAT)
                                                :size 2}}
                      :uniforms {'u_color [1 0 0.5 1]}
                      :clear {:color [0 0 0 0] :depth 1}}
                     (c/create-entity game)
-                    map->TwoDEntity)
+                    e/map->TwoDEntity)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
@@ -270,14 +221,14 @@
 (defn rotation-multi-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex data/two-d-vertex-shader
-                     :fragment data/two-d-fragment-shader
+  (let [entity (->> {:vertex e/two-d-vertex-shader
+                     :fragment e/two-d-fragment-shader
                      :attributes {'a_position {:data data/f-2d
                                                :type (gl game FLOAT)
                                                :size 2}}
                      :uniforms {'u_color [1 0 0.5 1]}}
                     (c/create-entity game)
-                    map->TwoDEntity)
+                    e/map->TwoDEntity)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]

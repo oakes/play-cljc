@@ -1,61 +1,5 @@
 (ns play-cljc.example-data)
 
-(def image-vertex-shader
-  {:attributes
-   '{a_position vec2}
-   :uniforms
-   '{u_matrix mat3
-     u_image sampler2D}
-   :varyings
-   '{v_texCoord vec2}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([]
-           (= gl_Position
-              (vec4
-                (.xy (* u_matrix (vec3 a_position 1)))
-                0 1))
-           (= v_texCoord a_position))}})
-
-(def image-fragment-shader
-  {:precision "mediump float"
-   :uniforms
-   '{u_image sampler2D}
-   :varyings
-   '{v_texCoord vec2}
-   :outputs
-   '{outColor vec4}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([] (= outColor (.bgra (texture u_image v_texCoord))))}})
-
-(def two-d-vertex-shader
-  {:attributes
-   '{a_position vec2}
-   :uniforms
-   '{u_matrix mat3}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([]
-           (= gl_Position
-              (vec4
-                (.xy (* u_matrix (vec3 a_position 1)))
-                0 1)))}})
-
-(def two-d-fragment-shader
-  {:precision "mediump float"
-   :uniforms
-   '{u_color vec4}
-   :outputs
-   '{outColor vec4}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([] (= outColor u_color))}})
-
 (def three-d-vertex-shader
   {:attributes
    '{a_position vec4
@@ -183,10 +127,6 @@
                      (+ (* (.y litR) u_color)
                         (* u_specular (.z litR) u_specularFactor))))
                 1)))}})
-
-(def rect
-  ;; x1 y1, x2 y1, x1 y2, x1 y2, x2 y1, x2 y2
-  [0 0, 1 0, 0 1, 0 1, 1 0, 1 1])
 
 (def f-2d
   [;; left column

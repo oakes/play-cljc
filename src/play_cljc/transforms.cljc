@@ -15,6 +15,9 @@
 (defprotocol ICamera
   (camera [entity attrs]))
 
+(defprotocol IColor
+  (color [entity attrs]))
+
 (extend-type #?(:clj Object :cljs default)
   ITranslate
   (translate [entity attrs] entity)
@@ -25,7 +28,9 @@
   IRotate
   (rotate [entity attrs] entity)
   ICamera
-  (camera [entity attrs] entity))
+  (camera [entity attrs] entity)
+  IColor
+  (color [entity attrs] entity))
 
 (defprotocol ILookAt
   (look-at [camera attrs]))
