@@ -3,7 +3,7 @@
             [play-cljc.utils :as u]
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
-            [play-cljc.primitives :as primitives]
+            [play-cljc.primitives-3d :as primitives]
             [play-cljc.math :as m]
             #?(:clj  [play-cljc.macros-java :refer [gl math]]
                :cljs [play-cljc.macros-js :refer-macros [gl math]])

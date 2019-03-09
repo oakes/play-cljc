@@ -1,4 +1,4 @@
-(ns play-cljc.primitives
+(ns play-cljc.primitives-3d
   (:require #?(:clj  [play-cljc.macros-java :refer [math]]
                :cljs [play-cljc.macros-js :refer-macros [math]])
             [clojure.spec.alpha :as s]))
