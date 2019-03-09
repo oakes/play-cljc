@@ -22,9 +22,9 @@
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
   t/IScale
-  (scale [entity {:keys [width height]}]
+  (scale [entity {:keys [x y]}]
     (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/scaling-matrix width height) %)))
+      #(m/multiply-matrices 3 (m/scaling-matrix x y) %)))
   t/IRotate
   (rotate [entity {:keys [angle]}]
     (update-in entity [:uniforms 'u_matrix]
@@ -47,7 +47,7 @@
             :uniforms {'u_color color})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
           (t/translate {:x posx :y posy})
-          (t/scale {:width sx :height sy}))))
+          (t/scale {:x sx :y sy}))))
   state)
 
 (defn rand-rects-init [game]
@@ -82,8 +82,8 @@
         screen-ratio (/ game-width game-height)
         image-ratio (/ width height)
         img-scale (if (> screen-ratio image-ratio)
-                    {:width (* game-height (/ width height)) :height game-height}
-                    {:width game-width :height (* game-width (/ height width))})]
+                    {:x (* game-height (/ width height)) :y game-height}
+                    {:x game-width :y (* game-width (/ height width))})]
     (c/render-entity game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
@@ -219,7 +219,7 @@
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
           (t/translate {:x tx :y ty})
           (t/rotate {:angle 0})
-          (t/scale {:width rx :height ry}))))
+          (t/scale {:x rx :y ry}))))
   state)
 
 (defn scale-init [game]

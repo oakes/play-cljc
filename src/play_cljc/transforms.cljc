@@ -12,6 +12,9 @@
 (defprotocol IRotate
   (rotate [entity attrs]))
 
+(defprotocol ICamera
+  (camera [entity attrs]))
+
 (extend-type #?(:clj Object :cljs default)
   ITranslate
   (translate [entity attrs] entity)
@@ -20,5 +23,7 @@
   IProject
   (project [entity attrs] entity)
   IRotate
-  (rotate [entity attrs] entity))
+  (rotate [entity attrs] entity)
+  ICamera
+  (camera [entity attrs] entity))
 

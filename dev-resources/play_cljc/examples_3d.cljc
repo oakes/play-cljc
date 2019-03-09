@@ -4,21 +4,74 @@
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
             [play-cljc.math :as m]
+            [play-cljc.transforms :as t]
             #?(:clj  [play-cljc.macros-java :refer [gl math]]
                :cljs [play-cljc.macros-js :refer-macros [gl math]])
             #?(:clj [dynadoc.example :refer [defexample]]))
   #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
 
+(defrecord ThreeDEntity [])
+
+(extend-type ThreeDEntity
+  t/IProject
+  (project [entity attrs]
+    (let [matrix (cond
+                   (every? attrs [:left :right :bottom :top :near :far])
+                   (m/ortho-matrix-3d attrs)
+                   (every? attrs [:field-of-view :aspect :near :far])
+                   (m/perspective-matrix-3d attrs)
+                   :else
+                   (throw (ex-info "Can't project entity" entity)))]
+      (update-in entity [:uniforms 'u_matrix]
+        #(m/multiply-matrices 4 matrix %))))
+  t/ITranslate
+  (translate [entity {:keys [x y z]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
+  t/IScale
+  (scale [entity {:keys [x y z]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 4 (m/scaling-matrix-3d x y z) %)))
+  t/IRotate
+  (rotate [entity {:keys [angle axis]}]
+    (let [matrix (case axis
+                   :x (m/x-rotation-matrix-3d angle)
+                   :y (m/y-rotation-matrix-3d angle)
+                   :z (m/z-rotation-matrix-3d angle))]
+      (update-in entity [:uniforms 'u_matrix]
+        #(m/multiply-matrices 4 matrix %))))
+  t/ICamera
+  (camera [entity {:keys [matrix]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 4 (m/inverse-matrix 4 matrix) %))))
+
+(defrecord Camera [])
+
+(extend-type Camera
+  t/ITranslate
+  (translate [camera {:keys [x y z]}]
+    (update camera :matrix
+      #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
+  t/IRotate
+  (rotate [camera {:keys [angle axis]}]
+    (let [matrix (case axis
+                   :x (m/x-rotation-matrix-3d angle)
+                   :y (m/y-rotation-matrix-3d angle)
+                   :z (m/z-rotation-matrix-3d angle))]
+      (update camera :matrix
+        #(m/multiply-matrices 4 matrix %)))))
+
 (defn f-entity [game f-data]
-  (c/create-entity game
-    {:vertex data/three-d-vertex-shader
-     :fragment data/three-d-fragment-shader
-     :attributes {'a_position {:data f-data
+  (->> {:vertex data/three-d-vertex-shader
+        :fragment data/three-d-fragment-shader
+        :attributes {'a_position {:data f-data
+                                  :type (gl game FLOAT)
+                                  :size 3}
+                     'a_color {:data (mapv #(/ % 255) data/f-3d-colors)
                                :type (gl game FLOAT)
-                               :size 3}
-                  'a_color {:data (mapv #(/ % 255) data/f-3d-colors)
-                            :type (gl game FLOAT)
-                            :size 3}}}))
+                               :size 3}}}
+       (c/create-entity game)
+       map->ThreeDEntity))
 
 (defn transform-f-data [f-data]
   (let [matrix (m/multiply-matrices 4
@@ -44,20 +97,20 @@
   (eu/resize-example game)
   (let [{:keys [x y]} @*state]
     (c/render-entity game
-      (assoc entity
-        :clear {:color [1 1 1 1] :depth 1}
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_matrix
-                   (->> (m/ortho-matrix-3d {:left 0
-                                            :right (eu/get-width game)
-                                            :bottom (eu/get-height game)
-                                            :top 0
-                                            :near 400
-                                            :far -400})
-                        (m/multiply-matrices 4 (m/translation-matrix-3d x y 0))
-                        (m/multiply-matrices 4 (m/x-rotation-matrix-3d (m/deg->rad 40)))
-                        (m/multiply-matrices 4 (m/y-rotation-matrix-3d (m/deg->rad 25)))
-                        (m/multiply-matrices 4 (m/z-rotation-matrix-3d (m/deg->rad 325))))})))
+      (-> entity
+          (assoc
+            :clear {:color [1 1 1 1] :depth 1}
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+          (t/project {:left 0
+                      :right (eu/get-width game)
+                      :bottom (eu/get-height game)
+                      :top 0
+                      :near 400
+                      :far -400})
+          (t/translate {:x x :y y :z 0})
+          (t/rotate {:angle (m/deg->rad 40) :axis :x})
+          (t/rotate {:angle (m/deg->rad 25) :axis :y})
+          (t/rotate {:angle (m/deg->rad 325) :axis :z}))))
   state)
 
 (defn translation-3d-init [game]
@@ -82,22 +135,22 @@
   (eu/resize-example game)
   (let [{:keys [tx ty r]} @*state]
     (c/render-entity game
-      (assoc entity
-        :clear {:color [1 1 1 1] :depth 1}
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_matrix
-                   (->> (m/ortho-matrix-3d {:left 0
-                                            :right (eu/get-width game)
-                                            :bottom (eu/get-height game)
-                                            :top 0
-                                            :near 400
-                                            :far -400})
-                        (m/multiply-matrices 4 (m/translation-matrix-3d tx ty 0))
-                        (m/multiply-matrices 4 (m/x-rotation-matrix-3d r))
-                        (m/multiply-matrices 4 (m/y-rotation-matrix-3d r))
-                        (m/multiply-matrices 4 (m/z-rotation-matrix-3d r))
-                        ;; make it rotate around its center
-                        (m/multiply-matrices 4 (m/translation-matrix-3d -50 -75 0)))})))
+      (-> entity
+          (assoc
+            :clear {:color [1 1 1 1] :depth 1}
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+          (t/project {:left 0
+                      :right (eu/get-width game)
+                      :bottom (eu/get-height game)
+                      :top 0
+                      :near 400
+                      :far -400})
+          (t/translate {:x tx :y ty :z 0})
+          (t/rotate {:angle r :axis :x})
+          (t/rotate {:angle r :axis :y})
+          (t/rotate {:angle r :axis :z})
+          ;; make it rotate around its center
+          (t/translate {:x -50 :y -75 :z 0}))))
   state)
 
 (defn rotation-3d-init [game]
@@ -124,21 +177,21 @@
   (eu/resize-example game)
   (let [{:keys [tx ty rx ry]} @*state]
     (c/render-entity game
-      (assoc entity
-        :clear {:color [1 1 1 1] :depth 1}
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_matrix
-                   (->> (m/ortho-matrix-3d {:left 0
-                                            :right (eu/get-width game)
-                                            :bottom (eu/get-height game)
-                                            :top 0
-                                            :near 400
-                                            :far -400})
-                        (m/multiply-matrices 4 (m/translation-matrix-3d tx ty 0))
-                        (m/multiply-matrices 4 (m/x-rotation-matrix-3d (m/deg->rad 40)))
-                        (m/multiply-matrices 4 (m/y-rotation-matrix-3d (m/deg->rad 25)))
-                        (m/multiply-matrices 4 (m/z-rotation-matrix-3d (m/deg->rad 325)))
-                        (m/multiply-matrices 4 (m/scaling-matrix-3d rx ry 1)))})))
+      (-> entity
+          (assoc
+            :clear {:color [1 1 1 1] :depth 1}
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+          (t/project {:left 0
+                      :right (eu/get-width game)
+                      :bottom (eu/get-height game)
+                      :top 0
+                      :near 400
+                      :far -400})
+          (t/translate {:x tx :y ty :z 0})
+          (t/rotate {:angle (m/deg->rad 40) :axis :x})
+          (t/rotate {:angle (m/deg->rad 25) :axis :y})
+          (t/rotate {:angle (m/deg->rad 325) :axis :z})
+          (t/scale {:x rx :y ry :z 1}))))
   state)
 
 (defn scale-3d-init [game]
@@ -165,19 +218,19 @@
   (eu/resize-example game)
   (let [{:keys [cx cy]} @*state]
     (c/render-entity game
-      (assoc entity
-        :clear {:color [1 1 1 1] :depth 1}
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_matrix
-                   (->> (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                  :aspect (/ (eu/get-width game)
-                                                             (eu/get-height game))
-                                                  :near 1
-                                                  :far 2000})
-                        (m/multiply-matrices 4 (m/translation-matrix-3d cx cy -150))
-                        (m/multiply-matrices 4 (m/x-rotation-matrix-3d (m/deg->rad 180)))
-                        (m/multiply-matrices 4 (m/y-rotation-matrix-3d 0))
-                        (m/multiply-matrices 4 (m/z-rotation-matrix-3d 0)))})))
+      (-> entity
+          (assoc
+            :clear {:color [1 1 1 1] :depth 1}
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+          (t/project {:field-of-view (m/deg->rad 60)
+                      :aspect (/ (eu/get-width game)
+                                 (eu/get-height game))
+                      :near 1
+                      :far 2000})
+          (t/translate {:x cx :y cy :z -150})
+          (t/rotate {:angle (m/deg->rad 180) :axis :x})
+          (t/rotate {:angle 0 :axis :y})
+          (t/rotate {:angle 0 :axis :z}))))
   state)
 
 (defn perspective-3d-init [game]
@@ -205,27 +258,23 @@
   (let [{:keys [cr]} @*state
         radius 200
         num-fs 5
-        projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect (/ (eu/get-width game)
-                                                               (eu/get-height game))
-                                                    :near 1
-                                                    :far 2000})
-        camera-matrix (->> (m/y-rotation-matrix-3d cr)
-                           (m/multiply-matrices 4
-                             (m/translation-matrix-3d 0 0 (* radius 1.5))))
-        view-matrix (m/inverse-matrix 4 camera-matrix)
-        view-projection-matrix (m/multiply-matrices 4 view-matrix projection-matrix)]
+        camera (-> (->Camera)
+                   (t/rotate {:angle cr :axis :y})
+                   (t/translate {:x 0 :y 0 :z (* radius 1.5)}))
+        entity (-> entity
+                   (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+                   (t/project {:field-of-view (m/deg->rad 60)
+                               :aspect (/ (eu/get-width game)
+                                          (eu/get-height game))
+                               :near 1
+                               :far 2000})
+                   (t/camera camera))]
     (dotimes [i num-fs]
       (let [angle (/ (* i (math PI) 2) num-fs)
             x (* (math cos angle) radius)
-            z (* (math sin angle) radius)
-            matrix (m/multiply-matrices 4
-                     (m/translation-matrix-3d x 0 z)
-                     view-projection-matrix)]
+            z (* (math sin angle) radius)]
         (c/render-entity game
-          (assoc entity
-            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-            :uniforms {'u_matrix matrix})))))
+          (t/translate entity {:x x :y 0 :z z})))))
   state)
 
 (defn perspective-camera-3d-init [game]
