@@ -1,5 +1,5 @@
-(ns play-cljc.example-utils
-  (:require [play-cljc.core :as c]
+(ns play-cljc.gl.example-utils
+  (:require [play-cljc.gl.core :as c]
             [play-cljc.math :as m]
             #?(:clj  [clojure.java.io :as io]
                :cljs [goog.events :as events]))

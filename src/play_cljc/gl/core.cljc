@@ -1,9 +1,9 @@
-(ns play-cljc.core
+(ns play-cljc.gl.core
   (:require #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])
             [iglu.core :as ig]
             [iglu.parse :as parse]
-            [play-cljc.utils :as u]))
+            [play-cljc.gl.utils :as u]))
 
 (defn ->game [context]
   {:tex-count (atom 0)

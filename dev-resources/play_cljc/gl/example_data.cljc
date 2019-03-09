@@ -1,4 +1,4 @@
-(ns play-cljc.example-data)
+(ns play-cljc.gl.example-data)
 
 (def texture-vertex-shader
   {:attributes

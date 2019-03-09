@@ -1,7 +1,7 @@
 (ns play-cljc.dev
-  (:require [play-cljc.examples-2d]
-            [play-cljc.examples-3d]
-            [play-cljc.examples-advanced]
+  (:require [play-cljc.gl.examples-2d]
+            [play-cljc.gl.examples-3d]
+            [play-cljc.gl.examples-advanced]
             [dynadoc.example :as ex])
   (:import  [org.lwjgl.glfw GLFW Callbacks GLFWKeyCallbackI]
             [org.lwjgl.opengl GL GL41]))
@@ -23,9 +23,9 @@
       (GLFW/glfwShowWindow window)
       ;; loop
       (GL/createCapabilities)
-      (let [*examples (-> (for [ns-sym '[play-cljc.examples-2d
-                                         play-cljc.examples-3d
-                                         play-cljc.examples-advanced]
+      (let [*examples (-> (for [ns-sym '[play-cljc.gl.examples-2d
+                                         play-cljc.gl.examples-3d
+                                         play-cljc.gl.examples-advanced]
                                 [example-sym examples] (sort-by first (get @ex/registry-ref ns-sym))
                                 example examples]
                             {:ns-sym ns-sym

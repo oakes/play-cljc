@@ -1,10 +1,9 @@
-(ns play-cljc.examples-2d
+(ns play-cljc.gl.examples-2d
   "2D examples based on content from webgl2fundamentals.org"
-  (:require [play-cljc.core :as c]
-            [play-cljc.entities-2d :as e]
-            [play-cljc.utils :as u]
-            [play-cljc.example-utils :as eu]
-            [play-cljc.example-data :as data]
+  (:require [play-cljc.gl.core :as c]
+            [play-cljc.gl.entities-2d :as e]
+            [play-cljc.gl.example-utils :as eu]
+            [play-cljc.gl.example-data :as data]
             [play-cljc.transforms :as t]
             [play-cljc.primitives-2d :as primitives]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
@@ -40,12 +39,12 @@
       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
       :scale [(rand-int 300) (rand-int 300)]})])
 
-(defexample play-cljc.examples-2d/rand-rects
+(defexample play-cljc.gl.examples-2d/rand-rects
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-2d/rand-rects-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-2d/rand-rects-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-2d/rand-rects-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-2d/rand-rects-render
       game state)))
 
 ;; image
@@ -74,14 +73,14 @@
      :clear {:color [1 1 1 1] :depth 1})
    image])
 
-(defexample play-cljc.examples-2d/image
+(defexample play-cljc.gl.examples-2d/image
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)]
-    (play-cljc.example-utils/get-image "aintgottaexplainshit.jpg"
+  (let [game (play-cljc.gl.example-utils/init-example card)]
+    (play-cljc.gl.example-utils/get-image "aintgottaexplainshit.jpg"
       (fn [image]
-        (let [state (play-cljc.examples-2d/image-init game image)]
-          (play-cljc.example-utils/game-loop
-            play-cljc.examples-2d/image-render
+        (let [state (play-cljc.gl.examples-2d/image-init game image)]
+          (play-cljc.gl.example-utils/game-loop
+            play-cljc.gl.examples-2d/image-render
             game state))))))
 
 ;; translation
@@ -106,12 +105,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-2d/translation
+(defexample play-cljc.gl.examples-2d/translation
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-2d/translation-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-2d/translation-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-2d/translation-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-2d/translation-render
       game state)))
 
 ;; rotation
@@ -141,12 +140,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-2d/rotation
+(defexample play-cljc.gl.examples-2d/rotation
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-2d/rotation-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-2d/rotation-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-2d/rotation-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-2d/rotation-render
       game state)))
 
 ;; scale
@@ -175,12 +174,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-2d/scale
+(defexample play-cljc.gl.examples-2d/scale
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-2d/scale-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-2d/scale-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-2d/scale-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-2d/scale-render
       game state)))
 
 ;; rotation-multi
@@ -213,11 +212,11 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-2d/rotation-multi
+(defexample play-cljc.gl.examples-2d/rotation-multi
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-2d/rotation-multi-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-2d/rotation-multi-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-2d/rotation-multi-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-2d/rotation-multi-render
       game state)))
 

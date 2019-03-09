@@ -1,11 +1,10 @@
-(ns play-cljc.examples-3d
+(ns play-cljc.gl.examples-3d
   "3D examples based on content from webgl2fundamentals.org"
-  (:require [play-cljc.core :as c]
-            [play-cljc.entities-3d :as e]
+  (:require [play-cljc.gl.core :as c]
+            [play-cljc.gl.entities-3d :as e]
             [play-cljc.math :as m]
-            [play-cljc.utils :as u]
-            [play-cljc.example-utils :as eu]
-            [play-cljc.example-data :as data]
+            [play-cljc.gl.example-utils :as eu]
+            [play-cljc.gl.example-data :as data]
             [play-cljc.transforms :as t]
             #?(:clj  [play-cljc.macros-java :refer [gl math]]
                :cljs [play-cljc.macros-js :refer-macros [gl math]])
@@ -63,12 +62,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-3d/translation-3d
+(defexample play-cljc.gl.examples-3d/translation-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/translation-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/translation-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/translation-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/translation-3d-render
       game state)))
 
 ;; rotation-3d
@@ -105,12 +104,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-3d/rotation-3d
+(defexample play-cljc.gl.examples-3d/rotation-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/rotation-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/rotation-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/rotation-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/rotation-3d-render
       game state)))
 
 ;; scale-3d
@@ -146,12 +145,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-3d/scale-3d
+(defexample play-cljc.gl.examples-3d/scale-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/scale-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/scale-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/scale-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/scale-3d-render
       game state)))
 
 ;; perspective-3d
@@ -183,12 +182,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-3d/perspective-3d
+(defexample play-cljc.gl.examples-3d/perspective-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/perspective-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/perspective-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/perspective-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/perspective-3d-render
       game state)))
 
 ;; perspective-camera-3d
@@ -227,12 +226,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-3d/perspective-camera-3d
+(defexample play-cljc.gl.examples-3d/perspective-camera-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/perspective-camera-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/perspective-camera-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/perspective-camera-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/perspective-camera-3d-render
       game state)))
 
 ;; perspective-camera-target-3d
@@ -273,12 +272,12 @@
     (eu/listen-for-mouse game *state)
     [entity *state]))
 
-(defexample play-cljc.examples-3d/perspective-camera-target-3d
+(defexample play-cljc.gl.examples-3d/perspective-camera-target-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/perspective-camera-target-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/perspective-camera-target-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/perspective-camera-target-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/perspective-camera-target-3d-render
       game state)))
 
 ;; perspective-animation-3d
@@ -315,12 +314,12 @@
                :now 0}]
     [entity state]))
 
-(defexample play-cljc.examples-3d/perspective-animation-3d
+(defexample play-cljc.gl.examples-3d/perspective-animation-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/perspective-animation-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/perspective-animation-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/perspective-animation-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/perspective-animation-3d-render
       game state)))
 
 ;; perspective-texture-3d
@@ -377,14 +376,14 @@
                :now 0}]
     [entity state]))
 
-(defexample play-cljc.examples-3d/perspective-texture-3d
+(defexample play-cljc.gl.examples-3d/perspective-texture-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)]
-    (play-cljc.example-utils/get-image "f-texture.png"
+  (let [game (play-cljc.gl.example-utils/init-example card)]
+    (play-cljc.gl.example-utils/get-image "f-texture.png"
       (fn [image]
-        (let [state (play-cljc.examples-3d/perspective-texture-3d-init game image)]
-          (play-cljc.example-utils/game-loop
-            play-cljc.examples-3d/perspective-texture-3d-render
+        (let [state (play-cljc.gl.examples-3d/perspective-texture-3d-init game image)]
+          (play-cljc.gl.example-utils/game-loop
+            play-cljc.gl.examples-3d/perspective-texture-3d-render
             game state))))))
 
 ;; perspective-texture-data-3d
@@ -449,12 +448,12 @@
                :now 0}]
     [entity state]))
 
-(defexample play-cljc.examples-3d/perspective-texture-data-3d
+(defexample play-cljc.gl.examples-3d/perspective-texture-data-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/perspective-texture-data-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/perspective-texture-data-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/perspective-texture-data-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/perspective-texture-data-3d-render
       game state)))
 
 ;; perspective-texture-meta-3d
@@ -558,11 +557,11 @@
                :now 0}]
     [[inner-entity entity] state]))
 
-(defexample play-cljc.examples-3d/perspective-texture-meta-3d
+(defexample play-cljc.gl.examples-3d/perspective-texture-meta-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-3d/perspective-texture-meta-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-3d/perspective-texture-meta-3d-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-3d/perspective-texture-meta-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-3d/perspective-texture-meta-3d-render
       game state)))
 

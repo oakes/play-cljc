@@ -1,4 +1,4 @@
-(ns play-cljc.utils
+(ns play-cljc.gl.utils
   (:require #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
 

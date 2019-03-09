@@ -1,9 +1,9 @@
-(ns play-cljc.examples-advanced
+(ns play-cljc.gl.examples-advanced
   "Advanced 3D examples based on content from webgl2fundamentals.org"
-  (:require [play-cljc.core :as c]
-            [play-cljc.utils :as u]
-            [play-cljc.example-utils :as eu]
-            [play-cljc.example-data :as data]
+  (:require [play-cljc.gl.core :as c]
+            [play-cljc.gl.utils :as u]
+            [play-cljc.gl.example-utils :as eu]
+            [play-cljc.gl.example-data :as data]
             [play-cljc.primitives-3d :as primitives]
             [play-cljc.math :as m]
             #?(:clj  [play-cljc.macros-java :refer [gl math]]
@@ -88,12 +88,12 @@
                :now 0}]
     [entity objects state]))
 
-(defexample play-cljc.examples-advanced/balls-3d
+(defexample play-cljc.gl.examples-advanced/balls-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-advanced/balls-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-advanced/advanced-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-advanced/balls-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-advanced/advanced-render
       game state)))
 
 ;; planes-3d
@@ -116,12 +116,12 @@
                :now 0}]
     [entity objects state]))
 
-(defexample play-cljc.examples-advanced/planes-3d
+(defexample play-cljc.gl.examples-advanced/planes-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-advanced/planes-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-advanced/advanced-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-advanced/planes-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-advanced/advanced-render
       game state)))
 
 ;; cubes-3d
@@ -144,12 +144,12 @@
                :now 0}]
     [entity objects state]))
 
-(defexample play-cljc.examples-advanced/cubes-3d
+(defexample play-cljc.gl.examples-advanced/cubes-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-advanced/cubes-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-advanced/advanced-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-advanced/cubes-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-advanced/advanced-render
       game state)))
 
 ;; cylinder-3d
@@ -173,12 +173,12 @@
                :now 0}]
     [entity objects state]))
 
-(defexample play-cljc.examples-advanced/cylinder-3d
+(defexample play-cljc.gl.examples-advanced/cylinder-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-advanced/cylinder-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-advanced/advanced-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-advanced/cylinder-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-advanced/advanced-render
       game state)))
 
 ;; crescent-3d
@@ -202,12 +202,12 @@
                :now 0}]
     [entity objects state]))
 
-(defexample play-cljc.examples-advanced/crescent-3d
+(defexample play-cljc.gl.examples-advanced/crescent-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-advanced/crescent-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-advanced/advanced-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-advanced/crescent-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-advanced/advanced-render
       game state)))
 
 ;; torus-3d
@@ -231,12 +231,12 @@
                :now 0}]
     [entity objects state]))
 
-(defexample play-cljc.examples-advanced/torus-3d
+(defexample play-cljc.gl.examples-advanced/torus-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-advanced/torus-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-advanced/advanced-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-advanced/torus-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-advanced/advanced-render
       game state)))
 
 ;; disc-3d
@@ -259,11 +259,11 @@
                :now 0}]
     [entity objects state]))
 
-(defexample play-cljc.examples-advanced/disc-3d
+(defexample play-cljc.gl.examples-advanced/disc-3d
   {:with-card card}
-  (let [game (play-cljc.example-utils/init-example card)
-        state (play-cljc.examples-advanced/disc-3d-init game)]
-    (play-cljc.example-utils/game-loop
-      play-cljc.examples-advanced/advanced-render
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        state (play-cljc.gl.examples-advanced/disc-3d-init game)]
+    (play-cljc.gl.example-utils/game-loop
+      play-cljc.gl.examples-advanced/advanced-render
       game state)))
 
