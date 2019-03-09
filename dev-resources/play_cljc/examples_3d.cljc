@@ -61,12 +61,14 @@
       (update camera :matrix
         #(m/multiply-matrices 4 matrix %))))
   t/ILookAt
-  (look-at [{:keys [matrix] :as camera} {:keys [target up]}]
-    (when-not matrix
-      (throw (ex-info "Camera must have an existing matrix in order to use look-at" camera)))
-    (let [camera-pos [(nth matrix 12)
-                      (nth matrix 13)
-                      (nth matrix 14)]]
+  (look-at [{:keys [matrix] :as camera} {:keys [target up] :as attrs}]
+    (let [camera-pos (if matrix
+                       [(nth matrix 12)
+                        (nth matrix 13)
+                        (nth matrix 14)]
+                       [0 0 0])]
+      (when (= camera-pos target)
+        (throw (ex-info "The camera's position is the same as the target" attrs)))
       (assoc camera :matrix (m/look-at camera-pos target up)))))
 
 (defn f-entity [game f-data]
