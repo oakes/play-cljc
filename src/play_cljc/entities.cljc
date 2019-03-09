@@ -32,7 +32,7 @@
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba)))
 
-(def two-d-vertex-shader
+(def ^:private two-d-vertex-shader
   {:attributes
    '{a_position vec2}
    :uniforms
@@ -46,7 +46,7 @@
                 (.xy (* u_matrix (vec3 a_position 1)))
                 0 1)))}})
 
-(def two-d-fragment-shader
+(def ^:private two-d-fragment-shader
   {:precision "mediump float"
    :uniforms
    '{u_color vec4}
@@ -66,7 +66,7 @@
        (c/create-entity game)
        map->TwoDEntity))
 
-(def image-vertex-shader
+(def ^:private image-vertex-shader
   {:attributes
    '{a_position vec2}
    :uniforms
@@ -84,7 +84,7 @@
                 0 1))
            (= v_texCoord a_position))}})
 
-(def image-fragment-shader
+(def ^:private image-fragment-shader
   {:precision "mediump float"
    :uniforms
    '{u_image sampler2D}

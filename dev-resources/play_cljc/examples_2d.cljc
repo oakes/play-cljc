@@ -97,15 +97,9 @@
 (defn translation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex e/two-d-vertex-shader
-                     :fragment e/two-d-fragment-shader
-                     :attributes {'a_position {:data data/f-2d
-                                               :type (gl game FLOAT)
-                                               :size 2}}
-                     :uniforms {'u_color [1 0 0.5 1]}
-                     :clear {:color [0 0 0 0] :depth 1}}
-                    (c/create-entity game)
-                    e/map->TwoDEntity)
+  (let [entity (-> (e/two-d-entity game data/f-2d)
+                   (t/color [1 0 0.5 1])
+                   (assoc :clear {:color [0 0 0 0] :depth 1}))
         *state (atom {:x 0 :y 0})]
     (eu/listen-for-mouse game *state)
     [entity *state]))
@@ -136,15 +130,9 @@
 (defn rotation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex e/two-d-vertex-shader
-                     :fragment e/two-d-fragment-shader
-                     :attributes {'a_position {:data data/f-2d
-                                               :type (gl game FLOAT)
-                                               :size 2}}
-                     :uniforms {'u_color [1 0 0.5 1]}
-                     :clear {:color [0 0 0 0] :depth 1}}
-                    (c/create-entity game)
-                    e/map->TwoDEntity)
+  (let [entity (-> (e/two-d-entity game data/f-2d)
+                   (t/color [1 0 0.5 1])
+                   (assoc :clear {:color [0 0 0 0] :depth 1}))
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
@@ -176,15 +164,9 @@
 (defn scale-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex e/two-d-vertex-shader
-                     :fragment e/two-d-fragment-shader
-                     :attributes {'a_position {:data data/f-2d
-                                               :type (gl game FLOAT)
-                                               :size 2}}
-                     :uniforms {'u_color [1 0 0.5 1]}
-                     :clear {:color [0 0 0 0] :depth 1}}
-                    (c/create-entity game)
-                    e/map->TwoDEntity)
+  (let [entity (-> (e/two-d-entity game data/f-2d)
+                   (t/color [1 0 0.5 1])
+                   (assoc :clear {:color [0 0 0 0] :depth 1}))
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
@@ -221,14 +203,8 @@
 (defn rotation-multi-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (->> {:vertex e/two-d-vertex-shader
-                     :fragment e/two-d-fragment-shader
-                     :attributes {'a_position {:data data/f-2d
-                                               :type (gl game FLOAT)
-                                               :size 2}}
-                     :uniforms {'u_color [1 0 0.5 1]}}
-                    (c/create-entity game)
-                    e/map->TwoDEntity)
+  (let [entity (-> (e/two-d-entity game data/f-2d)
+                   (t/color [1 0 0.5 1]))
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
