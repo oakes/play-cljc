@@ -8,9 +8,14 @@
 (defn vector->2d-array [v]
   (#?(:clj to-array-2d :cljs clj->js) v))
 
+(defn identity-matrix [size]
+  (vec (for [row (range size)
+             col (range size)]
+         (if (= row col) 1 0))))
+
 (defn multiply-matrices [size m1 m2]
   (let [m1 (mapv vec (partition size m1))
-        m2 (mapv vec (partition size m2))
+        m2 (mapv vec (partition size (or m2 (identity-matrix size))))
         result (for [i (range size)
                      j (range size)]
                  (reduce
@@ -74,11 +79,6 @@
     (vec dst)))
 
 ;; two-d
-
-(defn identity-matrix []
-  [1 0 0
-   0 1 0
-   0 0 1])
 
 (defn translation-matrix [tx ty]
   [1 0 0
@@ -164,12 +164,6 @@
      0 f 0 0
      0 0 (* (+ near far) range-inv) -1
      0 0 (* near far range-inv 2) 0]))
-
-(defn identity-matrix-3d []
-  [1 0 0 0
-   0 1 0 0
-   0 0 1 0
-   0 0 0 1])
 
 (defn transpose-matrix-3d [m]
   [(nth m 0) (nth m 4) (nth m 8) (nth m 12)

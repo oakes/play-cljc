@@ -31,7 +31,7 @@
                             'u_lightColor [1 1 1 1]})]
     (doseq [{:keys [rx ry tz mat-uniforms]}
             objects]
-      (let [world-matrix (->> (m/identity-matrix-3d)
+      (let [world-matrix (->> (m/identity-matrix 4)
                               (m/multiply-matrices 4 (m/x-rotation-matrix-3d (* rx now)))
                               (m/multiply-matrices 4 (m/y-rotation-matrix-3d (* ry now)))
                               (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 tz)))]

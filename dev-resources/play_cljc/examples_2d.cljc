@@ -44,8 +44,7 @@
       (-> entity
           (assoc
             :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-            :uniforms {'u_color color
-                       'u_matrix (m/identity-matrix)})
+            :uniforms {'u_color color})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
           (t/translate {:x posx :y posy})
           (t/scale {:width sx :height sy}))))
@@ -87,9 +86,7 @@
                     {:width game-width :height (* game-width (/ height width))})]
     (c/render-entity game
       (-> entity
-          (assoc
-            :viewport {:x 0 :y 0 :width game-width :height game-height}
-            :uniforms {'u_matrix (m/identity-matrix)})
+          (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
           (t/project {:width game-width :height game-height})
           (t/translate {:x 0 :y 0})
           (t/scale img-scale))))
@@ -141,9 +138,7 @@
   (let [{:keys [x y]} @*state]
     (c/render-entity game
       (-> entity
-          (assoc
-            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-            :uniforms {'u_matrix (m/identity-matrix)})
+          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
           (t/translate {:x x :y y}))))
   state)
@@ -179,9 +174,7 @@
   (let [{:keys [tx ty r]} @*state]
     (c/render-entity game
       (-> entity
-          (assoc
-            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-            :uniforms {'u_matrix (m/identity-matrix)})
+          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
           (t/translate {:x tx :y ty})
           (t/rotate {:angle r})
@@ -222,9 +215,7 @@
   (let [{:keys [tx ty rx ry]} @*state]
     (c/render-entity game
       (-> entity
-          (assoc
-            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-            :uniforms {'u_matrix (m/identity-matrix)})
+          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/project {:width (eu/get-width game) :height (eu/get-height game)})
           (t/translate {:x tx :y ty})
           (t/rotate {:angle 0})
@@ -266,9 +257,7 @@
   (let [{:keys [tx ty r]} @*state]
     (loop [i 0
            entity (-> entity
-                      (assoc
-                        :uniforms {'u_matrix (m/identity-matrix)}
-                        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+                      (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
                       (t/project {:width (eu/get-width game) :height (eu/get-height game)}))]
       (when (< i 5)
         (let [entity (-> entity
