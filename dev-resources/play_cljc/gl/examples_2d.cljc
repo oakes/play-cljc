@@ -23,17 +23,17 @@
           rects]
     (c/render game
       (-> entity
-          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
           (t/color color)
-          (t/project {:width (eu/get-width game) :height (eu/get-height game)})
-          (t/translate {:x posx :y posy})
-          (t/scale {:x sx :y sy}))))
+          (t/project (eu/get-width game) (eu/get-height game))
+          (t/translate posx posy)
+          (t/scale sx sy))))
   state)
 
 (defn rand-rects-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(e/->entity game primitives/rect)
+  [(-> (e/->entity game primitives/rect)
+       (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
@@ -55,15 +55,15 @@
         game-height (eu/get-height game)
         screen-ratio (/ game-width game-height)
         image-ratio (/ width height)
-        img-scale (if (> screen-ratio image-ratio)
-                    {:x (* game-height (/ width height)) :y game-height}
-                    {:x game-width :y (* game-width (/ height width))})]
+        [img-width img-height] (if (> screen-ratio image-ratio)
+                                 [(* game-height (/ width height)) game-height]
+                                 [game-width (* game-width (/ height width))])]
     (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
-          (t/project {:width game-width :height game-height})
-          (t/translate {:x 0 :y 0})
-          (t/scale img-scale))))
+          (t/project game-width game-height)
+          (t/translate 0 0)
+          (t/scale img-width img-height))))
   state)
 
 (defn image-init [game {:keys [data width height] :as image}]
@@ -91,8 +91,8 @@
     (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:width (eu/get-width game) :height (eu/get-height game)})
-          (t/translate {:x x :y y}))))
+          (t/project (eu/get-width game) (eu/get-height game))
+          (t/translate x y))))
   state)
 
 (defn translation-init [game]
@@ -121,11 +121,11 @@
     (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:width (eu/get-width game) :height (eu/get-height game)})
-          (t/translate {:x tx :y ty})
-          (t/rotate {:angle r})
+          (t/project (eu/get-width game) (eu/get-height game))
+          (t/translate tx ty)
+          (t/rotate r)
           ;; make it rotate around its center
-          (t/translate {:x -50 :y -75}))))
+          (t/translate -50 -75))))
   state)
 
 (defn rotation-init [game]
@@ -156,10 +156,10 @@
     (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:width (eu/get-width game) :height (eu/get-height game)})
-          (t/translate {:x tx :y ty})
-          (t/rotate {:angle 0})
-          (t/scale {:x rx :y ry}))))
+          (t/project (eu/get-width game) (eu/get-height game))
+          (t/translate tx ty)
+          (t/rotate 0)
+          (t/scale rx ry))))
   state)
 
 (defn scale-init [game]
@@ -192,11 +192,11 @@
     (loop [i 0
            entity (-> entity
                       (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-                      (t/project {:width (eu/get-width game) :height (eu/get-height game)}))]
+                      (t/project (eu/get-width game) (eu/get-height game)))]
       (when (< i 5)
         (let [entity (-> entity
-                         (t/translate {:x tx :y ty})
-                         (t/rotate {:angle r}))]
+                         (t/translate tx ty)
+                         (t/rotate r))]
           (c/render game entity)
           (recur (inc i) entity)))))
   state)

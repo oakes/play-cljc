@@ -9,26 +9,23 @@
 
 (extend-type ThreeDEntity
   t/IProject
-  (project [entity attrs]
-    (let [matrix (cond
-                   (every? attrs [:left :right :bottom :top :near :far])
-                   (m/ortho-matrix-3d attrs)
-                   (every? attrs [:field-of-view :aspect :near :far])
-                   (m/perspective-matrix-3d attrs)
-                   :else
-                   (throw (ex-info "Can't project entity" entity)))]
-      (update-in entity [:uniforms 'u_matrix]
-        #(m/multiply-matrices 4 matrix %))))
+  (project
+    ([entity left right bottom top near far]
+     (update-in entity [:uniforms 'u_matrix]
+       #(m/multiply-matrices 4 (m/ortho-matrix-3d left right bottom top near far) %)))
+    ([entity field-of-view aspect near far]
+     (update-in entity [:uniforms 'u_matrix]
+       #(m/multiply-matrices 4 (m/perspective-matrix-3d field-of-view aspect near far) %))))
   t/ITranslate
-  (translate [entity {:keys [x y z]}]
+  (translate [entity x y z]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
   t/IScale
-  (scale [entity {:keys [x y z]}]
+  (scale [entity x y z]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 4 (m/scaling-matrix-3d x y z) %)))
   t/IRotate
-  (rotate [entity {:keys [angle axis]}]
+  (rotate [entity angle axis]
     (let [matrix (case axis
                    :x (m/x-rotation-matrix-3d angle)
                    :y (m/y-rotation-matrix-3d angle)
@@ -47,11 +44,11 @@
 
 (extend-type Camera
   t/ITranslate
-  (translate [camera {:keys [x y z]}]
+  (translate [camera x y z]
     (update camera :matrix
       #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
   t/IRotate
-  (rotate [camera {:keys [angle axis]}]
+  (rotate [camera angle axis]
     (let [matrix (case axis
                    :x (m/x-rotation-matrix-3d angle)
                    :y (m/y-rotation-matrix-3d angle)
@@ -59,12 +56,12 @@
       (update camera :matrix
         #(m/multiply-matrices 4 matrix %))))
   t/ILookAt
-  (look-at [{:keys [matrix] :as camera} {:keys [target up] :as attrs}]
+  (look-at [{:keys [matrix] :as camera} target up]
     (let [camera-pos [(nth matrix 12)
                       (nth matrix 13)
                       (nth matrix 14)]]
       (when (= camera-pos target)
-        (throw (ex-info "The camera's position is the same as the target" attrs)))
+        (throw (ex-info "The camera's position is the same as the target" {:target target})))
       (assoc camera :matrix (m/look-at camera-pos target up)))))
 
 (defn ->camera []

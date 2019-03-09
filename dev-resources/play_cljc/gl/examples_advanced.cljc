@@ -15,11 +15,11 @@
   (eu/resize-example game)
   (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
-  (let [projection-matrix (m/perspective-matrix-3d {:field-of-view (m/deg->rad 60)
-                                                    :aspect (/ (eu/get-width game)
-                                                               (eu/get-height game))
-                                                    :near 1
-                                                    :far 2000})
+  (let [projection-matrix (m/perspective-matrix-3d (m/deg->rad 60)
+                                                   (/ (eu/get-width game)
+                                                      (eu/get-height game))
+                                                   1
+                                                   2000)
         camera-pos [0 0 100]
         target [0 0 0]
         up [0 1 0]

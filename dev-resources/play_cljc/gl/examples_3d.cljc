@@ -42,16 +42,11 @@
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
             :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:left 0
-                      :right (eu/get-width game)
-                      :bottom (eu/get-height game)
-                      :top 0
-                      :near 400
-                      :far -400})
-          (t/translate {:x x :y y :z 0})
-          (t/rotate {:angle (m/deg->rad 40) :axis :x})
-          (t/rotate {:angle (m/deg->rad 25) :axis :y})
-          (t/rotate {:angle (m/deg->rad 325) :axis :z}))))
+          (t/project 0 (eu/get-width game) (eu/get-height game) 0 400 -400)
+          (t/translate x y 0)
+          (t/rotate (m/deg->rad 40) :x)
+          (t/rotate (m/deg->rad 25) :y)
+          (t/rotate (m/deg->rad 325) :z))))
   state)
 
 (defn translation-3d-init [game]
@@ -80,18 +75,13 @@
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
             :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:left 0
-                      :right (eu/get-width game)
-                      :bottom (eu/get-height game)
-                      :top 0
-                      :near 400
-                      :far -400})
-          (t/translate {:x tx :y ty :z 0})
-          (t/rotate {:angle r :axis :x})
-          (t/rotate {:angle r :axis :y})
-          (t/rotate {:angle r :axis :z})
+          (t/project 0 (eu/get-width game) (eu/get-height game) 0 400 -400)
+          (t/translate tx ty 0)
+          (t/rotate r :x)
+          (t/rotate r :y)
+          (t/rotate r :z)
           ;; make it rotate around its center
-          (t/translate {:x -50 :y -75 :z 0}))))
+          (t/translate -50 -75 0))))
   state)
 
 (defn rotation-3d-init [game]
@@ -122,17 +112,12 @@
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
             :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:left 0
-                      :right (eu/get-width game)
-                      :bottom (eu/get-height game)
-                      :top 0
-                      :near 400
-                      :far -400})
-          (t/translate {:x tx :y ty :z 0})
-          (t/rotate {:angle (m/deg->rad 40) :axis :x})
-          (t/rotate {:angle (m/deg->rad 25) :axis :y})
-          (t/rotate {:angle (m/deg->rad 325) :axis :z})
-          (t/scale {:x rx :y ry :z 1}))))
+          (t/project 0 (eu/get-width game) (eu/get-height game) 0 400 -400)
+          (t/translate tx ty 0)
+          (t/rotate (m/deg->rad 40) :x)
+          (t/rotate (m/deg->rad 25) :y)
+          (t/rotate (m/deg->rad 325) :z)
+          (t/scale rx ry 1))))
   state)
 
 (defn scale-3d-init [game]
@@ -163,15 +148,11 @@
           (assoc
             :clear {:color [1 1 1 1] :depth 1}
             :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:field-of-view (m/deg->rad 60)
-                      :aspect (/ (eu/get-width game)
-                                 (eu/get-height game))
-                      :near 1
-                      :far 2000})
-          (t/translate {:x cx :y cy :z -150})
-          (t/rotate {:angle (m/deg->rad 180) :axis :x})
-          (t/rotate {:angle 0 :axis :y})
-          (t/rotate {:angle 0 :axis :z}))))
+          (t/project (m/deg->rad 60) (/ (eu/get-width game)(eu/get-height game)) 1 2000)
+          (t/translate cx cy -150)
+          (t/rotate (m/deg->rad 180) :x)
+          (t/rotate 0 :y)
+          (t/rotate 0 :z))))
   state)
 
 (defn perspective-3d-init [game]
@@ -200,22 +181,18 @@
         radius 200
         num-fs 5
         camera (-> (e/->camera)
-                   (t/rotate {:angle cr :axis :y})
-                   (t/translate {:x 0 :y 0 :z (* radius 1.5)}))
+                   (t/rotate cr :y)
+                   (t/translate 0 0 (* radius 1.5)))
         entity (-> entity
                    (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-                   (t/project {:field-of-view (m/deg->rad 60)
-                               :aspect (/ (eu/get-width game)
-                                          (eu/get-height game))
-                               :near 1
-                               :far 2000})
+                   (t/project (m/deg->rad 60) (/ (eu/get-width game)(eu/get-height game)) 1 2000)
                    (t/camera camera))]
     (dotimes [i num-fs]
       (let [angle (/ (* i (math PI) 2) num-fs)
             x (* (math cos angle) radius)
             z (* (math sin angle) radius)]
         (c/render game
-          (t/translate entity {:x x :y 0 :z z})))))
+          (t/translate entity x 0 z)))))
   state)
 
 (defn perspective-camera-3d-init [game]
@@ -244,23 +221,19 @@
         radius 200
         num-fs 5
         camera (-> (e/->camera)
-                   (t/rotate {:angle cr :axis :y})
-                   (t/translate {:x 0 :y 0 :z (* radius 1.5)})
-                   (t/look-at {:target [radius 0 0] :up [0 1 0]}))
+                   (t/rotate cr :y)
+                   (t/translate 0 0 (* radius 1.5))
+                   (t/look-at [radius 0 0] [0 1 0]))
         entity (-> entity
                    (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-                   (t/project {:field-of-view (m/deg->rad 60)
-                               :aspect (/ (eu/get-width game)
-                                          (eu/get-height game))
-                               :near 1
-                               :far 2000})
+                   (t/project (m/deg->rad 60) (/ (eu/get-width game)(eu/get-height game)) 1 2000)
                    (t/camera camera))]
     (dotimes [i num-fs]
       (let [angle (/ (* i (math PI) 2) num-fs)
             x (* (math cos angle) radius)
             z (* (math sin angle) radius)]
         (c/render game
-          (t/translate entity {:x x :y 0 :z z})))))
+          (t/translate entity x 0 z)))))
             
   state)
 
@@ -289,15 +262,11 @@
         (assoc
           :clear {:color [1 1 1 1] :depth 1}
           :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-        (t/project {:field-of-view (m/deg->rad 60)
-                    :aspect (/ (eu/get-width game)
-                               (eu/get-height game))
-                    :near 1
-                    :far 2000})
-        (t/translate {:x 0 :y 0 :z -360})
-        (t/rotate {:angle rx :axis :x})
-        (t/rotate {:angle ry :axis :y})
-        (t/rotate {:angle rz :axis :z})))
+        (t/project (m/deg->rad 60) (/ (eu/get-width game)(eu/get-height game)) 1 2000)
+        (t/translate 0 0 -360)
+        (t/rotate rx :x)
+        (t/rotate ry :y)
+        (t/rotate rz :z)))
   [entity
    (-> state
        (update :ry + (* 1.2 (- now then)))
@@ -327,19 +296,15 @@
 (defn perspective-texture-3d-render [game [entity {:keys [rx ry then now] :as state}]]
   (eu/resize-example game)
   (let [camera (-> (e/->camera)
-                   (t/translate {:x 0 :y 0 :z 200})
-                   (t/look-at {:target [0 0 0] :up [0 1 0]}))]
+                   (t/translate 0 0 200)
+                   (t/look-at [0 0 0] [0 1 0]))]
     (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:field-of-view (m/deg->rad 60)
-                      :aspect (/ (eu/get-width game)
-                                 (eu/get-height game))
-                      :near 1
-                      :far 2000})
+          (t/project (m/deg->rad 60) (/ (eu/get-width game)(eu/get-height game)) 1 2000)
           (t/camera camera)
-          (t/rotate {:angle rx :axis :x})
-          (t/rotate {:angle ry :axis :y})))
+          (t/rotate rx :x)
+          (t/rotate ry :y)))
     [entity
      (-> state
          (update :rx + (* 1.2 (- now then)))
@@ -391,19 +356,15 @@
 (defn perspective-texture-data-3d-render [game [entity {:keys [rx ry then now] :as state}]]
   (eu/resize-example game)
   (let [camera (-> (e/->camera)
-                   (t/translate {:x 0 :y 0 :z 2})
-                   (t/look-at {:target [0 0 0] :up [0 1 0]}))]
+                   (t/translate 0 0 2)
+                   (t/look-at [0 0 0] [0 1 0]))]
     (c/render game
       (-> entity
           (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project {:field-of-view (m/deg->rad 60)
-                      :aspect (/ (eu/get-width game)
-                                 (eu/get-height game))
-                      :near 1
-                      :far 2000})
+          (t/project (m/deg->rad 60) (/ (eu/get-width game)(eu/get-height game)) 1 2000)
           (t/camera camera)
-          (t/rotate {:angle rx :axis :x})
-          (t/rotate {:angle ry :axis :y})))
+          (t/rotate rx :x)
+          (t/rotate ry :y)))
     [entity
      (-> state
          (update :rx + (* 1.2 (- now then)))
@@ -463,16 +424,13 @@
 
 (defn render-cube [entity {:keys [rx ry]} aspect]
   (let [camera (-> (e/->camera)
-                   (t/translate {:x 0 :y 0 :z 2})
-                   (t/look-at {:target [0 0 0] :up [0 1 0]}))]
+                   (t/translate 0 0 2)
+                   (t/look-at [0 0 0] [0 1 0]))]
     (-> entity
-        (t/project {:field-of-view (m/deg->rad 60)
-                    :aspect aspect
-                    :near 1
-                    :far 2000})
+        (t/project (m/deg->rad 60) aspect 1 2000)
         (t/camera camera)
-        (t/rotate {:angle rx :axis :x})
-        (t/rotate {:angle ry :axis :y}))))
+        (t/rotate rx :x)
+        (t/rotate ry :y))))
 
 (defn perspective-texture-meta-3d-render [game [entities {:keys [then now] :as state}]]
   (eu/resize-example game)

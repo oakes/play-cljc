@@ -140,7 +140,7 @@
    0,  0, sz,  0,
    0,  0,  0,  1,])
 
-(defn ortho-matrix-3d [{:keys [left right bottom top near far]}]
+(defn ortho-matrix-3d [left right bottom top near far]
   (let [width (- right left)
         height (- top bottom)
         depth (- near far)]
@@ -156,7 +156,7 @@
         (- near far))
      1]))
 
-(defn perspective-matrix-3d [{:keys [field-of-view aspect near far]}]
+(defn perspective-matrix-3d [field-of-view aspect near far]
   (let [f (math tan (- (* (math PI) 0.5)
                        (* field-of-view 0.5)))
         range-inv (/ 1 (- near far))]

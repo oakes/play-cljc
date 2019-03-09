@@ -1,37 +1,49 @@
 (ns play-cljc.transforms)
 
 (defprotocol IProject
-  (project [entity attrs]))
+  (project
+    [entity width height]
+    [entity left right bottom top near far]
+    [entity field-of-view aspect near far]))
 
 (defprotocol ITranslate
-  (translate [entity attrs]))
+  (translate [entity x y] [entity x y z]))
 
 (defprotocol IScale
-  (scale [entity attrs]))
+  (scale [entity x y] [entity x y z]))
 
 (defprotocol IRotate
-  (rotate [entity attrs]))
+  (rotate [entity angle] [entity angle axis]))
 
 (defprotocol ICamera
-  (camera [entity attrs]))
+  (camera [entity camera]))
 
 (defprotocol IColor
-  (color [entity attrs]))
+  (color [entity rgba]))
 
 (extend-type #?(:clj Object :cljs default)
-  ITranslate
-  (translate [entity attrs] entity)
-  IScale
-  (scale [entity attrs] entity)
   IProject
-  (project [entity attrs] entity)
+  (project
+    ([entity width height] entity)
+    ([entity left right bottom top near far] entity)
+    ([entity field-of-view aspect near far] entity))
+  ITranslate
+  (translate
+    ([entity x y] entity)
+    ([entity x y z] entity))
+  IScale
+  (scale
+    ([entity x y] entity)
+    ([entity x y z] entity))
   IRotate
-  (rotate [entity attrs] entity)
+  (rotate
+    ([entity angle] entity)
+    ([entity angle axis] entity))
   ICamera
-  (camera [entity attrs] entity)
+  (camera [entity camera] entity)
   IColor
-  (color [entity attrs] entity))
+  (color [entity rgba] entity))
 
 (defprotocol ILookAt
-  (look-at [camera attrs]))
+  (look-at [camera target up]))
 

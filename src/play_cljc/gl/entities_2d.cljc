@@ -10,19 +10,19 @@
 
 (extend-type TwoDEntity
   t/IProject
-  (project [entity {:keys [width height]}]
+  (project [entity width height]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 3 (m/projection-matrix width height) %)))
   t/ITranslate
-  (translate [entity {:keys [x y]}]
+  (translate [entity x y]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
   t/IScale
-  (scale [entity {:keys [x y]}]
+  (scale [entity x y]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 3 (m/scaling-matrix x y) %)))
   t/IRotate
-  (rotate [entity {:keys [angle]}]
+  (rotate [entity angle]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 3 (m/rotation-matrix angle) %)))
   t/IColor
