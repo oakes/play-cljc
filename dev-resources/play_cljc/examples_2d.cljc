@@ -5,6 +5,7 @@
             [play-cljc.example-utils :as eu]
             [play-cljc.example-data :as data]
             [play-cljc.transforms :as t]
+            [play-cljc.primitives-2d :as primitives]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])
             #?(:clj [dynadoc.example :refer [defexample]]))
@@ -32,7 +33,7 @@
 (defn rand-rects-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(e/two-d-entity game e/rect)
+  [(e/two-d-entity game primitives/rect)
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]

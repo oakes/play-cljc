@@ -2,12 +2,9 @@
   (:require [play-cljc.core :as c]
             [play-cljc.math :as m]
             [play-cljc.transforms :as t]
+            [play-cljc.primitives-2d :as primitives]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
-
-(def rect
-  ;; x1 y1, x2 y1, x1 y2, x1 y2, x2 y1, x2 y2
-  [0 0, 1 0, 0 1, 0 1, 1 0, 1 1])
 
 (defrecord TwoDEntity [])
 
@@ -100,7 +97,7 @@
 (defn image-entity [game data width height]
   (->> {:vertex image-vertex-shader
         :fragment image-fragment-shader
-        :attributes {'a_position {:data rect
+        :attributes {'a_position {:data primitives/rect
                                   :type (gl game FLOAT)
                                   :size 2}}
         :uniforms {'u_image {:data data
