@@ -24,7 +24,11 @@
   t/IScale
   (scale [entity {:keys [width height]}]
     (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/scaling-matrix width height) %))))
+      #(m/multiply-matrices 3 (m/scaling-matrix width height) %)))
+  t/IRotate
+  (rotate [entity {:keys [angle]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
 
 ;; rand-rects
 
@@ -174,26 +178,29 @@
   (eu/resize-example game)
   (let [{:keys [tx ty r]} @*state]
     (c/render-entity game
-      (assoc entity
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
-                                  (m/multiply-matrices 3 (m/translation-matrix tx ty))
-                                  (m/multiply-matrices 3 (m/rotation-matrix r))
-                                  ;; make it rotate around its center
-                                  (m/multiply-matrices 3 (m/translation-matrix -50 -75)))})))
+      (-> entity
+          (assoc
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+            :uniforms {'u_matrix (m/identity-matrix)})
+          (t/project {:width (eu/get-width game) :height (eu/get-height game)})
+          (t/translate {:x tx :y ty})
+          (t/rotate {:angle r})
+          ;; make it rotate around its center
+          (t/translate {:x -50 :y -75}))))
   state)
 
 (defn rotation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (c/create-entity game
-                 {:vertex data/two-d-vertex-shader
-                  :fragment data/two-d-fragment-shader
-                  :attributes {'a_position {:data data/f-2d
-                                            :type (gl game FLOAT)
-                                            :size 2}}
-                  :uniforms {'u_color [1 0 0.5 1]}
-                  :clear {:color [0 0 0 0] :depth 1}})
+  (let [entity (->> {:vertex data/two-d-vertex-shader
+                     :fragment data/two-d-fragment-shader
+                     :attributes {'a_position {:data data/f-2d
+                                               :type (gl game FLOAT)
+                                               :size 2}}
+                     :uniforms {'u_color [1 0 0.5 1]}
+                     :clear {:color [0 0 0 0] :depth 1}}
+                    (c/create-entity game)
+                    map->TwoDEntity)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
@@ -214,25 +221,28 @@
   (eu/resize-example game)
   (let [{:keys [tx ty rx ry]} @*state]
     (c/render-entity game
-      (assoc entity
-        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-        :uniforms {'u_matrix (->> (m/projection-matrix (eu/get-width game) (eu/get-height game))
-                                  (m/multiply-matrices 3 (m/translation-matrix tx ty))
-                                  (m/multiply-matrices 3 (m/rotation-matrix 0))
-                                  (m/multiply-matrices 3 (m/scaling-matrix rx ry)))})))
+      (-> entity
+          (assoc
+            :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
+            :uniforms {'u_matrix (m/identity-matrix)})
+          (t/project {:width (eu/get-width game) :height (eu/get-height game)})
+          (t/translate {:x tx :y ty})
+          (t/rotate {:angle 0})
+          (t/scale {:width rx :height ry}))))
   state)
 
 (defn scale-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (c/create-entity game
-                 {:vertex data/two-d-vertex-shader
-                  :fragment data/two-d-fragment-shader
-                  :attributes {'a_position {:data data/f-2d
-                                            :type (gl game FLOAT)
-                                            :size 2}}
-                  :uniforms {'u_color [1 0 0.5 1]}
-                  :clear {:color [0 0 0 0] :depth 1}})
+  (let [entity (->> {:vertex data/two-d-vertex-shader
+                     :fragment data/two-d-fragment-shader
+                     :attributes {'a_position {:data data/f-2d
+                                               :type (gl game FLOAT)
+                                               :size 2}}
+                     :uniforms {'u_color [1 0 0.5 1]}
+                     :clear {:color [0 0 0 0] :depth 1}}
+                    (c/create-entity game)
+                    map->TwoDEntity)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
@@ -255,28 +265,30 @@
     {:clear {:color [1 1 1 1] :depth 1}})
   (let [{:keys [tx ty r]} @*state]
     (loop [i 0
-           matrix (m/projection-matrix (eu/get-width game) (eu/get-height game))]
+           entity (-> entity
+                      (assoc
+                        :uniforms {'u_matrix (m/identity-matrix)}
+                        :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+                      (t/project {:width (eu/get-width game) :height (eu/get-height game)}))]
       (when (< i 5)
-        (let [matrix (->> matrix
-                          (m/multiply-matrices 3 (m/translation-matrix tx ty))
-                          (m/multiply-matrices 3 (m/rotation-matrix r)))]
-          (c/render-entity game
-            (assoc entity
-              :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}
-              :uniforms {'u_matrix matrix}))
-          (recur (inc i) matrix)))))
+        (let [entity (-> entity
+                         (t/translate {:x tx :y ty})
+                         (t/rotate {:angle r}))]
+          (c/render-entity game entity)
+          (recur (inc i) entity)))))
   state)
 
 (defn rotation-multi-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (c/create-entity game
-                 {:vertex data/two-d-vertex-shader
-                  :fragment data/two-d-fragment-shader
-                  :attributes {'a_position {:data data/f-2d
-                                            :type (gl game FLOAT)
-                                            :size 2}}
-                  :uniforms {'u_color [1 0 0.5 1]}})
+  (let [entity (->> {:vertex data/two-d-vertex-shader
+                     :fragment data/two-d-fragment-shader
+                     :attributes {'a_position {:data data/f-2d
+                                               :type (gl game FLOAT)
+                                               :size 2}}
+                     :uniforms {'u_color [1 0 0.5 1]}}
+                    (c/create-entity game)
+                    map->TwoDEntity)
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
