@@ -1,0 +1,2 @@
+{:paths ["src"]
+ :aliases {:prod {:extra-deps {leiningen {:mvn/version "2.9.0"}}}}}

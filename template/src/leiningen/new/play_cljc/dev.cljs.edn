@@ -1,0 +1,5 @@
+{:main          {{name}}.start-dev
+ :optimizations :none
+ :output-to     "resources/public/main.js"
+ :output-dir    "resources/public/main.out"
+ :asset-path    "/main.out"}
