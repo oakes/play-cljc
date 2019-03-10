@@ -37,6 +37,7 @@
      (str "src/" project_name "/music.clj") (render "music.clj" data)
      (str "src/" project_name "/" core_name ".cljc") (render "core.cljc" data)
      (str "src/" project_name "/utils.cljc") (render "utils.cljc" data)
+     (str "src/" project_name "/move.cljc") (render "move.cljc" data)
      (str "src/" project_name "/start.clj") (render "start.clj" data)
      (str "src/" project_name "/start.cljs") (render "start.cljs" data)
      (str "src/" project_name "/start_dev.clj") (render "start_dev.clj" data)
