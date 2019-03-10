@@ -47,3 +47,51 @@
 (defprotocol ILookAt
   (look-at [camera target up]))
 
+(defn transform-attrs [{project-args :project
+                        translate-args :translate
+                        rotate-args :rotate
+                        scale-args :scale
+                        color-args :color}]
+  (cond-> []
+          project-args
+          (conj
+            (let [{:keys [width height]} project-args]
+              `(project ~width ~height)))
+          translate-args
+          (conj
+            (let [{:keys [x y z]} translate-args]
+              (if z
+                `(translate ~x ~y ~x)
+                `(translate ~x ~y))))
+          rotate-args
+          (conj
+            (let [{:keys [angle axis]} rotate-args]
+              (if axis
+                `(rotate ~angle ~axis)
+                `(rotate ~angle))))
+          scale-args
+          (conj
+            (let [{:keys [x y z]} scale-args]
+              (if z
+                `(scale ~x ~y ~x)
+                `(scale ~x ~y))))
+          color-args
+          (conj `(color ~color-args))))
+
+(defn transform
+  ([content]
+   (transform content []))
+  ([content parent-attrs]
+   (->> content
+        (reduce
+          (fn [{:keys [entities attrs] :as m} item]
+            (cond
+              (vector? item) (update m :entities into (transform item attrs))
+              (map? item) (update m :attrs conj item)
+              :else (update m :entities conj
+                      (concat ['-> item]
+                        (mapcat transform-attrs attrs)))))
+          {:entities []
+           :attrs parent-attrs})
+        :entities)))
+

@@ -1,4 +1,5 @@
-(ns play-cljc.macros-java)
+(ns play-cljc.macros-java
+  (:require [play-cljc.transforms :as t]))
 
 (defmacro math [n & args]
   (let [s (str n)
@@ -15,4 +16,7 @@
       (symbol (str "org.lwjgl.opengl.GL41/GL_" s))
       (cons (symbol (str "org.lwjgl.opengl.GL41/gl" (Character/toUpperCase l) remaining-letters))
             args))))
+
+(defmacro transform [content]
+  (t/transform content))
 

@@ -1,4 +1,5 @@
-(ns play-cljc.macros-js)
+(ns play-cljc.macros-js
+  (:require [play-cljc.transforms :as t]))
 
 (defmacro math [n & args]
   (let [s (str n)
@@ -13,4 +14,7 @@
     (if (Character/isUpperCase l)
       `(goog.object/get (:context ~game) ~s)
       (concat [(symbol (str "." s)) `(:context ~game)] args))))
+
+(defmacro transform [content]
+  (t/transform content))
 
