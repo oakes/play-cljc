@@ -48,18 +48,20 @@
       (GLFW/glfwShowWindow window)
       (GL/createCapabilities)
       (listen-for-mouse window)
-      (loop [game (assoc (pc/->game window)
-                         :delta-time 0
-                         :total-time 0)]
-        (when-not (GLFW/glfwWindowShouldClose window)
-          (let [ts (GLFW/glfwGetTime)
-                game (assoc game
-                            :delta-time (- ts (:total-time game))
-                            :total-time ts)
-                game (c/run game)]
-            (GLFW/glfwSwapBuffers window)
-            (GLFW/glfwPollEvents)
-            (recur game))))
+      (let [initial-game (assoc (pc/->game window)
+                                :delta-time 0
+                                :total-time 0)]
+        (c/init initial-game)
+        (loop [game initial-game]
+          (when-not (GLFW/glfwWindowShouldClose window)
+            (let [ts (GLFW/glfwGetTime)
+                  game (assoc game
+                              :delta-time (- ts (:total-time game))
+                              :total-time ts)
+                  game (c/run game)]
+              (GLFW/glfwSwapBuffers window)
+              (GLFW/glfwPollEvents)
+              (recur game)))))
       (Callbacks/glfwFreeCallbacks window)
       (GLFW/glfwDestroyWindow window)
       (GLFW/glfwTerminate))

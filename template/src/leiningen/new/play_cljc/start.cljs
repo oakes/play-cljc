@@ -33,10 +33,12 @@
 
 (defonce context
   (let [canvas (js/document.querySelector "canvas")
-        context (.getContext canvas "webgl2")]
+        context (.getContext canvas "webgl2")
+        initial-game (assoc (pc/->game context)
+                            :delta-time 0
+                            :total-time 0)]
     (listen-for-mouse canvas)
-    (game-loop (assoc (pc/->game context)
-                      :delta-time 0
-                      :total-time 0))
+    (c/init initial-game)
+    (game-loop initial-game)
     context))
 

@@ -1,6 +1,7 @@
 (ns leiningen.new.play-cljc
   (:require [leiningen.new.templates :as t]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clojure.java.io :as io]))
 
 (defn sanitize-name [s]
   (as-> s $
@@ -40,7 +41,10 @@
      (str "src/" project_name "/start.cljs") (render "start.cljs" data)
      (str "src/" project_name "/start_dev.clj") (render "start_dev.clj" data)
      (str "src/" project_name "/start_dev.cljs") (render "start_dev.cljs" data)
-     "resources/public/index.html" (render "index.html" data)}))
+     "resources/public/index.html" (render "index.html" data)
+     "resources/public/player_walk1.png" (-> "player_walk1.png" io/resource io/input-stream)
+     "resources/public/player_walk2.png" (-> "player_walk2.png" io/resource io/input-stream)
+     "resources/public/player_walk3.png" (-> "player_walk3.png" io/resource io/input-stream)}))
 
 (defn play-cljc
   [name & _]
