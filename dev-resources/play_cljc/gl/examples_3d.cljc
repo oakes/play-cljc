@@ -33,7 +33,7 @@
 
 ;; translation-3d
 
-(defn translation-3d-render [game [entity *state :as state]]
+(defn translation-3d-render [{:keys [entity *state] :as game}]
   (eu/resize-example game)
   (let [{:keys [x y]} @*state]
     (c/render game
@@ -51,7 +51,7 @@
         (assoc entity
           :clear {:color [1 1 1 1] :depth 1}
           :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))))
-  state)
+  game)
 
 (defn translation-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -59,19 +59,18 @@
   (let [entity (f-entity game data/f-3d)
         *state (atom {:x 0 :y 0})]
     (eu/listen-for-mouse game *state)
-    [entity *state]))
+    (assoc game :entity entity :*state *state)))
 
 (defexample play-cljc.gl.examples-3d/translation-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/translation-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/translation-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/translation-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/translation-3d-render)))
 
 ;; rotation-3d
 
-(defn rotation-3d-render [game [entity *state :as state]]
+(defn rotation-3d-render [{:keys [entity *state] :as game}]
   (eu/resize-example game)
   (let [{:keys [tx ty r]} @*state]
     (c/render game
@@ -90,7 +89,7 @@
         (assoc entity
           :clear {:color [1 1 1 1] :depth 1}
           :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))))
-  state)
+  game)
 
 (defn rotation-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -100,19 +99,18 @@
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]
     (eu/listen-for-mouse game *state)
-    [entity *state]))
+    (assoc game :entity entity :*state *state)))
 
 (defexample play-cljc.gl.examples-3d/rotation-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/rotation-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/rotation-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/rotation-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/rotation-3d-render)))
 
 ;; scale-3d
 
-(defn scale-3d-render [game [entity *state :as state]]
+(defn scale-3d-render [{:keys [entity *state] :as game}]
   (eu/resize-example game)
   (let [{:keys [tx ty rx ry]} @*state]
     (c/render game
@@ -131,7 +129,7 @@
         (assoc entity
           :clear {:color [1 1 1 1] :depth 1}
           :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))))
-  state)
+  game)
 
 (defn scale-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -141,19 +139,18 @@
         ty 100
         *state (atom {:tx tx :ty ty :rx 1 :ry 1})]
     (eu/listen-for-mouse game *state)
-    [entity *state]))
+    (assoc game :entity entity :*state *state)))
 
 (defexample play-cljc.gl.examples-3d/scale-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/scale-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/scale-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/scale-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/scale-3d-render)))
 
 ;; perspective-3d
 
-(defn perspective-3d-render [game [entity *state :as state]]
+(defn perspective-3d-render [{:keys [entity *state] :as game}]
   (eu/resize-example game)
   (let [{:keys [cx cy]} @*state]
     (c/render game
@@ -170,7 +167,7 @@
         (assoc entity
           :clear {:color [1 1 1 1] :depth 1}
           :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))))
-  state)
+  game)
 
 (defn perspective-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -178,19 +175,18 @@
   (let [entity (f-entity game data/f-3d)
         *state (atom {:cx 0 :cy 0})]
     (eu/listen-for-mouse game *state)
-    [entity *state]))
+    (assoc game :entity entity :*state *state)))
 
 (defexample play-cljc.gl.examples-3d/perspective-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/perspective-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/perspective-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/perspective-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/perspective-3d-render)))
 
 ;; perspective-camera-3d
 
-(defn perspective-camera-3d-render [game [entity *state :as state]]
+(defn perspective-camera-3d-render [{:keys [entity *state] :as game}]
   (eu/resize-example game)
   (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
@@ -207,7 +203,9 @@
                              [{:rotate {:angle cr :axis :y}}
                               {:translate {:x 0 :y 0 :z (* radius 1.5)}}]
                              (e/->camera))}]
-                 (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))]
+                 (assoc entity :viewport {:x 0 :y 0
+                                          :width (eu/get-width game)
+                                          :height (eu/get-height game)}))]
     (dotimes [i num-fs]
       (let [angle (/ (* i (math PI) 2) num-fs)
             x (* (math cos angle) radius)
@@ -216,7 +214,7 @@
           (transform
             [{:translate {:x x :y 0 :z z}}]
             entity)))))
-  state)
+  game)
 
 (defn perspective-camera-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -224,19 +222,18 @@
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:cr 0})]
     (eu/listen-for-mouse game *state)
-    [entity *state]))
+    (assoc game :entity entity :*state *state)))
 
 (defexample play-cljc.gl.examples-3d/perspective-camera-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/perspective-camera-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/perspective-camera-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/perspective-camera-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/perspective-camera-3d-render)))
 
 ;; perspective-camera-target-3d
 
-(defn perspective-camera-target-3d-render [game [entity *state :as state]]
+(defn perspective-camera-target-3d-render [{:keys [entity *state] :as game}]
   (eu/resize-example game)
   (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
@@ -254,7 +251,9 @@
                               {:translate {:x 0 :y 0 :z (* radius 1.5)}}
                               {:look-at {:target [radius 0 0] :up [0 1 0]}}]
                              (e/->camera))}]
-                 (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))]
+                 (assoc entity :viewport {:x 0 :y 0
+                                          :width (eu/get-width game)
+                                          :height (eu/get-height game)}))]
     (dotimes [i num-fs]
       (let [angle (/ (* i (math PI) 2) num-fs)
             x (* (math cos angle) radius)
@@ -263,8 +262,7 @@
           (transform
             [{:translate {:x x :y 0 :z z}}]
             entity)))))
-            
-  state)
+  game)
 
 (defn perspective-camera-target-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -272,19 +270,18 @@
   (let [entity (f-entity game (transform-f-data data/f-3d))
         *state (atom {:cr 0})]
     (eu/listen-for-mouse game *state)
-    [entity *state]))
+    (assoc game :entity entity :*state *state)))
 
 (defexample play-cljc.gl.examples-3d/perspective-camera-target-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/perspective-camera-target-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/perspective-camera-target-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/perspective-camera-target-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/perspective-camera-target-3d-render)))
 
 ;; perspective-animation-3d
 
-(defn perspective-animation-3d-render [game [entity {:keys [rx ry rz then now] :as state}]]
+(defn perspective-animation-3d-render [{:keys [entity state delta-time] :as game}]
   (eu/resize-example game)
   (c/render game
     (transform
@@ -294,16 +291,13 @@
                   :near 1
                   :far 2000}
         :translate {:x 0 :y 0 :z -360}}
-       {:rotate {:angle rx :axis :x}}
-       {:rotate {:angle ry :axis :y}}
-       {:rotate {:angle rz :axis :z}}]
+       {:rotate {:angle (:rx state) :axis :x}}
+       {:rotate {:angle (:ry state) :axis :y}}
+       {:rotate {:angle (:rz state) :axis :z}}]
       (assoc entity
         :clear {:color [1 1 1 1] :depth 1}
         :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})))
-  [entity
-   (-> state
-       (update :ry + (* 1.2 (- now then)))
-       (assoc :then now :now (:time game)))])
+  (update-in game [:state :ry] + (* 1.2 delta-time)))
 
 (defn perspective-animation-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -311,22 +305,19 @@
   (let [entity (f-entity game data/f-3d)
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)
-               :rz (m/deg->rad 320)
-               :then 0
-               :now 0}]
-    [entity state]))
+               :rz (m/deg->rad 320)}]
+    (assoc game :entity entity :state state)))
 
 (defexample play-cljc.gl.examples-3d/perspective-animation-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/perspective-animation-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/perspective-animation-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/perspective-animation-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/perspective-animation-3d-render)))
 
 ;; perspective-texture-3d
 
-(defn perspective-texture-3d-render [game [entity {:keys [rx ry then now] :as state}]]
+(defn perspective-texture-3d-render [{:keys [entity state delta-time] :as game}]
   (eu/resize-example game)
   (c/render game
     (transform
@@ -339,14 +330,12 @@
                   [{:translate {:x 0 :y 0 :z 200}}
                    {:look-at {:target [0 0 0] :up [0 1 0]}}]
                   (e/->camera))}
-       {:rotate {:angle rx :axis :x}}
-       {:rotate {:angle ry :axis :y}}]
+       {:rotate {:angle (:rx state) :axis :x}}
+       {:rotate {:angle (:ry state) :axis :y}}]
       (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})))
-  [entity
-   (-> state
-       (update :rx + (* 1.2 (- now then)))
-       (update :ry + (* 0.7 (- now then)))
-       (assoc :then now :now (:time game)))])
+  (-> game
+      (update-in [:state :rx] + (* 1.2 delta-time))
+      (update-in [:state :ry] + (* 0.7 delta-time))))
 
 (defn perspective-texture-3d-init [game {:keys [data width height]}]
   (gl game enable (gl game CULL_FACE))
@@ -373,24 +362,21 @@
                     (c/->entity game)
                     e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
-               :ry (m/deg->rad 40)
-               :then 0
-               :now 0}]
-    [entity state]))
+               :ry (m/deg->rad 40)}]
+    (assoc game :entity entity :state state)))
 
 (defexample play-cljc.gl.examples-3d/perspective-texture-3d
   {:with-card card}
   (let [game (play-cljc.gl.example-utils/init-example card)]
     (play-cljc.gl.example-utils/get-image "f-texture.png"
       (fn [image]
-        (let [state (play-cljc.gl.examples-3d/perspective-texture-3d-init game image)]
-          (play-cljc.gl.example-utils/game-loop
-            play-cljc.gl.examples-3d/perspective-texture-3d-render
-            game state))))))
+        (->> (play-cljc.gl.examples-3d/perspective-texture-3d-init game image)
+             (play-cljc.gl.example-utils/game-loop
+               play-cljc.gl.examples-3d/perspective-texture-3d-render))))))
 
 ;; perspective-texture-data-3d
 
-(defn perspective-texture-data-3d-render [game [entity {:keys [rx ry then now] :as state}]]
+(defn perspective-texture-data-3d-render [{:keys [entity state delta-time] :as game}]
   (eu/resize-example game)
   (c/render game
     (transform
@@ -403,14 +389,12 @@
                   [{:translate {:x 0 :y 0 :z 2}}
                    {:look-at {:target [0 0 0] :up [0 1 0]}}]
                   (e/->camera))}
-       {:rotate {:angle rx :axis :x}}
-       {:rotate {:angle ry :axis :y}}]
+       {:rotate {:angle (:rx state) :axis :x}}
+       {:rotate {:angle (:ry state) :axis :y}}]
       (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})))
-  [entity
-   (-> state
-       (update :rx + (* 1.2 (- now then)))
-       (update :ry + (* 0.7 (- now then)))
-       (assoc :then now :now (:time game)))])
+  (-> game
+      (update-in [:state :rx] + (* 1.2 delta-time))
+      (update-in [:state :ry] + (* 0.7 delta-time))))
 
 (defn perspective-texture-data-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -445,18 +429,15 @@
                     (c/->entity game)
                     e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
-               :ry (m/deg->rad 40)
-               :then 0
-               :now 0}]
-    [entity state]))
+               :ry (m/deg->rad 40)}]
+    (assoc game :entity entity :state state)))
 
 (defexample play-cljc.gl.examples-3d/perspective-texture-data-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/perspective-texture-data-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/perspective-texture-data-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/perspective-texture-data-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/perspective-texture-data-3d-render)))
 
 ;; perspective-texture-meta-3d
 
@@ -477,24 +458,21 @@
      {:rotate {:angle ry :axis :y}}]
     entity))
 
-(defn perspective-texture-meta-3d-render [game [entities {:keys [then now] :as state}]]
+(defn perspective-texture-meta-3d-render [{:keys [entity inner-entity state delta-time] :as game}]
   (eu/resize-example game)
-  (let [[inner-entity entity] entities]
-    (c/render game
-      (-> entity
-          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (render-cube state (/ (eu/get-width game) (eu/get-height game)))
-          (assoc :render-to-texture {'u_texture
-                                     (-> inner-entity
-                                         (assoc :viewport {:x 0 :y 0
-                                                           :width target-width
-                                                           :height target-height})
-                                         (render-cube state (/ target-width target-height)))}))))
-  [entities
-   (-> state
-       (update :rx + (* 1.2 (- now then)))
-       (update :ry + (* 0.7 (- now then)))
-       (assoc :then now :now (:time game)))])
+  (c/render game
+    (-> entity
+        (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+        (render-cube state (/ (eu/get-width game) (eu/get-height game)))
+        (assoc :render-to-texture {'u_texture
+                                   (-> inner-entity
+                                       (assoc :viewport {:x 0 :y 0
+                                                         :width target-width
+                                                         :height target-height})
+                                       (render-cube state (/ target-width target-height)))})))
+  (-> game
+      (update-in [:state :rx] + (* 1.2 delta-time))
+      (update-in [:state :ry] + (* 0.7 delta-time))))
 
 (defn perspective-texture-meta-3d-init [game]
   (gl game enable (gl game CULL_FACE))
@@ -555,16 +533,13 @@
                           (c/->entity game)
                           e/map->ThreeDEntity)
         state {:rx (m/deg->rad 190)
-               :ry (m/deg->rad 40)
-               :then 0
-               :now 0}]
-    [[inner-entity entity] state]))
+               :ry (m/deg->rad 40)}]
+    (assoc game :entity entity :inner-entity inner-entity :state state)))
 
 (defexample play-cljc.gl.examples-3d/perspective-texture-meta-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-3d/perspective-texture-meta-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-3d/perspective-texture-meta-3d-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-3d/perspective-texture-meta-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-3d/perspective-texture-meta-3d-render)))
 

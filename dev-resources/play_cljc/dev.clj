@@ -61,8 +61,12 @@
                   switch-to-example!)))))
         (while (not (GLFW/glfwWindowShouldClose window))
           (swap! *examples update @*current-example
-                 (fn [{:keys [ns-sym ex-sym f game state] :as example}]
-                   (assoc example :state (f (assoc game :time (GLFW/glfwGetTime)) state))))
+                 (fn [{:keys [ns-sym ex-sym f game] :as example}]
+                   (let [ts (GLFW/glfwGetTime)
+                         game (assoc game
+                                     :delta-time (- ts (:total-time game))
+                                     :total-time ts)]
+                     (assoc example :game (f game)))))
           (GLFW/glfwSwapBuffers window)
           (GLFW/glfwPollEvents)))
       ;; clean up

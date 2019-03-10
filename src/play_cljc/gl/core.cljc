@@ -7,7 +7,8 @@
 
 (defn ->game [context]
   {:tex-count (atom 0)
-   :context context})
+   :context context
+   :time 0})
 
 (defn- attribute-type->constructor [game attr-type]
   (condp = attr-type

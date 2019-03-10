@@ -11,7 +11,7 @@
             #?(:clj [dynadoc.example :refer [defexample]]))
   #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
 
-(defn advanced-render [game [entity objects {:keys [then now] :as state}]]
+(defn advanced-render [{:keys [entity objects total-time] :as game}]
   (eu/resize-example game)
   (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
@@ -33,8 +33,8 @@
     (doseq [{:keys [rx ry tz mat-uniforms]}
             objects]
       (let [world-matrix (->> (m/identity-matrix 4)
-                              (m/multiply-matrices 4 (m/x-rotation-matrix-3d (* rx now)))
-                              (m/multiply-matrices 4 (m/y-rotation-matrix-3d (* ry now)))
+                              (m/multiply-matrices 4 (m/x-rotation-matrix-3d (* rx total-time)))
+                              (m/multiply-matrices 4 (m/y-rotation-matrix-3d (* ry total-time)))
                               (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 tz)))]
         (c/render game
           (-> entity
@@ -50,7 +50,7 @@
                 'u_specular (:u_specular mat-uniforms)
                 'u_shininess (:u_shininess mat-uniforms)
                 'u_specularFactor (:u_specularFactor mat-uniforms)))))))
-  [entity objects (assoc state :then now :now (:time game))])
+  game)
 
 (defn shape-entity [game {:keys [positions normals texcoords indices]}]
   (c/->entity game
@@ -83,18 +83,15 @@
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
-                                    :u_specularFactor  (rand 1)}}))
-        state {:then 0
-               :now 0}]
-    [entity objects state]))
+                                    :u_specularFactor  (rand 1)}}))]
+    (assoc game :entity entity :objects objects)))
 
 (defexample play-cljc.gl.examples-advanced/balls-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-advanced/balls-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-advanced/advanced-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-advanced/balls-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-advanced/advanced-render)))
 
 ;; planes-3d
 
@@ -111,18 +108,15 @@
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
-                                    :u_specularFactor  (rand 1)}}))
-        state {:then 0
-               :now 0}]
-    [entity objects state]))
+                                    :u_specularFactor  (rand 1)}}))]
+    (assoc game :entity entity :objects objects)))
 
 (defexample play-cljc.gl.examples-advanced/planes-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-advanced/planes-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-advanced/advanced-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-advanced/planes-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-advanced/advanced-render)))
 
 ;; cubes-3d
 
@@ -139,18 +133,15 @@
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
-                                    :u_specularFactor  (rand 1)}}))
-        state {:then 0
-               :now 0}]
-    [entity objects state]))
+                                    :u_specularFactor  (rand 1)}}))]
+    (assoc game :entity entity :objects objects)))
 
 (defexample play-cljc.gl.examples-advanced/cubes-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-advanced/cubes-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-advanced/advanced-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-advanced/cubes-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-advanced/advanced-render)))
 
 ;; cylinder-3d
 
@@ -168,18 +159,15 @@
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
-                                    :u_specularFactor  (rand 1)}}))
-        state {:then 0
-               :now 0}]
-    [entity objects state]))
+                                    :u_specularFactor  (rand 1)}}))]
+    (assoc game :entity entity :objects objects)))
 
 (defexample play-cljc.gl.examples-advanced/cylinder-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-advanced/cylinder-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-advanced/advanced-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-advanced/cylinder-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-advanced/advanced-render)))
 
 ;; crescent-3d
 
@@ -197,18 +185,15 @@
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
-                                    :u_specularFactor  (rand 1)}}))
-        state {:then 0
-               :now 0}]
-    [entity objects state]))
+                                    :u_specularFactor  (rand 1)}}))]
+    (assoc game :entity entity :objects objects)))
 
 (defexample play-cljc.gl.examples-advanced/crescent-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-advanced/crescent-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-advanced/advanced-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-advanced/crescent-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-advanced/advanced-render)))
 
 ;; torus-3d
 
@@ -226,18 +211,15 @@
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
-                                    :u_specularFactor  (rand 1)}}))
-        state {:then 0
-               :now 0}]
-    [entity objects state]))
+                                    :u_specularFactor  (rand 1)}}))]
+    (assoc game :entity entity :objects objects)))
 
 (defexample play-cljc.gl.examples-advanced/torus-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-advanced/torus-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-advanced/advanced-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-advanced/torus-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-advanced/advanced-render)))
 
 ;; disc-3d
 
@@ -254,16 +236,13 @@
                      :mat-uniforms {:u_color           [(rand) (rand) (rand) 1]
                                     :u_specular        [1, 1, 1, 1]
                                     :u_shininess       (rand 500)
-                                    :u_specularFactor  (rand 1)}}))
-        state {:then 0
-               :now 0}]
-    [entity objects state]))
+                                    :u_specularFactor  (rand 1)}}))]
+    (assoc game :entity entity :objects objects)))
 
 (defexample play-cljc.gl.examples-advanced/disc-3d
   {:with-card card}
-  (let [game (play-cljc.gl.example-utils/init-example card)
-        state (play-cljc.gl.examples-advanced/disc-3d-init game)]
-    (play-cljc.gl.example-utils/game-loop
-      play-cljc.gl.examples-advanced/advanced-render
-      game state)))
+  (->> (play-cljc.gl.example-utils/init-example card)
+       (play-cljc.gl.examples-advanced/disc-3d-init)
+       (play-cljc.gl.example-utils/game-loop
+         play-cljc.gl.examples-advanced/advanced-render)))
 

@@ -11,7 +11,10 @@
 (def textures (atom 0))
 
 (defn init-example [#?(:clj window :cljs card)]
-  #?(:clj  (assoc (c/->game window) :tex-count textures)
+  #?(:clj  (assoc (c/->game window)
+                  :tex-count textures
+                  :total-time 0
+                  :delta-time 0)
      :cljs (do
              (when-let [canvas (.querySelector card "canvas")]
                (.removeChild card canvas))
@@ -20,12 +23,19 @@
                             (-> .-style .-height (set! "100%")))
                    context (.getContext canvas "webgl2")]
                (.appendChild card canvas)
-               (c/->game context)))))
+               (assoc (c/->game context)
+                      :total-time 0
+                      :delta-time 0)))))
 
-(defn game-loop [f game state]
-  #?(:clj  {:f f :game game :state state}
-     :cljs (let [new-state (f game state)]
-             (js/requestAnimationFrame #(game-loop f (assoc game :time (* % 0.001)) new-state)))))
+(defn game-loop [f game]
+  #?(:clj  {:f f :game game}
+     :cljs (let [game (f game)]
+             (js/requestAnimationFrame
+               (fn [ts]
+                 (let [ts (* ts 0.001)]
+                   (game-loop f (assoc game
+                                       :delta-time (- ts (:total-time game))
+                                       :total-time ts))))))))
 
 (defn resize-example [{:keys [context] :as game}]
   #?(:cljs (let [display-width context.canvas.clientWidth
