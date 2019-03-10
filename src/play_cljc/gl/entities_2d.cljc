@@ -92,7 +92,7 @@
    :signatures
    '{main ([] void)}
    :functions
-   '{main ([] (= outColor (.bgra (texture u_image v_texCoord))))}})
+   '{main ([] (= outColor (texture u_image v_texCoord)))}})
 
 (defn ->image-entity [game data width height]
   (->> {:vertex image-vertex-shader
