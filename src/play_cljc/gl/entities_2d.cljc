@@ -1,6 +1,5 @@
 (ns play-cljc.gl.entities-2d
-  (:require [play-cljc.gl.core :as c]
-            [play-cljc.math :as m]
+  (:require [play-cljc.math :as m]
             [play-cljc.transforms :as t]
             [play-cljc.primitives-2d :as primitives]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
@@ -60,7 +59,6 @@
         :attributes {'a_position {:data data
                                   :type (gl game FLOAT)
                                   :size 2}}}
-       (c/->entity game)
        map->TwoDEntity))
 
 (def ^:private image-vertex-shader
@@ -116,6 +114,5 @@
                                       (gl game NEAREST),
                                       (gl game TEXTURE_MAG_FILTER)
                                       (gl game NEAREST)}}}}
-       (c/->entity game)
        map->TwoDEntity))
 

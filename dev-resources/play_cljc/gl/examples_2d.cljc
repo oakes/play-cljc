@@ -34,8 +34,8 @@
   (gl game disable (gl game DEPTH_TEST))
   (assoc game
     :entity
-    (assoc (e/->entity game primitives/rect)
-      :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+    (-> (c/compile game (e/->entity game primitives/rect))
+        (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))
     :rects
     (for [_ (range 50)]
       {:color [(rand) (rand) (rand) 1]
@@ -73,8 +73,8 @@
   (gl game disable (gl game DEPTH_TEST))
   (assoc game
     :entity
-    (assoc (e/->image-entity game data width height)
-      :clear {:color [1 1 1 1] :depth 1})
+    (-> (c/compile game (e/->image-entity game data width height))
+        (assoc :clear {:color [1 1 1 1] :depth 1}))
     :image
     image))
 
@@ -103,7 +103,7 @@
 (defn translation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (-> (e/->entity game data/f-2d)
+  (let [entity (-> (c/compile game (e/->entity game data/f-2d))
                    (assoc :clear {:color [0 0 0 0] :depth 1}))
         *state (atom {:x 0 :y 0})]
     (eu/listen-for-mouse game *state)
@@ -134,7 +134,7 @@
 (defn rotation-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (-> (e/->entity game data/f-2d)
+  (let [entity (-> (c/compile game (e/->entity game data/f-2d))
                    (assoc :clear {:color [0 0 0 0] :depth 1}))
         tx 100
         ty 100
@@ -167,7 +167,7 @@
 (defn scale-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (-> (e/->entity game data/f-2d)
+  (let [entity (-> (c/compile game (e/->entity game data/f-2d))
                    (assoc :clear {:color [0 0 0 0] :depth 1}))
         tx 100
         ty 100
@@ -208,7 +208,7 @@
 (defn rotation-multi-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (let [entity (e/->entity game data/f-2d)
+  (let [entity (c/compile game (e/->entity game data/f-2d))
         tx 100
         ty 100
         *state (atom {:tx tx :ty ty :r 0})]

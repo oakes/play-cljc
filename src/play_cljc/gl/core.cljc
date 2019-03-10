@@ -3,7 +3,8 @@
                :cljs [play-cljc.macros-js :refer-macros [gl]])
             [iglu.core :as ig]
             [iglu.parse :as parse]
-            [play-cljc.gl.utils :as u]))
+            [play-cljc.gl.utils :as u])
+  (:refer-clojure :exclude [compile]))
 
 (defn ->game [context]
   {:tex-count (atom 0)
@@ -87,7 +88,7 @@
 (def ^:private
   glsl-version #?(:clj "410" :cljs "300 es"))
 
-(defn ->entity [game {:keys [vertex fragment attributes uniforms indices] :as m}]
+(defn compile [game {:keys [vertex fragment attributes uniforms indices] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
         fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)

@@ -1,6 +1,5 @@
 (ns play-cljc.gl.entities-3d
-  (:require [play-cljc.gl.core :as c]
-            [play-cljc.math :as m]
+  (:require [play-cljc.math :as m]
             [play-cljc.transforms :as t]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
@@ -122,7 +121,6 @@
          :attributes {'a_position {:data data
                                    :type (gl game FLOAT)
                                    :size 3}}}
-        (c/->entity game)
         map->ThreeDEntity))
   ([game data color-data]
    (->> {:vertex three-d-attribute-colors-vertex-shader
@@ -133,6 +131,5 @@
                       'a_color {:data color-data
                                 :type (gl game FLOAT)
                                 :size 3}}}
-        (c/->entity game)
         map->ThreeDEntity)))
 

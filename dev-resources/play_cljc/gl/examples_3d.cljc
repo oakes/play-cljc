@@ -11,7 +11,7 @@
   #?(:cljs (:require-macros [dynadoc.example :refer [defexample]])))
 
 (defn f-entity [game f-data]
-  (e/->entity game f-data (mapv #(/ % 255) data/f-3d-colors)))
+  (c/compile game (e/->entity game f-data (mapv #(/ % 255) data/f-3d-colors))))
 
 (defn transform-f-data [f-data]
   (let [matrix (m/multiply-matrices 4
@@ -359,8 +359,8 @@
                                                    :src-type (gl game UNSIGNED_BYTE)}
                                             :mipmap true}}
                      :clear {:color [0 0 0 0] :depth 1}}
-                    (c/->entity game)
-                    e/map->ThreeDEntity)
+                    e/map->ThreeDEntity
+                    (c/compile game))
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)}]
     (assoc game :entity entity :state state)))
@@ -426,8 +426,8 @@
                                                      (gl game TEXTURE_MAG_FILTER)
                                                      (gl game NEAREST)}}}
                      :clear {:color [1 1 1 1] :depth 1}}
-                    (c/->entity game)
-                    e/map->ThreeDEntity)
+                    e/map->ThreeDEntity
+                    (c/compile game))
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)}]
     (assoc game :entity entity :state state)))
@@ -501,8 +501,8 @@
                                                      (gl game TEXTURE_MIN_FILTER)
                                                      (gl game LINEAR)}}}
                      :clear {:color [1 1 1 1] :depth 1}}
-                    (c/->entity game)
-                    e/map->ThreeDEntity)
+                    e/map->ThreeDEntity
+                    (c/compile game))
         inner-entity (->> {:vertex data/texture-vertex-shader
                            :fragment data/texture-fragment-shader
                            :attributes {'a_position {:data data/cube
@@ -530,8 +530,8 @@
                                                            (gl game TEXTURE_MAG_FILTER)
                                                            (gl game NEAREST)}}}
                            :clear {:color [0 0 1 1] :depth 1}}
-                          (c/->entity game)
-                          e/map->ThreeDEntity)
+                          e/map->ThreeDEntity
+                          (c/compile game))
         state {:rx (m/deg->rad 190)
                :ry (m/deg->rad 40)}]
     (assoc game :entity entity :inner-entity inner-entity :state state)))

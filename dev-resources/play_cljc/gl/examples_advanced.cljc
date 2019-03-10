@@ -53,7 +53,7 @@
   game)
 
 (defn shape-entity [game {:keys [positions normals texcoords indices]}]
-  (c/->entity game
+  (c/compile game
     {:vertex data/advanced-vertex-shader
      :fragment data/advanced-fragment-shader
      :attributes {'a_position {:data positions
