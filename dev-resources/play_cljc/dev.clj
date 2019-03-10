@@ -2,11 +2,16 @@
   (:require [play-cljc.gl.examples-2d]
             [play-cljc.gl.examples-3d]
             [play-cljc.gl.examples-advanced]
-            [dynadoc.example :as ex])
+            [dynadoc.example :as ex]
+            [orchestra.spec.test :as st]
+            [expound.alpha :as expound]
+            [clojure.spec.alpha :as s])
   (:import  [org.lwjgl.glfw GLFW Callbacks GLFWKeyCallbackI]
             [org.lwjgl.opengl GL GL41]))
 
 (defn -main []
+  (st/instrument)
+  (set! s/*explain-out* expound/printer)
   (when-not (GLFW/glfwInit)
     (throw (Exception. "Unable to initialize GLFW")))
   (GLFW/glfwWindowHint GLFW/GLFW_VISIBLE GLFW/GLFW_FALSE)

@@ -3,13 +3,21 @@
                :cljs [play-cljc.macros-js :refer-macros [gl]])
             [iglu.core :as ig]
             [iglu.parse :as parse]
-            [play-cljc.gl.utils :as u])
+            [play-cljc.gl.utils :as u]
+            [clojure.spec.alpha :as s])
   (:refer-clojure :exclude [compile]))
+
+(s/def ::tex-count #(instance? #?(:clj clojure.lang.Atom :cljs cljs.core/Atom) %))
+(s/def ::context #?(:clj integer? :cljs #(instance? js/WebGL2RenderingContext %)))
+(s/def ::game (s/keys :req-un [::tex-count ::context]))
+
+(s/fdef ->game
+  :args (s/cat :context ::context)
+  :ret ::game)
 
 (defn ->game [context]
   {:tex-count (atom 0)
-   :context context
-   :time 0})
+   :context context})
 
 (defn- attribute-type->constructor [game attr-type]
   (condp = attr-type
@@ -29,6 +37,33 @@
                       (throw (ex-info (str "The type for " attr-name " is invalid") {})))]
       (arr-con data))
     data))
+
+(s/def ::unit integer?)
+(s/def ::texture #?(:clj integer? :cljs #(instance? js/WebGLTexture %)))
+(s/def ::location #?(:clj integer? :cljs #(instance? js/WebGLUniformLocation %)))
+(s/def ::framebuffer (s/nilable #?(:clj integer? :cljs #(instance? js/WebGLFramebuffer %))))
+(s/def ::texture-map (s/keys :req-un [::unit ::texture ::location ::framebuffer]))
+
+(s/def ::data (s/or
+                :vector vector?
+                ;; TODO: make spec for java primitive arrays and JS typed arrays
+                :array any?))
+
+(s/def ::mip-level integer?)
+(s/def ::internal-fmt integer?)
+(s/def ::width number?)
+(s/def ::height number?)
+(s/def ::src-fmt integer?)
+(s/def ::src-type integer?)
+(s/def ::opts (s/keys :req-un [::mip-level ::internal-fmt ::width ::height ::src-fmt ::src-type]))
+
+(s/def ::params (s/map-of integer? integer?))
+(s/def ::mipmap boolean?)
+(s/def ::alignment integer?)
+
+(s/def ::texture-uniform (s/keys
+                           :req-un [::opts]
+                           :opt-un [::data ::params ::mipmap ::alignment]))
 
 (defn- create-texture [{:keys [tex-count] :as game} m uni-loc
                        {:keys [data params opts mipmap alignment]}]
@@ -88,6 +123,33 @@
 (def ^:private
   glsl-version #?(:clj "410" :cljs "300 es"))
 
+(s/def ::vertex ::parse/shader)
+(s/def ::fragment ::parse/shader)
+(s/def ::type integer?)
+(s/def ::attribute (s/keys :req-un [::data ::type]))
+(s/def ::attributes (s/map-of symbol? ::attribute))
+(s/def ::uniforms (s/map-of symbol? (s/or
+                                      :texture-uniform ::texture-uniform
+                                      :uniform ::data)))
+(s/def ::indices (s/keys :req-un [::data ::type]))
+(s/def ::uncompiled-entity
+  (s/keys
+    :req-un [::vertex ::fragment]
+    :opt-un [::attributes ::uniforms ::indices]))
+
+(s/def ::program #?(:clj integer? :cljs #(instance? js/WebGLProgram %)))
+(s/def ::vao #?(:clj integer? :cljs #(instance? js/WebGLVertexArrayObject %)))
+(s/def ::uniform-locations (s/map-of symbol? ::location))
+(s/def ::textures (s/map-of symbol? ::texture-map))
+(s/def ::index-count integer?)
+
+(s/def ::compiled-entity
+  (s/keys :req-un [::program ::vao ::uniform-locations ::textures ::index-count]))
+
+(s/fdef compile
+  :args (s/cat :game ::game :entity ::uncompiled-entity)
+  :ret ::compiled-entity)
+
 (defn compile [game {:keys [vertex fragment attributes uniforms indices] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
         fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
@@ -136,6 +198,12 @@
     (gl game bindVertexArray previous-vao)
     entity))
 
+(s/def ::zero-to-one #(<= 0 % 1))
+(s/def ::color (s/tuple ::zero-to-one ::zero-to-one ::zero-to-one ::zero-to-one))
+(s/def ::depth ::zero-to-one)
+(s/def ::stencil integer?)
+(s/def ::clear (s/keys :opt-un [::color ::depth ::stencil]))
+
 (defn- render-clear [game {:keys [color depth stencil]}]
   (when-let [[r g b a] color]
     (gl game clearColor r g b a))
@@ -148,8 +216,21 @@
        (apply bit-or)
        (gl game clear)))
 
+(s/def ::x number?)
+(s/def ::y number?)
+(s/def ::viewport (s/keys :req-un [::x ::y ::width ::height]))
+
 (defn- render-viewport [game {:keys [x y width height]}]
   (gl game viewport x y width height))
+
+(s/def ::misc-map (s/keys :opt-un [::viewport ::clear]))
+
+(s/fdef render
+  :args (s/cat
+          :game ::game
+          :entity (s/or
+                    :compiled-entity (s/merge ::compiled-entity ::misc-map)
+                    :misc-map ::misc-map)))
 
 (defn render [game
               {:keys [program vao index-count uniforms indices
