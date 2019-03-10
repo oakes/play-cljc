@@ -1,7 +1,8 @@
 (ns {{name}}.start
   (:require [{{name}}.{{core-name}} :as c]
             [play-cljc.gl.core :as pc]
-            [goog.events :as events]))
+            [goog.events :as events])
+  (:require-macros [{{name}}.music :refer [build-for-cljs]]))
 
 (defn resize [{:keys [context] :as game}]
   (let [display-width context.canvas.clientWidth
@@ -48,6 +49,8 @@
       (when-let [k (keycode->keyword (.-keyCode event))]
         (swap! c/*state update :pressed-keys disj k)))))
 
+;; start the game
+
 (defonce context
   (let [canvas (js/document.querySelector "canvas")
         context (.getContext canvas "webgl2")
@@ -59,4 +62,19 @@
     (c/init initial-game)
     (game-loop initial-game)
     context))
+
+;; build music, put it in the audio tag, and make the button toggle it on and off
+
+(defonce play-music? (atom false))
+
+(defonce audio (js/document.querySelector "#audio"))
+(set! (.-src audio) (build-for-cljs))
+(when @play-music? (.play audio))
+
+(defonce button (js/document.querySelector "#audio-button"))
+(set! (.-onclick button)
+      (fn [e]
+        (if (swap! play-music? not)
+          (.play audio)
+          (.pause audio))))
 
