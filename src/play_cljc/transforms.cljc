@@ -17,6 +17,8 @@
 (s/def ::z any?)
 (s/def ::angle any?)
 (s/def ::axis any?)
+(s/def ::target any?)
+(s/def ::up any?)
 
 (s/def ::project (s/or
                    :2d (s/keys :req-un [::width ::height])
@@ -79,6 +81,8 @@
   IColor
   (color [entity rgba] entity))
 
+(s/def ::look-at (s/keys :req-un [::target ::up]))
+
 (defprotocol ILookAt
   (look-at [camera target up]))
 
@@ -92,7 +96,9 @@
                         translate-args :translate
                         rotate-args :rotate
                         scale-args :scale
-                        color-args :color}]
+                        color-args :color
+                        camera-args :camera
+                        look-at-args :look-at}]
   (cond-> []
           project-args
           (conj
@@ -124,7 +130,13 @@
                 :3d `(scale ~(:x args) ~(:y args) ~(:z args))
                 :2d `(scale ~(:x args) ~(:y args)))))
           color-args
-          (conj `(color ~color-args))))
+          (conj `(color ~color-args))
+          camera-args
+          (conj `(camera ~camera-args))
+          look-at-args
+          (conj
+            (let [args (parse ::look-at look-at-args)]
+              `(look-at ~(:target args) ~(:up args))))))
 
 (defn transform
   ([content]
