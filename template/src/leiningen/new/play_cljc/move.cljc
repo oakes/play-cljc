@@ -5,9 +5,10 @@
 
 (def ^:const damping 0.1)
 (def ^:const max-velocity 1000)
-(def ^:const max-jump-velocity (* max-velocity 4))
-(def ^:const deceleration 0.9)
-(def ^:const gravity 200)
+(def ^:const max-jump-velocity (* max-velocity 8))
+(def ^:const deceleration 0.7)
+(def ^:const gravity 500)
+(def ^:const animation-secs 0.2)
 
 (defn decelerate
   [velocity]
@@ -75,4 +76,20 @@
         {:x-velocity 0 :x-change 0 :player-x old-x})
       (when (> player-y (- game-height player-height))
         {:y-velocity 0 :y-change 0 :player-y old-y :can-jump? (not up?)}))))
+
+(defn animate
+  [{:keys [total-time]}
+   {:keys [x-velocity y-velocity direction
+           player-images player-image-key]
+    :as state}]
+  (let [direction (get-direction state)]
+    (-> state
+        (assoc :player-image-key
+               (if (and (not= x-velocity 0)
+                        (= y-velocity 0))
+                 (let [image-keys (->> player-images keys sort vec)
+                       cycle-time (mod total-time (* animation-secs (count image-keys)))]
+                   (nth image-keys (int (/ cycle-time animation-secs))))
+                 player-image-key))
+        (assoc :direction direction))))
 
