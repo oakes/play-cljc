@@ -14,8 +14,27 @@
     (utils/get-image path
       (fn [{:keys [data width height]}]
         (swap! *state update :entities conj
-               (e/->image-entity game data width height))))))
+               (assoc (e/->image-entity game data width height)
+                      :width width :height height))))))
+
+(def screen-entity
+  {:viewport {:x 0 :y 0 :width 0 :height 0}
+   :clear {:color [(/ 173 255) (/ 216 255) (/ 230 255) 1] :depth 1}})
 
 (defn run [game]
+  (let [{:keys [entities]} @*state
+        player (first entities)
+        game-width (utils/get-width game)
+        game-height (utils/get-height game)
+        player-width (/ game-width 10)
+        player-height (* player-width (/ (:height player) (:width player)))]
+    (c/render game (update screen-entity :viewport
+                           assoc :width game-width :height game-height))
+    (doseq [entity (transform
+                     [{:project {:width game-width :height game-height}
+                       :translate {:x 0 :y 0}
+                       :scale {:x player-width :y player-height}}
+                      player])]
+      (c/render game entity)))
   game)
 
