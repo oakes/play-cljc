@@ -1,5 +1,5 @@
 {:paths ["src"]
- :deps {iglu {:mvn/version "0.1.0"}
+ :deps {iglu {:mvn/version "0.2.0"}
         expound {:mvn/version "0.7.2"}}
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                               dynadoc {:mvn/version "RELEASE"}
