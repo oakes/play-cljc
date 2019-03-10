@@ -32,7 +32,8 @@
 (defn rand-rects-init [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  [(e/->entity game primitives/rect)
+  [(assoc (e/->entity game primitives/rect)
+     :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
    (for [_ (range 50)]
      {:color [(rand) (rand) (rand) 1]
       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
