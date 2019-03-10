@@ -31,6 +31,23 @@
                 y (- (.-clientY event) (.-top bounds))]
             (assoc state :mouse-x x :mouse-y y)))))))
 
+(defn keycode->keyword [keycode]
+  (condp = keycode
+    37 :left
+    39 :right
+    38 :up
+    nil))
+
+(defn listen-for-keys []
+  (events/listen js/window "keydown"
+    (fn [event]
+      (when-let [k (keycode->keyword (.-keyCode event))]
+        (swap! c/*state update :pressed-keys conj k))))
+  (events/listen js/window "keyup"
+    (fn [event]
+      (when-let [k (keycode->keyword (.-keyCode event))]
+        (swap! c/*state update :pressed-keys disj k)))))
+
 (defonce context
   (let [canvas (js/document.querySelector "canvas")
         context (.getContext canvas "webgl2")
@@ -38,6 +55,7 @@
                             :delta-time 0
                             :total-time 0)]
     (listen-for-mouse canvas)
+    (listen-for-keys)
     (c/init initial-game)
     (game-loop initial-game)
     context))

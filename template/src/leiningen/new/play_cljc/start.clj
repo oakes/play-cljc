@@ -32,6 +32,23 @@
               (MemoryUtil/memFree *window-height)
               (assoc state :mouse-x x :mouse-y y))))))))
 
+(defn keycode->keyword [keycode]
+  (condp = keycode
+    GLFW/GLFW_KEY_LEFT :left
+    GLFW/GLFW_KEY_RIGHT :right
+    GLFW/GLFW_KEY_UP :up
+    nil))
+
+(defn listen-for-keys [window]
+  (GLFW/glfwSetKeyCallback window
+    (reify GLFWKeyCallbackI
+      (invoke [this window keycode scancode action mods]
+        (when-let [k (keycode->keyword keycode)]
+          (condp = action
+            GLFW/GLFW_PRESS (swap! c/*state update :pressed-keys conj k)
+            GLFW/GLFW_RELEASE (swap! c/*state update :pressed-keys disj k)
+            nil))))))
+
 (defn -main [& args]
   (when-not (GLFW/glfwInit)
     (throw (Exception. "Unable to initialize GLFW")))
@@ -48,6 +65,7 @@
       (GLFW/glfwShowWindow window)
       (GL/createCapabilities)
       (listen-for-mouse window)
+      (listen-for-keys window)
       (let [initial-game (assoc (pc/->game window)
                                 :delta-time 0
                                 :total-time 0)]

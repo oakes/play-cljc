@@ -7,9 +7,14 @@
 
 (defonce *state (atom {:mouse-x 0
                        :mouse-y 0
+                       :pressed-keys #{}
                        :entities []}))
 
 (defn init [game]
+  ;; allow transparency in images
+  (gl game enable (gl game BLEND))
+  (gl game blendFunc (gl game SRC_ALPHA) (gl game ONE_MINUS_SRC_ALPHA))
+  ;; load images and put them in the state atom
   (doseq [path ["player_walk1.png" "player_walk2.png" "player_walk3.png"]]
     (utils/get-image path
       (fn [{:keys [data width height]}]
@@ -22,7 +27,7 @@
    :clear {:color [(/ 173 255) (/ 216 255) (/ 230 255) 1] :depth 1}})
 
 (defn run [game]
-  (let [{:keys [entities]} @*state
+  (let [{:keys [entities pressed-keys]} @*state
         player (first entities)
         game-width (utils/get-width game)
         game-height (utils/get-height game)
