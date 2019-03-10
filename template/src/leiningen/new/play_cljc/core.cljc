@@ -3,8 +3,9 @@
             [{{name}}.move :as move]
             [play-cljc.gl.core :as c]
             [play-cljc.gl.entities-2d :as e]
-            #?(:clj  [play-cljc.macros-java :refer [gl math transform]]
-               :cljs [play-cljc.macros-js :refer-macros [gl math transform]])))
+            [play-cljc.transforms :as t]
+            #?(:clj  [play-cljc.macros-java :refer [gl math]]
+               :cljs [play-cljc.macros-js :refer-macros [gl math]])))
 
 (defonce *state (atom {:mouse-x 0
                        :mouse-y 0
@@ -60,19 +61,17 @@
       (let [player-width (/ game-width 10)
             player-height (* player-width (/ (:height player) (:width player)))]
         ;; render the player
-        (doseq [entity (transform
-                         [{:project {:width game-width
-                                     :height game-height}
-                           :translate {:x (cond-> player-x
-                                                  (= direction :left)
-                                                  (+ player-width))
-                                       :y player-y}
-                           :scale {:x (cond-> player-width
-                                              (= direction :left)
-                                              (* -1))
-                                   :y player-height}}
-                          player])]
-          (c/render game entity))
+        (c/render game
+          (-> player
+              (t/project game-width game-height)
+              (t/translate (cond-> player-x
+                                   (= direction :left)
+                                   (+ player-width))
+                           player-y)
+              (t/scale (cond-> player-width
+                               (= direction :left)
+                               (* -1))
+                       player-height)))
         ;; change the state to move the player
         (swap! *state
           (fn [state]

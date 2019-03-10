@@ -1,7 +1,7 @@
 (ns {{name}}.move
   (:require [{{name}}.utils :as utils]
-            #?(:clj  [play-cljc.macros-java :refer [gl math transform]]
-               :cljs [play-cljc.macros-js :refer-macros [gl math transform]])))
+            #?(:clj  [play-cljc.macros-java :refer [gl math]]
+               :cljs [play-cljc.macros-js :refer-macros [gl math]])))
 
 (def ^:const damping 0.1)
 (def ^:const max-velocity 1000)
