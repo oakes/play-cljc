@@ -21,13 +21,12 @@
            [sx sy] :scale}
           rects]
     (c/render game
-      (first
-        (transform
-          [{:project {:width (eu/get-width game) :height (eu/get-height game)}
-            :color color
-            :translate {:x posx :y posy}
-            :scale {:x sx :y sy}}
-           entity]))))
+      (transform
+        [{:project {:width (eu/get-width game) :height (eu/get-height game)}
+          :color color
+          :translate {:x posx :y posy}
+          :scale {:x sx :y sy}}]
+        entity)))
   state)
 
 (defn rand-rects-init [game]
@@ -59,12 +58,11 @@
                                  [(* game-height (/ width height)) game-height]
                                  [game-width (* game-width (/ height width))])]
     (c/render game
-      (first
-        (transform
-          [{:project {:width game-width :height game-height}
-            :translate {:x 0 :y 0}
-            :scale {:x img-width :y img-height}}
-           (assoc entity :viewport {:x 0 :y 0 :width game-width :height game-height})]))))
+      (transform
+        [{:project {:width game-width :height game-height}
+          :translate {:x 0 :y 0}
+          :scale {:x img-width :y img-height}}]
+        (assoc entity :viewport {:x 0 :y 0 :width game-width :height game-height}))))
   state)
 
 (defn image-init [game {:keys [data width height] :as image}]
@@ -90,12 +88,11 @@
   (eu/resize-example game)
   (let [{:keys [x y]} @*state]
     (c/render game
-      (first
-        (transform
-          [{:project {:width (eu/get-width game) :height (eu/get-height game)}
-            :translate {:x x :y y}
-            :color [1 0 0.5 1]}
-           (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})]))))
+      (transform
+        [{:project {:width (eu/get-width game) :height (eu/get-height game)}
+          :translate {:x x :y y}
+          :color [1 0 0.5 1]}]
+        (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))))
   state)
 
 (defn translation-init [game]
@@ -121,14 +118,13 @@
   (eu/resize-example game)
   (let [{:keys [tx ty r]} @*state]
     (c/render game
-      (first
-        (transform
-          [{:project {:width (eu/get-width game) :height (eu/get-height game)}
-            :translate {:x tx :y ty}
-            :rotate {:angle r}
-            :color [1 0 0.5 1]}
-           {:translate {:x -50 :y -75}} ;; make it rotate around its center
-           (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})]))))
+      (transform
+        [{:project {:width (eu/get-width game) :height (eu/get-height game)}
+          :translate {:x tx :y ty}
+          :rotate {:angle r}
+          :color [1 0 0.5 1]}
+         {:translate {:x -50 :y -75}}] ;; make it rotate around its center
+        (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))))
   state)
 
 (defn rotation-init [game]
@@ -156,14 +152,13 @@
   (eu/resize-example game)
   (let [{:keys [tx ty rx ry]} @*state]
     (c/render game
-      (first
-        (transform
-          [{:project {:width (eu/get-width game) :height (eu/get-height game)}
-            :translate {:x tx :y ty}
-            :rotate {:angle 0}
-            :scale {:x rx :y ry}
-            :color [1 0 0.5 1]}
-           (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})]))))
+      (transform
+        [{:project {:width (eu/get-width game) :height (eu/get-height game)}
+          :translate {:x tx :y ty}
+          :rotate {:angle 0}
+          :scale {:x rx :y ry}
+          :color [1 0 0.5 1]}]
+        (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))))
   state)
 
 (defn scale-init [game]
@@ -193,17 +188,15 @@
     {:clear {:color [1 1 1 1] :depth 1}})
   (let [{:keys [tx ty r]} @*state]
     (loop [i 0
-           entity (first
-                    (transform
-                      [{:project {:width (eu/get-width game) :height (eu/get-height game)}
-                        :color [1 0 0.5 1]}
-                       (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})]))]
+           entity (transform
+                    [{:project {:width (eu/get-width game) :height (eu/get-height game)}
+                      :color [1 0 0.5 1]}]
+                    (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))]
       (when (< i 5)
-        (let [entity (first
-                       (transform
-                         [{:translate {:x tx :y ty}
-                           :rotate {:angle r}}
-                          entity]))]
+        (let [entity (transform
+                       [{:translate {:x tx :y ty}
+                         :rotate {:angle r}}]
+                       entity)]
           (c/render game entity)
           (recur (inc i) entity)))))
   state)

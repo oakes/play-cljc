@@ -17,6 +17,9 @@
       (cons (symbol (str "org.lwjgl.opengl.GL41/gl" (Character/toUpperCase l) remaining-letters))
             args))))
 
-(defmacro transform [content]
-  (t/transform content))
+(defmacro transform
+  ([content]
+   (t/transform content))
+  ([attrs entity]
+   (t/transform-entity attrs entity)))
 

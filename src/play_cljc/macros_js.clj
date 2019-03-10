@@ -15,6 +15,9 @@
       `(goog.object/get (:context ~game) ~s)
       (concat [(symbol (str "." s)) `(:context ~game)] args))))
 
-(defmacro transform [content]
-  (t/transform content))
+(defmacro transform
+  ([content]
+   (t/transform content))
+  ([attrs entity]
+   (t/transform-entity attrs entity)))
 

@@ -138,6 +138,10 @@
             (let [args (parse ::look-at look-at-args)]
               `(look-at ~(:target args) ~(:up args))))))
 
+(defn transform-entity [attrs entity]
+  (concat ['-> entity]
+    (mapcat transform-attrs attrs)))
+
 (defn transform
   ([content]
    (transform content []))
@@ -148,9 +152,7 @@
             (cond
               (vector? item) (update m :entities into (transform item attrs))
               (map? item) (update m :attrs conj item)
-              :else (update m :entities conj
-                      (concat ['-> item]
-                        (mapcat transform-attrs attrs)))))
+              :else (update m :entities conj (transform-entity attrs item))))
           {:entities []
            :attrs parent-attrs})
         :entities)))
