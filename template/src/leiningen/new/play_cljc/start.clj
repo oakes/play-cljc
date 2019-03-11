@@ -26,8 +26,8 @@
                   window-height (.get *window-height)
                   width-ratio (/ fb-width window-width)
                   height-ratio (/ fb-height window-height)
-                  x (- (* xpos width-ratio))
-                  y (- (* ypos height-ratio))]
+                  x (* xpos width-ratio)
+                  y (* ypos height-ratio)]
               (MemoryUtil/memFree *fb-width)
               (MemoryUtil/memFree *fb-height)
               (MemoryUtil/memFree *window-width)
