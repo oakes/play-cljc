@@ -21,6 +21,7 @@ To develop the native version on each OS:
 
 `clj -A:dev:windows -J-XstartOnFirstThread dev.clj native`
 
+
 To build the native version as a jar file:
 
 `clj -A:prod prod.clj uberjar`
