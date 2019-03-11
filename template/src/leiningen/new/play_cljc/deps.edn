@@ -1,6 +1,6 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.10.0"}
-        play-cljc {:mvn/version "0.1.0-SNAPSHOT"}
+        play-cljc {:mvn/version "0.1.0"}
         org.lwjgl/lwjgl {:mvn/version "3.2.1"}
         org.lwjgl/lwjgl-glfw {:mvn/version "3.2.1"}
         org.lwjgl/lwjgl-opengl {:mvn/version "3.2.1"}
