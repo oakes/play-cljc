@@ -1,7 +1,6 @@
 (ns {{name}}.music
   (:require [edna.core :as edna]
-            [clojure.java.io :as io])
-  (:import [javax.sound.sampled AudioSystem Clip]))
+            [clojure.java.io :as io]))
 
 (def music
   [:electric-guitar-clean {:tempo 130}
@@ -11,11 +10,9 @@
    1/2 :+d 1/8 :f :g 1/4 :a 3/8 :f 1/8 :e :f :g :d])
 
 (defn build-for-clj []
-  (doto (AudioSystem/getClip)
-    (.open (-> (edna/export! music {:type :wav})
-               .toByteArray
-               io/input-stream
-               AudioSystem/getAudioInputStream))))
+  (-> (edna/export! music {:type :wav})
+      .toByteArray
+      io/input-stream))
 
 (def edna->data-uri
   (memoize edna/edna->data-uri))

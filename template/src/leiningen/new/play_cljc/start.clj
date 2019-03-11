@@ -4,7 +4,8 @@
             [play-cljc.gl.core :as pc])
   (:import  [org.lwjgl.glfw GLFW Callbacks GLFWCursorPosCallbackI GLFWKeyCallbackI]
             [org.lwjgl.opengl GL GL41]
-            [org.lwjgl.system MemoryUtil])
+            [org.lwjgl.system MemoryUtil]
+            [javax.sound.sampled AudioSystem Clip])
   (:gen-class))
 
 (defn listen-for-mouse [window]
@@ -51,7 +52,8 @@
             nil))))))
 
 (defn play-music []
-  (doto (m/build-for-clj)
+  (doto (AudioSystem/getClip)
+    (.open (AudioSystem/getAudioInputStream (m/build-for-clj)))
     (.loop Clip/LOOP_CONTINUOUSLY)
     (.start)))
 
