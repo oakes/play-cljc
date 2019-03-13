@@ -65,8 +65,7 @@
   {:attributes
    '{a_position vec2}
    :uniforms
-   '{u_matrix mat3
-     u_image sampler2D}
+   '{u_matrix mat3}
    :varyings
    '{v_texCoord vec2}
    :signatures
