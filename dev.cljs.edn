@@ -1,3 +1,4 @@
+^{:watch-dirs ["src" "dev-resources"]}
 {:main          play-cljc.dev
  :optimizations :none
  :output-to     "target/dynadoc-extend/main.js"
