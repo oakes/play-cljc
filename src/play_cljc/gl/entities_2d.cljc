@@ -95,7 +95,8 @@
 (defn ->image-entity
   ([game data width height]
    (->image-entity game data width height nil))
-  ([game data width height sub-rect]
+  ([game data width height {:keys [crop-x crop-y crop-width crop-height]
+                            :or {crop-x 0 crop-y 0 crop-width width crop-height height}}]
    (->> {:vertex image-vertex-shader
          :fragment image-fragment-shader
          :attributes {'a_position {:data primitives/rect
@@ -117,12 +118,10 @@
                                        (gl game NEAREST),
                                        (gl game TEXTURE_MAG_FILTER)
                                        (gl game NEAREST)}}
-                    'u_textureMatrix (if-let [{:keys [x y] w :width h :height} sub-rect]
-                                       (->> (m/identity-matrix 3)
-                                            (m/multiply-matrices 3
-                                               (m/translation-matrix (/ x width) (/ y height)))
-                                            (m/multiply-matrices 3
-                                               (m/scaling-matrix (/ w width) (/ h height))))
-                                       (m/identity-matrix 3))}}
+                    'u_textureMatrix (->> (m/identity-matrix 3)
+                                          (m/multiply-matrices 3
+                                             (m/translation-matrix (/ crop-x width) (/ crop-y height)))
+                                          (m/multiply-matrices 3
+                                             (m/scaling-matrix (/ crop-width width) (/ crop-height height))))}}
         map->TwoDEntity)))
 
