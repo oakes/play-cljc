@@ -65,7 +65,8 @@
   {:attributes
    '{a_position vec2}
    :uniforms
-   '{u_matrix mat3}
+   '{u_matrix mat3
+     u_textureMatrix mat3}
    :varyings
    '{v_texCoord vec2}
    :signatures
@@ -76,7 +77,7 @@
               (vec4
                 (.xy (* u_matrix (vec3 a_position 1)))
                 0 1))
-           (= v_texCoord a_position))}})
+           (= v_texCoord (.xy (* u_textureMatrix (vec3 a_position 1)))))}})
 
 (def ^:private image-fragment-shader
   {:precision "mediump float"
@@ -91,27 +92,37 @@
    :functions
    '{main ([] (= outColor (texture u_image v_texCoord)))}})
 
-(defn ->image-entity [game data width height]
-  (->> {:vertex image-vertex-shader
-        :fragment image-fragment-shader
-        :attributes {'a_position {:data primitives/rect
-                                  :type (gl game FLOAT)
-                                  :size 2}}
-        :uniforms {'u_image {:data data
-                             :opts {:mip-level 0
-                                    :internal-fmt (gl game RGBA)
-                                    :width width
-                                    :height height
-                                    :border 0
-                                    :src-fmt (gl game RGBA)
-                                    :src-type (gl game UNSIGNED_BYTE)}
-                             :params {(gl game TEXTURE_WRAP_S)
-                                      (gl game CLAMP_TO_EDGE),
-                                      (gl game TEXTURE_WRAP_T)
-                                      (gl game CLAMP_TO_EDGE),
-                                      (gl game TEXTURE_MIN_FILTER)
-                                      (gl game NEAREST),
-                                      (gl game TEXTURE_MAG_FILTER)
-                                      (gl game NEAREST)}}}}
-       map->TwoDEntity))
+(defn ->image-entity
+  ([game data width height]
+   (->image-entity game data width height nil))
+  ([game data width height sub-rect]
+   (->> {:vertex image-vertex-shader
+         :fragment image-fragment-shader
+         :attributes {'a_position {:data primitives/rect
+                                   :type (gl game FLOAT)
+                                   :size 2}}
+         :uniforms {'u_image {:data data
+                              :opts {:mip-level 0
+                                     :internal-fmt (gl game RGBA)
+                                     :width width
+                                     :height height
+                                     :border 0
+                                     :src-fmt (gl game RGBA)
+                                     :src-type (gl game UNSIGNED_BYTE)}
+                              :params {(gl game TEXTURE_WRAP_S)
+                                       (gl game CLAMP_TO_EDGE),
+                                       (gl game TEXTURE_WRAP_T)
+                                       (gl game CLAMP_TO_EDGE),
+                                       (gl game TEXTURE_MIN_FILTER)
+                                       (gl game NEAREST),
+                                       (gl game TEXTURE_MAG_FILTER)
+                                       (gl game NEAREST)}}
+                    'u_textureMatrix (if-let [{:keys [x y] w :width h :height} sub-rect]
+                                       (->> (m/identity-matrix 3)
+                                            (m/multiply-matrices 3
+                                               (m/translation-matrix (/ x width) (/ y height)))
+                                            (m/multiply-matrices 3
+                                               (m/scaling-matrix (/ w width) (/ h height))))
+                                       (m/identity-matrix 3))}}
+        map->TwoDEntity)))
 
