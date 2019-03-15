@@ -35,8 +35,8 @@
               entity (c/compile game entity)
               ;; assoc the width and height to we can reference it later
               entity (assoc entity :width width :height height)]
-        ;; add it to the state
-        (swap! *state update :player-images assoc k entity))))))
+          ;; add it to the state
+          (swap! *state update :player-images assoc k entity))))))
 
 (def screen-entity
   {:viewport {:x 0 :y 0 :width 0 :height 0}
