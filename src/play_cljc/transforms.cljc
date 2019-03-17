@@ -58,6 +58,9 @@
 (defprotocol IColor
   (color [entity rgba]))
 
+(defprotocol ICrop
+  (crop [entity x y width height]))
+
 (extend-type #?(:clj Object :cljs default)
   IProject
   (project
@@ -79,7 +82,9 @@
   ICamera
   (camera [entity camera] entity)
   IColor
-  (color [entity rgba] entity))
+  (color [entity rgba] entity)
+  ICrop
+  (crop [entity x y width height] entity))
 
 (s/def ::look-at (s/keys :req-un [::target ::up]))
 

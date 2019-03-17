@@ -26,7 +26,17 @@
       #(m/multiply-matrices 3 (m/rotation-matrix angle) %)))
   t/IColor
   (color [entity rgba]
-    (assoc-in entity [:uniforms 'u_color] rgba)))
+    (assoc-in entity [:uniforms 'u_color] rgba))
+  t/ICrop
+  (crop [{:keys [width height] :as entity} crop-x crop-y crop-width crop-height]
+    (if-not (or width height)
+      (throw (ex-info "Only image entities can be cropped" {}))
+      (assoc-in entity [:uniforms 'u_textureMatrix]
+        (->> (m/identity-matrix 3)
+             (m/multiply-matrices 3
+               (m/translation-matrix (/ crop-x width) (/ crop-y height)))
+             (m/multiply-matrices 3
+               (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))))
 
 (def ^:private two-d-vertex-shader
   {:attributes
@@ -92,11 +102,7 @@
    :functions
    '{main ([] (= outColor (texture u_image v_texCoord)))}})
 
-(defn ->image-entity
-  ([game data width height]
-   (->image-entity game data width height nil))
-  ([game data width height {:keys [crop-x crop-y crop-width crop-height]
-                            :or {crop-x 0 crop-y 0 crop-width width crop-height height}}]
+(defn ->image-entity [game data width height]
    (->> {:vertex image-vertex-shader
          :fragment image-fragment-shader
          :attributes {'a_position {:data primitives/rect
@@ -117,11 +123,8 @@
                                        (gl game TEXTURE_MIN_FILTER)
                                        (gl game NEAREST),
                                        (gl game TEXTURE_MAG_FILTER)
-                                       (gl game NEAREST)}}
-                    'u_textureMatrix (->> (m/identity-matrix 3)
-                                          (m/multiply-matrices 3
-                                             (m/translation-matrix (/ crop-x width) (/ crop-y height)))
-                                          (m/multiply-matrices 3
-                                             (m/scaling-matrix (/ crop-width width) (/ crop-height height))))}}
-        map->TwoDEntity)))
+                                       (gl game NEAREST)}}}
+         :width width
+         :height height}
+        map->TwoDEntity))
 
