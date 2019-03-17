@@ -31,12 +31,12 @@
   (crop [{:keys [width height] :as entity} crop-x crop-y crop-width crop-height]
     (if-not (or width height)
       (throw (ex-info "Only image entities can be cropped" {}))
-      (assoc-in entity [:uniforms 'u_textureMatrix]
-        (->> (m/identity-matrix 3)
-             (m/multiply-matrices 3
-               (m/translation-matrix (/ crop-x width) (/ crop-y height)))
-             (m/multiply-matrices 3
-               (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))))
+      (update-in entity [:uniforms 'u_textureMatrix]
+        #(->> %
+              (m/multiply-matrices 3
+                (m/translation-matrix (/ crop-x width) (/ crop-y height)))
+              (m/multiply-matrices 3
+                (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))))
 
 (def ^:private two-d-vertex-shader
   {:attributes
