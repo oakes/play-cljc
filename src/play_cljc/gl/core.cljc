@@ -142,9 +142,12 @@
 (s/def ::uniform-locations (s/map-of symbol? ::location))
 (s/def ::textures (s/map-of symbol? ::texture-map))
 (s/def ::index-count integer?)
+(s/def ::render-to-texture (s/map-of symbol? (s/coll-of ::renderable)))
 
 (s/def ::compiled-entity
-  (s/keys :req-un [::program ::vao ::uniform-locations ::textures ::index-count]))
+  (s/keys
+    :req-un [::program ::vao ::uniform-locations ::textures ::index-count]
+    :opt-un [::render-to-texture]))
 
 (s/fdef compile
   :args (s/cat :game ::game :entity ::uncompiled-entity)
@@ -224,13 +227,14 @@
   (gl game viewport x y width height))
 
 (s/def ::misc-map (s/keys :opt-un [::viewport ::clear]))
+(s/def ::renderable (s/or
+                      :compiled-entity (s/merge ::compiled-entity ::misc-map)
+                      :misc-map ::misc-map))
 
 (s/fdef render
   :args (s/cat
           :game ::game
-          :entity (s/or
-                    :compiled-entity (s/merge ::compiled-entity ::misc-map)
-                    :misc-map ::misc-map)))
+          :entity ::renderable))
 
 (defn render [game
               {:keys [program vao index-count uniforms indices
