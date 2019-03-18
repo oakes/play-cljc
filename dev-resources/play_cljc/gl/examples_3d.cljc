@@ -465,11 +465,11 @@
         (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
         (render-cube state (/ (eu/get-width game) (eu/get-height game)))
         (assoc :render-to-texture {'u_texture
-                                   (-> inner-entity
-                                       (assoc :viewport {:x 0 :y 0
-                                                         :width target-width
-                                                         :height target-height})
-                                       (render-cube state (/ target-width target-height)))})))
+                                   [(-> inner-entity
+                                        (assoc :viewport {:x 0 :y 0
+                                                          :width target-width
+                                                          :height target-height})
+                                        (render-cube state (/ target-width target-height)))]})))
   (-> game
       (update-in [:state :rx] + (* 1.2 delta-time))
       (update-in [:state :ry] + (* 0.7 delta-time))))

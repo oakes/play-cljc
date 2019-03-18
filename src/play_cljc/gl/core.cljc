@@ -248,7 +248,7 @@
                                uniforms)]
       (doseq [{:keys [unit location]} (vals textures)]
         (gl game uniform1i location unit))
-      (doseq [[texture-name inner-entity] render-to-texture
+      (doseq [[texture-name inner-entities] render-to-texture
               :let [texture (get textures texture-name)]]
         (when-not texture
           (throw (ex-info (str "Can't find " texture-name) {})))
@@ -257,7 +257,7 @@
         (let [previous-framebuffer (gl game #?(:clj getInteger :cljs getParameter)
                                      (gl game FRAMEBUFFER_BINDING))]
           (gl game bindFramebuffer (gl game FRAMEBUFFER) (:framebuffer texture))
-          (render game inner-entity)
+          (run! #(render game %) inner-entities)
           (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
