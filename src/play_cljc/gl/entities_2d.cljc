@@ -123,7 +123,8 @@
                                        (gl game TEXTURE_MIN_FILTER)
                                        (gl game NEAREST),
                                        (gl game TEXTURE_MAG_FILTER)
-                                       (gl game NEAREST)}}}
+                                       (gl game NEAREST)}}
+                    'u_textureMatrix (m/identity-matrix 3)}
          :width width
          :height height}
         map->TwoDEntity))
