@@ -142,7 +142,9 @@
 (s/def ::uniform-locations (s/map-of symbol? ::location))
 (s/def ::textures (s/map-of symbol? ::texture-map))
 (s/def ::index-count integer?)
-(s/def ::render-to-texture (s/map-of symbol? (s/coll-of ::renderable)))
+(s/def ::render-to-texture (s/map-of symbol? (s/or
+                                               :single ::renderable
+                                               :multiple (s/coll-of ::renderable))))
 
 (s/def ::compiled-entity
   (s/keys
@@ -261,7 +263,9 @@
         (let [previous-framebuffer (gl game #?(:clj getInteger :cljs getParameter)
                                      (gl game FRAMEBUFFER_BINDING))]
           (gl game bindFramebuffer (gl game FRAMEBUFFER) (:framebuffer texture))
-          (run! #(render game %) inner-entities)
+          (if (map? inner-entities)
+            (render game inner-entities)
+            (run! #(render game %) inner-entities))
           (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
