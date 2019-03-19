@@ -120,6 +120,23 @@
     (or (call-uniform* game m uni-type uni-loc uni-name uni-data)
         m)))
 
+(declare render)
+
+(defn- render->texture [game textures render-to-texture]
+  (doseq [[texture-name inner-entities] render-to-texture
+          :let [texture (get textures texture-name)]]
+    (when-not texture
+      (throw (ex-info (str "Can't find " texture-name) {})))
+    (when-not (:framebuffer texture)
+      (throw (ex-info (str texture-name " must have :data set to nil") {})))
+    (let [previous-framebuffer (gl game #?(:clj getInteger :cljs getParameter)
+                                 (gl game FRAMEBUFFER_BINDING))]
+      (gl game bindFramebuffer (gl game FRAMEBUFFER) (:framebuffer texture))
+      (if (map? inner-entities)
+        (render game inner-entities)
+        (run! #(render game %) inner-entities))
+      (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
+
 (def ^:private
   glsl-version #?(:clj "410" :cljs "300 es"))
 
@@ -132,19 +149,21 @@
                                       :texture-uniform ::texture-uniform
                                       :uniform ::data)))
 (s/def ::indices (s/keys :req-un [::data ::type]))
+
+(s/def ::render-to-texture (s/map-of symbol? (s/or
+                                               :single ::renderable
+                                               :multiple (s/coll-of ::renderable))))
+
 (s/def ::uncompiled-entity
   (s/keys
     :req-un [::vertex ::fragment]
-    :opt-un [::attributes ::uniforms ::indices]))
+    :opt-un [::attributes ::uniforms ::indices ::render-to-texture]))
 
 (s/def ::program #?(:clj integer? :cljs #(instance? js/WebGLProgram %)))
 (s/def ::vao #?(:clj integer? :cljs #(instance? js/WebGLVertexArrayObject %)))
 (s/def ::uniform-locations (s/map-of symbol? ::location))
 (s/def ::textures (s/map-of symbol? ::texture-map))
 (s/def ::index-count integer?)
-(s/def ::render-to-texture (s/map-of symbol? (s/or
-                                               :single ::renderable
-                                               :multiple (s/coll-of ::renderable))))
 
 (s/def ::compiled-entity
   (s/keys
@@ -184,24 +203,23 @@
                             (-> #{}
                                 (into (-> vertex :uniforms keys))
                                 (into (-> fragment :uniforms keys))))
-        entity (-> m
-                   (dissoc :uniforms :attributes)
-                   (merge {:vertex vertex
-                           :fragment fragment
-                           :vertex-source vertex-source
-                           :fragment-source fragment-source
-                           :program program
-                           :vao vao
-                           :uniform-locations uniform-locations
-                           :textures {}
-                           :index-count (or index-count (apply max counts))}))
+        entity (merge m {:vertex vertex
+                         :fragment fragment
+                         :vertex-source vertex-source
+                         :fragment-source fragment-source
+                         :program program
+                         :vao vao
+                         :uniform-locations uniform-locations
+                         :textures {}
+                         :index-count (or index-count (apply max counts))})
         entity (reduce
                  (partial call-uniform game)
                  entity
                  uniforms)]
+    (some->> m :render-to-texture (render->texture game (:textures entity)))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)
-    entity))
+    (dissoc entity :uniforms :attributes :render-to-texture)))
 
 (s/def ::zero-to-one #(<= 0 % 1))
 (s/def ::color (s/tuple ::zero-to-one ::zero-to-one ::zero-to-one ::zero-to-one))
@@ -254,19 +272,7 @@
                                uniforms)]
       (doseq [{:keys [unit location]} (vals textures)]
         (gl game uniform1i location unit))
-      (doseq [[texture-name inner-entities] render-to-texture
-              :let [texture (get textures texture-name)]]
-        (when-not texture
-          (throw (ex-info (str "Can't find " texture-name) {})))
-        (when-not (:framebuffer texture)
-          (throw (ex-info (str texture-name " must have :data set to nil") {})))
-        (let [previous-framebuffer (gl game #?(:clj getInteger :cljs getParameter)
-                                     (gl game FRAMEBUFFER_BINDING))]
-          (gl game bindFramebuffer (gl game FRAMEBUFFER) (:framebuffer texture))
-          (if (map? inner-entities)
-            (render game inner-entities)
-            (run! #(render game %) inner-entities))
-          (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
+      (some->> entity :render-to-texture (render->texture game textures)))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
     (when index-count
