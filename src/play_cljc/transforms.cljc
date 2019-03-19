@@ -61,31 +61,6 @@
 (defprotocol ICrop
   (crop [entity x y width height]))
 
-(extend-type #?(:clj Object :cljs default)
-  IProject
-  (project
-    ([entity width height] entity)
-    ([entity left right bottom top near far] entity)
-    ([entity field-of-view aspect near far] entity))
-  ITranslate
-  (translate
-    ([entity x y] entity)
-    ([entity x y z] entity))
-  IScale
-  (scale
-    ([entity x y] entity)
-    ([entity x y z] entity))
-  IRotate
-  (rotate
-    ([entity angle] entity)
-    ([entity angle axis] entity))
-  ICamera
-  (camera [entity camera] entity)
-  IColor
-  (color [entity rgba] entity)
-  ICrop
-  (crop [entity x y width height] entity))
-
 (s/def ::look-at (s/keys :req-un [::target ::up]))
 
 (defprotocol ILookAt
