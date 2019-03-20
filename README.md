@@ -12,9 +12,9 @@ This will start you off with a little platformer. It will contain a README with 
 
 ## Documentation
 
-None...lol. Coming soon. Join the non-existent discussion on [r/playcljc](https://www.reddit.com/r/playcljc/).
-
-There are a bunch of 2D and 3D examples in `dev-resources/play_cljc/gl/` which you can run (either in a browser or in a native OpenGL window) using the commands below.
+* Read [the dynadocs](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.core.html)
+* Join the discussion on [r/playcljc](https://www.reddit.com/r/playcljc/)
+* Check out the [2D](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.examples-2d.html), [3D](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.examples-3d.html), and [advanced](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.examples-advanced.html) examples.
 
 ## Development
 
