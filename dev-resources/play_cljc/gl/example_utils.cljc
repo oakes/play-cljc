@@ -2,11 +2,17 @@
   (:require [play-cljc.gl.core :as c]
             [play-cljc.math :as m]
             #?(:clj  [clojure.java.io :as io]
-               :cljs [goog.events :as events]))
+               :cljs [goog.events :as events])
+            #?(:clj  [play-cljc.macros-java :refer [math]]
+               :cljs [play-cljc.macros-js :refer-macros [math]]))
   #?(:clj (:import [java.nio ByteBuffer]
                    [org.lwjgl.glfw GLFW GLFWCursorPosCallback]
                    [org.lwjgl.system MemoryUtil]
                    [org.lwjgl.stb STBImage])))
+
+(def PI (math PI))
+(def cos #(math cos %))
+(def sin #(math sin %))
 
 (def textures (atom 0))
 

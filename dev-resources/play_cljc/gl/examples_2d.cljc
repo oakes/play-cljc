@@ -13,61 +13,44 @@
 
 ;; rand-rects
 
-(defn rand-rects-render [{:keys [entity rects] :as game}]
-  (eu/resize-example game)
-  (c/render game
-    {:clear {:color [1 1 1 1] :depth 1}})
-  (doseq [{color :color
-           [posx posy] :position
-           [sx sy] :scale}
-          rects]
-    (c/render game
-      (-> entity
-          (t/project (eu/get-width game) (eu/get-height game))
-          (t/color color)
-          (t/translate posx posy)
-          (t/scale sx sy))))
-  game)
-
-(defn rand-rects-init [game]
+(defn rand-rects-example [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (assoc game
     :entity
     (-> (c/compile game (e/->entity game primitives/rect))
-        (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)}))
+        (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+        (t/project (eu/get-width game) (eu/get-height game)))
     :rects
     (for [_ (range 50)]
       {:color [(rand) (rand) (rand) 1]
        :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
        :scale [(rand-int 300) (rand-int 300)]})))
 
-(defexample play-cljc.gl.examples-2d/rand-rects
-  {:with-card card}
+(defexample rand-rects-example
+  {:with-card card
+   :with-focus [focus (doseq [{color :color
+                               [posx posy] :position
+                               [sx sy] :scale}
+                              rects]
+                        (play-cljc.gl.core/render game
+                          (-> entity
+                              (play-cljc.transforms/color color)
+                              (play-cljc.transforms/translate posx posy)
+                              (play-cljc.transforms/scale sx sy))))]}
   (->> (play-cljc.gl.example-utils/init-example card)
-       (play-cljc.gl.examples-2d/rand-rects-init)
+       (play-cljc.gl.examples-2d/rand-rects-example)
        (play-cljc.gl.example-utils/game-loop
-         play-cljc.gl.examples-2d/rand-rects-render)))
+         (fn rand-rects-render [{:keys [entity rects] :as game}]
+            (play-cljc.gl.example-utils/resize-example game)
+            (play-cljc.gl.core/render game
+              {:clear {:color [1 1 1 1] :depth 1}})
+            focus
+            game))))
 
 ;; image
 
-(defn image-render [{:keys [entity image] :as game}]
-  (eu/resize-example game)
-  (let [game-width (eu/get-width game)
-        game-height (eu/get-height game)
-        screen-ratio (/ game-width game-height)
-        image-ratio (/ (:width image) (:height image))
-        [img-width img-height] (if (> screen-ratio image-ratio)
-                                 [(* game-height (/ (:width image) (:height image))) game-height]
-                                 [game-width (* game-width (/ (:height image) (:width image)))])]
-    (c/render game
-      (-> (assoc entity :viewport {:x 0 :y 0 :width game-width :height game-height})
-          (t/project game-width game-height)
-          (t/translate 0 0)
-          (t/scale img-width img-height))))
-  game)
-
-(defn image-init [game {:keys [data width height] :as image}]
+(defn image-example [game {:keys [data width height] :as image}]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (assoc game
@@ -77,28 +60,34 @@
     :image
     image))
 
-(defexample play-cljc.gl.examples-2d/image
-  {:with-card card}
+(defexample image-example
+  {:with-card card
+   :with-focus [focus (play-cljc.gl.core/render game
+                        (-> entity
+                            (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
+                            (play-cljc.transforms/project game-width game-height)
+                            (play-cljc.transforms/translate 0 0)
+                            (play-cljc.transforms/scale img-width img-height)))]}
   (let [game (play-cljc.gl.example-utils/init-example card)]
     (play-cljc.gl.example-utils/get-image "aintgottaexplainshit.jpg"
       (fn [image]
-        (->> (play-cljc.gl.examples-2d/image-init game image)
+        (->> (play-cljc.gl.examples-2d/image-example game image)
              (play-cljc.gl.example-utils/game-loop
-               play-cljc.gl.examples-2d/image-render))))))
+               (fn image-render [{:keys [entity image] :as game}]
+                 (play-cljc.gl.example-utils/resize-example game)
+                 (let [game-width (play-cljc.gl.example-utils/get-width game)
+                       game-height (play-cljc.gl.example-utils/get-height game)
+                       screen-ratio (/ game-width game-height)
+                       image-ratio (/ (:width image) (:height image))
+                       [img-width img-height] (if (> screen-ratio image-ratio)
+                                                [(* game-height (/ (:width image) (:height image))) game-height]
+                                                [game-width (* game-width (/ (:height image) (:width image)))])]
+                   focus)
+                 game)))))))
 
 ;; translation
 
-(defn translation-render [{:keys [entity *state] :as game}]
-  (eu/resize-example game)
-  (let [{:keys [x y]} @*state]
-    (c/render game
-      (-> (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project (eu/get-width game) (eu/get-height game))
-          (t/translate x y)
-          (t/color [1 0 0.5 1]))))
-  game)
-
-(defn translation-init [game]
+(defn translation-example [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (let [entity (-> (c/compile game (e/->entity game data/f-2d))
@@ -107,30 +96,29 @@
     (eu/listen-for-mouse game *state)
     (assoc game :entity entity :*state *state)))
 
-(defexample play-cljc.gl.examples-2d/translation
-  {:with-card card}
+(defexample translation-example
+  {:with-card card
+   :with-focus [focus (play-cljc.gl.core/render game
+                        (-> (assoc entity :viewport {:x 0 :y 0
+                                                     :width game-width
+                                                     :height game-height})
+                            (play-cljc.transforms/project game-width game-height)
+                            (play-cljc.transforms/translate x y)
+                            (play-cljc.transforms/color [1 0 0.5 1])))]}
   (->> (play-cljc.gl.example-utils/init-example card)
-       (play-cljc.gl.examples-2d/translation-init)
+       (play-cljc.gl.examples-2d/translation-example)
        (play-cljc.gl.example-utils/game-loop
-         play-cljc.gl.examples-2d/translation-render)))
+         (fn translation-render [{:keys [entity *state] :as game}]
+           (play-cljc.gl.example-utils/resize-example game)
+           (let [{:keys [x y]} @*state]
+             (let [game-width (play-cljc.gl.example-utils/get-width game)
+                   game-height (play-cljc.gl.example-utils/get-height game)]
+               focus))
+           game))))
 
 ;; rotation
 
-(defn rotation-render [{:keys [entity *state] :as game}]
-  (eu/resize-example game)
-  (let [{:keys [tx ty r]} @*state]
-    (c/render game
-      (-> entity
-          (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project (eu/get-width game) (eu/get-height game))
-          (t/translate tx ty)
-          (t/rotate r)
-          (t/color [1 0 0.5 1])
-          ;; make it rotate around its center
-          (t/translate -50 -75))))
-  game)
-
-(defn rotation-init [game]
+(defn rotation-example [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (let [entity (-> (c/compile game (e/->entity game data/f-2d))
@@ -141,28 +129,30 @@
     (eu/listen-for-mouse game *state)
     (assoc game :entity entity :*state *state)))
 
-(defexample play-cljc.gl.examples-2d/rotation
-  {:with-card card}
+(defexample rotation-example
+  {:with-card card
+   :with-focus [focus (play-cljc.gl.core/render game
+                        (-> entity
+                            (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
+                            (play-cljc.transforms/project game-width game-height)
+                            (play-cljc.transforms/translate tx ty)
+                            (play-cljc.transforms/rotate r)
+                            (play-cljc.transforms/color [1 0 0.5 1])
+                            (play-cljc.transforms/translate -50 -75)))]}
   (->> (play-cljc.gl.example-utils/init-example card)
-       (play-cljc.gl.examples-2d/rotation-init)
+       (play-cljc.gl.examples-2d/rotation-example)
        (play-cljc.gl.example-utils/game-loop
-         play-cljc.gl.examples-2d/rotation-render)))
+         (fn rotation-render [{:keys [entity *state] :as game}]
+           (play-cljc.gl.example-utils/resize-example game)
+           (let [{:keys [tx ty r]} @*state
+                 game-width (play-cljc.gl.example-utils/get-width game)
+                 game-height (play-cljc.gl.example-utils/get-height game)]
+             focus)
+           game))))
 
 ;; scale
 
-(defn scale-render [{:keys [entity *state] :as game}]
-  (eu/resize-example game)
-  (let [{:keys [tx ty rx ry]} @*state]
-    (c/render game
-      (-> (assoc entity :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-          (t/project (eu/get-width game) (eu/get-height game))
-          (t/translate tx ty)
-          (t/rotate 0)
-          (t/scale rx ry)
-          (t/color [1 0 0.5 1]))))
-  game)
-
-(defn scale-init [game]
+(defn scale-example [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (let [entity (-> (c/compile game (e/->entity game data/f-2d))
@@ -173,36 +163,31 @@
     (eu/listen-for-mouse game *state)
     (assoc game :entity entity :*state *state)))
 
-(defexample play-cljc.gl.examples-2d/scale
-  {:with-card card}
+(defexample scale-example
+  {:with-card card
+   :with-focus [focus (play-cljc.gl.core/render game
+                        (-> (assoc entity :viewport {:x 0 :y 0
+                                                     :width game-width
+                                                     :height game-height})
+                            (play-cljc.transforms/project game-width game-height)
+                            (play-cljc.transforms/translate tx ty)
+                            (play-cljc.transforms/rotate 0)
+                            (play-cljc.transforms/scale rx ry)
+                            (play-cljc.transforms/color [1 0 0.5 1])))]}
   (->> (play-cljc.gl.example-utils/init-example card)
-       (play-cljc.gl.examples-2d/scale-init)
+       (play-cljc.gl.examples-2d/scale-example)
        (play-cljc.gl.example-utils/game-loop
-         play-cljc.gl.examples-2d/scale-render)))
+         (fn scale-render [{:keys [entity *state] :as game}]
+           (play-cljc.gl.example-utils/resize-example game)
+           (let [{:keys [tx ty rx ry]} @*state
+                 game-width (play-cljc.gl.example-utils/get-width game)
+                 game-height (play-cljc.gl.example-utils/get-height game)]
+             focus)
+           game))))
 
 ;; rotation-multi
 
-(defn rotation-multi-render [{:keys [entity *state] :as game}]
-  (eu/resize-example game)
-  (c/render game
-    {:clear {:color [1 1 1 1] :depth 1}})
-  (let [{:keys [tx ty r]} @*state]
-    (loop [i 0
-           entity (-> entity
-                      (assoc :viewport {:x 0 :y 0
-                                        :width (eu/get-width game)
-                                        :height (eu/get-height game)})
-                      (t/project (eu/get-width game) (eu/get-height game))
-                      (t/color [1 0 0.5 1]))]
-      (when (< i 5)
-        (let [entity (-> entity
-                         (t/translate tx ty)
-                         (t/rotate r))]
-          (c/render game entity)
-          (recur (inc i) entity)))))
-  game)
-
-(defn rotation-multi-init [game]
+(defn rotation-multi-example [game]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (let [entity (c/compile game (e/->entity game data/f-2d))
@@ -212,10 +197,31 @@
     (eu/listen-for-mouse game *state)
     (assoc game :entity entity :*state *state)))
 
-(defexample play-cljc.gl.examples-2d/rotation-multi
-  {:with-card card}
+(defexample rotation-multi-example
+  {:with-card card
+   :with-focus [focus (loop [i 0
+                             entity (-> entity
+                                        (assoc :viewport {:x 0 :y 0
+                                                          :width game-width
+                                                          :height game-height})
+                                        (play-cljc.transforms/project game-width game-height)
+                                        (play-cljc.transforms/color [1 0 0.5 1]))]
+                        (when (< i 5)
+                          (let [entity (-> entity
+                                           (play-cljc.transforms/translate tx ty)
+                                           (play-cljc.transforms/rotate r))]
+                            (play-cljc.gl.core/render game entity)
+                            (recur (inc i) entity))))]}
   (->> (play-cljc.gl.example-utils/init-example card)
-       (play-cljc.gl.examples-2d/rotation-multi-init)
+       (play-cljc.gl.examples-2d/rotation-multi-example)
        (play-cljc.gl.example-utils/game-loop
-         play-cljc.gl.examples-2d/rotation-multi-render)))
+         (fn rotation-multi-render [{:keys [entity *state] :as game}]
+           (play-cljc.gl.example-utils/resize-example game)
+           (play-cljc.gl.core/render game
+             {:clear {:color [1 1 1 1] :depth 1}})
+           (let [{:keys [tx ty r]} @*state
+                 game-width (play-cljc.gl.example-utils/get-width game)
+                 game-height (play-cljc.gl.example-utils/get-height game)]
+             focus)
+           game))))
 
