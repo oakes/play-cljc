@@ -174,7 +174,10 @@
   :args (s/cat :game ::game :entity ::uncompiled-entity)
   :ret ::compiled-entity)
 
-(defn compile [game {:keys [vertex fragment attributes uniforms indices] :as m}]
+(defn compile
+  "Initializes the provided entity, compiling the shaders and creating all the
+  necessary state for rendering."
+  [game {:keys [vertex fragment attributes uniforms indices] :as m}]
   (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
         fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
@@ -256,10 +259,12 @@
           :game ::game
           :entity ::renderable))
 
-(defn render [game
-              {:keys [program vao index-count uniforms indices
-                      viewport clear render-to-texture]
-               :as entity}]
+(defn render
+  "Renders the provided entity."
+  [game
+   {:keys [program vao index-count uniforms indices
+           viewport clear render-to-texture]
+    :as entity}]
   (let [previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)

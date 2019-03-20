@@ -1,14 +1,20 @@
 (ns play-cljc.macros-java
   (:require [play-cljc.transforms :as t]))
 
-(defmacro math [n & args]
+(defmacro math
+  "Wraps java.lang.Math, calling a method if the provided symbol starts with a
+  lower-case letter, or a static field if it starts with an upper-case letter."
+  [n & args]
   (let [s (str n)
         l (nth s 0)]
     (if (Character/isUpperCase l)
       (symbol (str 'Math "/" s))
       (cons (symbol (str 'Math "/" s)) args))))
 
-(defmacro gl [_ n & args]
+(defmacro gl
+  "Wraps org.lwjgl.opengl.GL41, calling a method if the provided symbol starts with a
+  lower-case letter, or a static field if it starts with an upper-case letter."
+  [_ n & args]
   (let [s (str n)
         l (nth s 0)
         remaining-letters (subs s 1)]
@@ -18,6 +24,7 @@
             args))))
 
 (defmacro transform
+  "Work in progress! This macro is subject to change/break in future releases."
   ([content]
    (t/transform content))
   ([attrs entity]

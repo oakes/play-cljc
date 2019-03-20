@@ -72,13 +72,13 @@
       (throw (ex-info (expound/expound-str spec content) {}))
       res)))
 
-(defn transform-attrs [{project-args :project
-                        translate-args :translate
-                        rotate-args :rotate
-                        scale-args :scale
-                        color-args :color
-                        camera-args :camera
-                        look-at-args :look-at}]
+(defn- transform-attrs [{project-args :project
+                         translate-args :translate
+                         rotate-args :rotate
+                         scale-args :scale
+                         color-args :color
+                         camera-args :camera
+                         look-at-args :look-at}]
   (cond-> []
           project-args
           (conj
@@ -118,11 +118,14 @@
             (let [args (parse ::look-at look-at-args)]
               `(look-at ~(:target args) ~(:up args))))))
 
-(defn transform-entity [attrs entity]
+(defn transform-entity
+  "Work in progress! Subject to change/break in future releases."
+  [attrs entity]
   (concat ['-> entity]
     (mapcat transform-attrs attrs)))
 
 (defn transform
+  "Work in progress! Subject to change/break in future releases."
   ([content]
    (transform content []))
   ([content parent-attrs]
