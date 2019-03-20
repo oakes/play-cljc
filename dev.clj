@@ -13,7 +13,7 @@
 
 (defmethod task nil
   [_]
-  (dynadoc/-main "--port" "5000")
+  (dynadoc/dev-start {:port 5000, :dedupe-pref :cljs})
   (figwheel/-main "--build" "dev"))
 
 (require '[play-cljc.dev :as dev])

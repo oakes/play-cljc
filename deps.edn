@@ -5,7 +5,6 @@
                               dynadoc {:mvn/version "RELEASE"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.0"}
                               orchestra {:mvn/version "2018.12.06-2"}
-                              defexample {:mvn/version "1.7.0"}
                               org.lwjgl/lwjgl {:mvn/version "3.2.1"}
                               org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.1"}
                               org.lwjgl/lwjgl$natives-macos {:mvn/version "3.2.1"}

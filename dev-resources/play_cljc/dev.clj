@@ -3,6 +3,7 @@
             [play-cljc.gl.examples-3d]
             [play-cljc.gl.examples-advanced]
             [dynadoc.example :as ex]
+            [dynadoc.transform :as transform]
             [orchestra.spec.test :as st]
             [expound.alpha :as expound]
             [clojure.spec.alpha :as s])
@@ -35,12 +36,12 @@
                                 example examples]
                             {:ns-sym ns-sym
                              :ex-sym example-sym
-                             :init-form (list 'let [(:with-card example) window]
-                                          (:body example))})
+                             :ex example
+                             :init-form (transform/transform (assoc example :id window))})
                           vec
                           atom)
             *current-example (atom nil)
-            init-example (fn [{:keys [ns-sym ex-sym init-form] :as example}]
+            init-example (fn [{:keys [ns-sym ex-sym init-form ex] :as example}]
                            (GLFW/glfwSetWindowTitle window
                              (str ns-sym "/" ex-sym "          Press the left and right arrow keys!"))
                            (merge example (eval init-form)))
