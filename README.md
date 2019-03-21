@@ -12,6 +12,7 @@ This will start you off with a little platformer. It will contain a README with 
 
 ## Documentation
 
+* Check out [the example games](https://github.com/oakes/play-cljc-examples)
 * Read [the dynadocs](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.core.html)
   * Check out the interactive [2D](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.examples-2d.html) and [3D](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.examples-3d.html) examples
 * Join the discussion on [r/playcljc](https://www.reddit.com/r/playcljc/)
