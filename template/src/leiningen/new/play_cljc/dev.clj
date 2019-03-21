@@ -17,8 +17,11 @@
   (when (.exists f) (io/delete-file f)))
 
 (defmethod task "nightlight"
-  [_]
-  (nightlight/start {:port 4000 :url "http://localhost:9500"}))
+  [[_ port]]
+  (nightlight/start {:port (if port
+                             (Integer/parseInt port)
+                             4000)
+                     :url "http://localhost:9500"}))
 
 (defmethod task nil
   [_]
@@ -30,7 +33,7 @@
 
 (defmethod task "native"
   [_]
-  (task ["nightlight"])
+  (task ["nightlight" "4001"])
   ({{name}}.start-dev/start))
 
 (task *command-line-args*)
