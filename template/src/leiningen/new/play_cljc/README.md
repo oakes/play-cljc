@@ -15,11 +15,11 @@ To build a release version for the web:
 
 To develop the native version on each OS:
 
-`clj -A:dev:linux -J-XstartOnFirstThread dev.clj native`
+`clj -A:dev:linux dev.clj native`
 
 `clj -A:dev:macos -J-XstartOnFirstThread dev.clj native`
 
-`clj -A:dev:windows -J-XstartOnFirstThread dev.clj native`
+`clj -A:dev:windows dev.clj native`
 
 
 To build the native version as a jar file:
