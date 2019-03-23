@@ -17,22 +17,19 @@
   (p/ensure-dynamic-classloader)
   (-> "project.clj" load-file var-get))
 
-(defn parse-coord [coord]
-  (let [[artifact info] coord
-        s (str artifact)
-        i (str/index-of s "$")]
-    (if i
-      [(symbol (subs s 0 i))
-       (assoc info :classifier (subs s (inc i)))]
-      coord)))
-
 (defn read-deps-edn [aliases-to-include]
   (let [{:keys [paths deps aliases]} (-> "deps.edn" slurp clojure.edn/read-string)
         deps (->> (select-keys aliases aliases-to-include)
                   vals
                   (mapcat :extra-deps)
                   (into deps)
-                  (map parse-coord)
+                  (map (fn parse-coord [coord]
+                         (let [[artifact info] coord
+                               s (str artifact)]
+                           (if-let [i (str/index-of s "$")]
+                             [(symbol (subs s 0 i))
+                              (assoc info :classifier (subs s (inc i)))]
+                             coord))))
                   (reduce
                     (fn [deps [artifact info]]
                       (if-let [version (:mvn/version info)]
