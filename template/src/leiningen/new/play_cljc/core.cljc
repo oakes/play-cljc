@@ -43,8 +43,7 @@
    :clear {:color [(/ 173 255) (/ 216 255) (/ 230 255) 1] :depth 1}})
 
 (defn run [game]
-  (let [{:keys [entities
-                pressed-keys
+  (let [{:keys [pressed-keys
                 player-x
                 player-y
                 direction
