@@ -6,7 +6,7 @@
   lower-case letter, or a static field if it starts with an upper-case letter."
   [n & args]
   (let [s (str n)
-        l (nth s 0)]
+        ^Character l (nth s 0)]
     (if (Character/isUpperCase l)
       (symbol (str 'Math "/" s))
       (cons (symbol (str 'Math "/" s)) args))))
@@ -16,7 +16,7 @@
   lower-case letter, or a static field if it starts with an upper-case letter."
   [_ n & args]
   (let [s (str n)
-        l (nth s 0)
+        ^Character l (nth s 0)
         remaining-letters (subs s 1)]
     (if (Character/isUpperCase l)
       (symbol (str "org.lwjgl.opengl.GL41/GL_" s))
@@ -29,4 +29,3 @@
    (t/transform content))
   ([attrs entity]
    (t/transform-entity attrs entity)))
-

@@ -103,7 +103,7 @@
 
 (defn get-image [fname callback]
   #?(:clj  (let [is (io/input-stream (io/resource (str "dynadoc-extend/cljs/" fname)))
-                 bytes (with-open [out (java.io.ByteArrayOutputStream.)]
+                 ^bytes bytes (with-open [out (java.io.ByteArrayOutputStream.)]
                          (io/copy is out)
                          (.toByteArray out))
                  *width (MemoryUtil/memAllocInt 1)
@@ -148,4 +148,3 @@
              (MemoryUtil/memFree *height)
              n)
      :cljs (-> game :context .-canvas .-clientHeight)))
-

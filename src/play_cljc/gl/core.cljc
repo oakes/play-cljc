@@ -94,7 +94,7 @@
                       (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer)
                       fb))}))
 
-(defn- call-uniform* [game m glsl-type uni-loc uni-name data]
+(defn- call-uniform* [game m glsl-type ^Integer uni-loc uni-name data]
   (case glsl-type
     float     (gl game uniform1f uni-loc #?(:clj (float data) :cljs data))
     vec2      (gl game uniform2fv uni-loc #?(:clj (float-array data) :cljs data))
@@ -104,10 +104,10 @@
     mat3      (gl game uniformMatrix3fv uni-loc false #?(:clj (float-array data) :cljs data))
     mat4      (gl game uniformMatrix4fv uni-loc false #?(:clj (float-array data) :cljs data))
     sampler2D (assoc-in m [:textures uni-name]
-                (create-texture game m uni-loc (update data :data
-                                                 (fn [d]
-                                                   (convert-type game uni-name
-                                                     (-> data :opts :src-type) d)))))))
+                        (create-texture game m uni-loc (update data :data
+                                                               (fn [d]
+                                                                 (convert-type game uni-name
+                                                                               (-> data :opts :src-type) d)))))))
 
 (defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
@@ -184,7 +184,7 @@
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
                        (gl game VERTEX_ARRAY_BINDING))
-        program (u/create-program game vertex-source fragment-source)
+        ^int program (u/create-program game vertex-source fragment-source)
         _ (gl game useProgram program)
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
@@ -201,7 +201,7 @@
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
-                                (gl game getUniformLocation program (name uniform))))
+                                (gl game getUniformLocation program ^String (name uniform))))
                             {}
                             (-> #{}
                                 (into (-> vertex :uniforms keys))
@@ -286,4 +286,3 @@
         (gl game drawArrays (gl game TRIANGLES) 0 index-count)))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)))
-

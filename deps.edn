@@ -1,6 +1,8 @@
 {:paths ["src"]
  :deps {iglu {:mvn/version "0.2.0"}
-        expound {:mvn/version "0.7.2"}}
+        expound {:mvn/version "0.7.2"}
+        net.mikera/core.matrix {:mvn/version "0.62.0"}
+        net.mikera/vectorz-clj {:mvn/version "0.48.0"}}
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                               dynadoc {:mvn/version "RELEASE"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.0"}
@@ -21,5 +23,5 @@
                               org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.1"}
                               org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.1"}
                               org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.1"}}
-                 :extra-paths ["dev-resources"]}
+                 :extra-paths ["target" "dev-resources"]}
            :prod {:extra-deps {leiningen {:mvn/version "2.9.0"}}}}}
