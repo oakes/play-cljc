@@ -104,10 +104,10 @@
     mat3      (gl game uniformMatrix3fv uni-loc false #?(:clj (float-array data) :cljs data))
     mat4      (gl game uniformMatrix4fv uni-loc false #?(:clj (float-array data) :cljs data))
     sampler2D (assoc-in m [:textures uni-name]
-                        (create-texture game m uni-loc (update data :data
-                                                               (fn [d]
-                                                                 (convert-type game uni-name
-                                                                               (-> data :opts :src-type) d)))))))
+                (create-texture game m uni-loc (update data :data
+                                                 (fn [d]
+                                                   (convert-type game uni-name
+                                                     (-> data :opts :src-type) d)))))))
 
 (defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
@@ -201,7 +201,7 @@
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
-                                (gl game getUniformLocation program ^String (name uniform))))
+                                (gl game getUniformLocation program (name uniform))))
                             {}
                             (-> #{}
                                 (into (-> vertex :uniforms keys))

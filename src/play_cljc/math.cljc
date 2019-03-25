@@ -11,77 +11,76 @@
 (defn vector->2d-array [v]
   (#?(:clj to-array-2d :cljs clj->js) v))
 
-#?(:clj
-   (do
-    (defn identity-matrix [size]
-      (flatten (mat/to-nested-vectors (mat/identity-matrix size))))
+(defn identity-matrix [size]
+  #?(:clj
+     (vec (mat/as-vector (mat/identity-matrix size)))
 
-    (defn multiply-matrices [size m1 m2]
-      (let [m1 (mat/array (partition size m1))
-            m2 (mat/array (partition size (or m2 (identity-matrix size))))]
-        (flatten (mat/to-nested-vectors (mat/mmul m1 m2)))))
-
-    (defn inverse-matrix [size m]
-      (let [mc (mat/array (partition size m))]
-        (flatten (mat/to-nested-vectors (mat/inverse mc))))))
-
-   :cljs
-   (do
-    (defn identity-matrix [size]
-      (vec (for [row (range size)
+     :cljs
+     (vec (for [row (range size)
                 col (range size)]
-            (if (= row col) 1 0))))
+            (if (= row col) 1 0)))))
 
-    (defn multiply-matrices [size m1 m2]
-      (let [m1 (mapv vec (partition size m1))
-            m2 (mapv vec (partition size (or m2 (identity-matrix size))))
-            result (for [i (range size)
+(defn multiply-matrices [size m1 m2]
+  #?(:clj
+     (let [m1 (mat/array (partition size m1))
+           m2 (mat/array (partition size (or m2 (identity-matrix size))))]
+       (vec (mat/as-vector (mat/mmul m1 m2))))
+
+     :cljs
+     (let [m1 (mapv vec (partition size m1))
+           m2 (mapv vec (partition size (or m2 (identity-matrix size))))
+           result (for [i (range size)
                         j (range size)]
                     (reduce
-                      (fn [sum k]
-                        (+ sum (* (get-in m1 [i k])
-                                  (get-in m2 [k j]))))
-                      0
-                      (range size)))]
-        (vec result)))
+                     (fn [sum k]
+                       (+ sum (* (get-in m1 [i k])
+                                 (get-in m2 [k j]))))
+                     0
+                     (range size)))]
+       (vec result))))
 
-    (defn inverse-matrix [size m]
-      (let [mc (mapv vec (partition size m))
-            mi (mapv vec (for [i (range size)]
-                          (for [j (range size)]
-                            (if (= i j) 1 0))))
-            mc (vector->2d-array mc)
-            mi (vector->2d-array mi)]
-        (dotimes [i size]
-          (when (= 0 (aget mc i i))
-            (loop [r (range (+ i 1) size)]
-              (when-let [ii (first r)]
-                (if (not= 0 (aget mc ii i))
-                  (dotimes [j size]
-                    (let [e (aget mc i j)]
-                      (aset mc i j (aget mc ii j))
-                      (aset mc ii j e))
-                    (let [e (aget mi i j)]
-                      (aset mi i j (aget mi ii j))
-                      (aset mi ii j e)))
-                  (recur (rest r))))))
-          (let [e (aget mc i i)]
-            (when (= 0 e)
-              (throw (ex-info "Not invertable" {})))
-            (dotimes [j size]
-              (aset mc i j (/ (aget mc i j) e))
-              (aset mi i j (/ (aget mi i j) e))))
-          (dotimes [ii size]
-            (when (not= i ii)
-              (let [e (aget mc ii i)]
-                (dotimes [j size]
-                  (aset mc ii j
-                    (- (aget mc ii j)
-                      (* e (aget mc i j))))
-                  (aset mi ii j
-                    (- (aget mi ii j)
-                      (* e (aget mi i j)))))))))
-    (->> mi seq (apply concat) vec)))))
+(defn inverse-matrix [size m]
+  #?(:clj
+     (let [mc (mat/array (partition size m))]
+       (vec (mat/as-vector (mat/inverse mc))))
+
+     :cljs
+     (let [mc (mapv vec (partition size m))
+           mi (mapv vec (for [i (range size)]
+                         (for [j (range size)]
+                           (if (= i j) 1 0))))
+           mc (vector->2d-array mc)
+           mi (vector->2d-array mi)]
+       (dotimes [i size]
+         (when (= 0 (aget mc i i))
+           (loop [r (range (+ i 1) size)]
+             (when-let [ii (first r)]
+               (if (not= 0 (aget mc ii i))
+                 (dotimes [j size]
+                   (let [e (aget mc i j)]
+                     (aset mc i j (aget mc ii j))
+                     (aset mc ii j e))
+                   (let [e (aget mi i j)]
+                     (aset mi i j (aget mi ii j))
+                     (aset mi ii j e)))
+                 (recur (rest r))))))
+         (let [e (aget mc i i)]
+           (when (= 0 e)
+             (throw (ex-info "Not invertable" {})))
+           (dotimes [j size]
+             (aset mc i j (/ (aget mc i j) e))
+             (aset mi i j (/ (aget mi i j) e))))
+         (dotimes [ii size]
+           (when (not= i ii)
+             (let [e (aget mc ii i)]
+               (dotimes [j size]
+                 (aset mc ii j
+                   (- (aget mc ii j)
+                     (* e (aget mc i j))))
+                 (aset mi ii j
+                   (- (aget mi ii j)
+                     (* e (aget mi i j)))))))))
+       (->> mi seq (apply concat) vec))))
 
 (defn deg->rad [d]
   (-> d (* (math PI)) (/ 180)))

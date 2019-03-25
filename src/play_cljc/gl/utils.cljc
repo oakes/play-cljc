@@ -26,7 +26,7 @@
 (defn create-buffer
   ([game program attrib-name src-data]
    (create-buffer game program attrib-name src-data {}))
-  ([game ^Integer program ^String attrib-name src-data
+  ([game program attrib-name src-data
     {:keys [size type normalize stride offset]
      :or {normalize false stride 0 offset 0}}]
    (let [attrib-location (gl game getAttribLocation program attrib-name)
