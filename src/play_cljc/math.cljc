@@ -165,7 +165,6 @@
     [(/ 2 width) 0 0 0
      0 (/ 2 height) 0 0
      0 0 (/ 2 depth) 0
-
      (/ (+ left right)
         (- left right))
      (/ (+ bottom top)
@@ -221,3 +220,4 @@
      (nth y-axis 0) (nth y-axis 1) (nth y-axis 2) 0
      (nth z-axis 0) (nth z-axis 1) (nth z-axis 2) 0
      (nth camera-pos 0) (nth camera-pos 1) (nth camera-pos 2) 1]))
+

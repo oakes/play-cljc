@@ -2,7 +2,7 @@
   (:require #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
 
-(defn- create-shader [game type ^String source]
+(defn- create-shader [game type source]
   (let [shader (gl game createShader type)]
     (gl game shaderSource shader source)
     (gl game compileShader shader)
@@ -42,3 +42,4 @@
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) index-buffer)
     (gl game bufferData (gl game ELEMENT_ARRAY_BUFFER) indices (gl game STATIC_DRAW))
     (#?(:clj count :cljs .-length) indices)))
+

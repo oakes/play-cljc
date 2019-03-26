@@ -184,7 +184,7 @@
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
                        (gl game VERTEX_ARRAY_BINDING))
-        ^int program (u/create-program game vertex-source fragment-source)
+        program (u/create-program game vertex-source fragment-source)
         _ (gl game useProgram program)
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
@@ -286,3 +286,4 @@
         (gl game drawArrays (gl game TRIANGLES) 0 index-count)))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)))
+
