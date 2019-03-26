@@ -23,5 +23,5 @@
                               org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.1"}
                               org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.1"}
                               org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.1"}}
-                 :extra-paths ["target" "dev-resources"]}
+                 :extra-paths ["dev-resources"]}
            :prod {:extra-deps {leiningen {:mvn/version "2.9.0"}}}}}
