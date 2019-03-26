@@ -1,9 +1,7 @@
 (ns play-cljc.math
   (:require #?@(:clj  [[play-cljc.macros-java :refer [math]]
-                       [clojure.core.matrix :as mat]]
+                       [mikera.vectorz.matrix :as mat]]
                 :cljs [[play-cljc.macros-js :refer-macros [math]]])))
-
-#?(:clj (mat/set-current-implementation :vectorz))
 
 (defn vector->array [v]
   (#?(:clj float-array :cljs clj->js) v))
@@ -22,9 +20,9 @@
 
 (defn multiply-matrices [size m1 m2]
   #?(:clj
-     (let [m1 (mat/array (partition size m1))
-           m2 (mat/array (partition size (or m2 (identity-matrix size))))]
-       (vec (mat/as-vector (mat/mmul m1 m2))))
+     (let [m1 (mat/matrix (partition size m1))
+           m2 (mat/matrix (partition size (or m2 (identity-matrix size))))]
+       (vec (mat/as-vector (mat/* m1 m2))))
 
      :cljs
      (let [m1 (mapv vec (partition size m1))
@@ -41,7 +39,7 @@
 
 (defn inverse-matrix [size m]
   #?(:clj
-     (let [mc (mat/array (partition size m))]
+     (let [mc (mat/matrix (partition size m))]
        (vec (mat/as-vector (mat/inverse mc))))
 
      :cljs
