@@ -23,7 +23,7 @@
         camera-pos [0 0 100]
         target [0 0 0]
         up [0 1 0]
-        camera-matrix (m/look-at camera-pos target up)
+        camera-matrix (m/look-at-matrix-3d camera-pos target up)
         view-matrix (m/inverse-matrix 4 camera-matrix)
         view-projection-matrix (m/multiply-matrices 4 view-matrix projection-matrix)
         entity (assoc entity

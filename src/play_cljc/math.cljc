@@ -210,7 +210,7 @@
        (/ (nth v 2) length)]
       [0 0 0])))
 
-(defn look-at [camera-pos target up]
+(defn look-at-matrix-3d [camera-pos target up]
   (let [z-axis (normalize (subtract-vectors camera-pos target))
         x-axis (normalize (cross up z-axis))
         y-axis (normalize (cross z-axis x-axis))]

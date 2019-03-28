@@ -61,7 +61,7 @@
                       (nth matrix 14)]]
       (when (= camera-pos target)
         (throw (ex-info "The camera's position is the same as the target" {:target target})))
-      (assoc camera :matrix (m/look-at camera-pos target up)))))
+      (assoc camera :matrix (m/look-at-matrix-3d camera-pos target up)))))
 
 (defn ->camera []
   (->Camera (m/identity-matrix 4)))
