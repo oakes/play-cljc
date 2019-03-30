@@ -24,6 +24,12 @@
   (rotate [entity angle]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 3 (m/rotation-matrix angle) %)))
+  t/ICamera
+  (camera [entity {:keys [matrix]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(->> %
+            (m/multiply-matrices 3 matrix)
+            (m/multiply-matrices 3 (m/scaling-matrix -1 -1)))))
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba))
@@ -37,6 +43,21 @@
                 (m/translation-matrix (/ crop-x width) (/ crop-y height)))
               (m/multiply-matrices 3
                 (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))))
+
+(defrecord Camera [matrix])
+
+(extend-type Camera
+  t/ITranslate
+  (translate [camera x y]
+    (update camera :matrix
+      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
+  t/IRotate
+  (rotate [camera angle]
+    (update camera :matrix
+      #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
+
+(defn ->camera []
+  (->Camera (m/look-at-matrix [0 0 1] [0 -1 0])))
 
 (def ^:private two-d-vertex-shader
   {:attributes

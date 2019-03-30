@@ -94,6 +94,30 @@
                 (nth m (-> j (* 4) (+ i))))))))
     (vec dst)))
 
+(defn- cross [a b]
+  [(- (* (nth a 1) (nth b 2))
+      (* (nth a 2) (nth b 1)))
+   (- (* (nth a 2) (nth b 0))
+      (* (nth a 0) (nth b 2)))
+   (- (* (nth a 0) (nth b 1))
+      (* (nth a 1) (nth b 0)))])
+
+(defn- subtract-vectors [a b]
+  [(- (nth a 0) (nth b 0))
+   (- (nth a 1) (nth b 1))
+   (- (nth a 2) (nth b 2))])
+
+(defn- normalize [v]
+  (let [length (math sqrt
+                 (+ (* (nth v 0) (nth v 0))
+                    (* (nth v 1) (nth v 1))
+                    (* (nth v 2) (nth v 2))))]
+    (if (> length 0.00001)
+      [(/ (nth v 0) length)
+       (/ (nth v 1) length)
+       (/ (nth v 2) length)]
+      [0 0 0])))
+
 ;; two-d
 
 (defn translation-matrix [tx ty]
@@ -117,6 +141,14 @@
   [(/ 2 width) 0 0
    0 (/ -2 height) 0
    -1 1 1])
+
+(defn look-at-matrix [target up]
+  (let [z-axis (normalize target)
+        x-axis (normalize (cross up z-axis))
+        y-axis (normalize (cross z-axis x-axis))]
+    [(nth x-axis 0) (nth x-axis 1) (nth x-axis 2)
+     (nth y-axis 0) (nth y-axis 1) (nth y-axis 2)
+     (nth z-axis 0) (nth z-axis 1) (nth z-axis 2)]))
 
 ;; three-d
 
@@ -185,30 +217,6 @@
    (nth m 1) (nth m 5) (nth m 9) (nth m 13)
    (nth m 2) (nth m 6) (nth m 10) (nth m 14)
    (nth m 3) (nth m 7) (nth m 11) (nth m 15)])
-
-(defn- cross [a b]
-  [(- (* (nth a 1) (nth b 2))
-      (* (nth a 2) (nth b 1)))
-   (- (* (nth a 2) (nth b 0))
-      (* (nth a 0) (nth b 2)))
-   (- (* (nth a 0) (nth b 1))
-      (* (nth a 1) (nth b 0)))])
-
-(defn- subtract-vectors [a b]
-  [(- (nth a 0) (nth b 0))
-   (- (nth a 1) (nth b 1))
-   (- (nth a 2) (nth b 2))])
-
-(defn- normalize [v]
-  (let [length (math sqrt
-                 (+ (* (nth v 0) (nth v 0))
-                    (* (nth v 1) (nth v 1))
-                    (* (nth v 2) (nth v 2))))]
-    (if (> length 0.00001)
-      [(/ (nth v 0) length)
-       (/ (nth v 1) length)
-       (/ (nth v 2) length)]
-      [0 0 0])))
 
 (defn look-at-matrix-3d [camera-pos target up]
   (let [z-axis (normalize (subtract-vectors camera-pos target))
