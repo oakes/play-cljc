@@ -7,6 +7,8 @@
 
 (defrecord TwoDEntity [])
 
+(def ^:private reverse-matrix (m/scaling-matrix -1 -1))
+
 (extend-type TwoDEntity
   t/IProject
   (project [entity width height]
@@ -29,7 +31,7 @@
     (update-in entity [:uniforms 'u_matrix]
       #(->> %
             (m/multiply-matrices 3 matrix)
-            (m/multiply-matrices 3 (m/scaling-matrix -1 -1)))))
+            (m/multiply-matrices 3 reverse-matrix))))
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba))
