@@ -16,24 +16,18 @@
       (delete-children-recursively! f2)))
   (when (.exists f) (io/delete-file f)))
 
-(defmethod task "nightlight"
-  [[_ port]]
-  (nightlight/start {:port (if port
-                             (Integer/parseInt port)
-                             4000)
-                     :url "http://localhost:9500"}))
-
 (defmethod task nil
   [_]
   (delete-children-recursively! (io/file "resources/public/main.out"))
-  (task ["nightlight"])
+  (nightlight/start {:port 4000
+                     :url "http://localhost:9500"})
   (figwheel/-main "--build" "dev"))
 
 (require '[{{name}}.start-dev])
 
 (defmethod task "native"
   [_]
-  (task ["nightlight" "4001"])
+  (nightlight/start {:port 4001})
   ({{name}}.start-dev/start))
 
 (task *command-line-args*)
