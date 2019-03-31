@@ -58,8 +58,13 @@
     (update camera :matrix
       #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
 
-(defn ->camera []
-  (->Camera (m/look-at-matrix [0 0 1] [0 -1 0])))
+(defn ->camera
+  ([]
+   (->Camera (m/identity-matrix 3)))
+  ([y-down?]
+   (->Camera (if y-down?
+               (m/look-at-matrix [0 0 1] [0 -1 0])
+               (m/look-at-matrix [0 0 -1] [0 1 0])))))
 
 (def ^:private two-d-vertex-shader
   {:attributes
