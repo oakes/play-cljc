@@ -8,7 +8,7 @@ You can generate a new project with the [The Clojure CLI Tool](https://clojure.o
 
 `clj -Sdeps '{:deps {leiningen {:mvn/version "2.9.0"}}}' -m leiningen.core.main new play-cljc hello-world`
 
-This will start you off with a little platformer. It will contain a README with all the commands you need to use. To make music, [edna](https://github.com/oakes/edna) is a good companion library, and the template above is preconfigured with it.
+This will start you off with a little platformer. It will contain a README with all the commands you need to use.
 
 ## Documentation
 
@@ -17,6 +17,12 @@ This will start you off with a little platformer. It will contain a README with 
   * Check out the interactive [2D](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.examples-2d.html) and [3D](https://oakes.github.io/play-cljc/cljs/play-cljc.gl.examples-3d.html) examples
 * Join the discussion on [r/playcljc](https://www.reddit.com/r/playcljc/)
 * Watch my [intro screencast](https://www.youtube.com/watch?v=y6WpUdECwmA)
+
+## Companion Libraries
+
+* [edna](https://github.com/oakes/edna) - Create MIDI music (the template above is preconfigured with it)
+* [tile-soup](https://github.com/oakes/tile-soup) - Parse tiled maps
+* [play-cljc.text](https://github.com/oakes/play-cljc.text) - Render text
 
 ## Development
 
