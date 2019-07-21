@@ -163,11 +163,11 @@
 (s/def ::vao #?(:clj integer? :cljs #(instance? js/WebGLVertexArrayObject %)))
 (s/def ::uniform-locations (s/map-of symbol? ::location))
 (s/def ::textures (s/map-of symbol? ::texture-map))
-(s/def ::index-count integer?)
+(s/def ::draw-count integer?)
 
 (s/def ::compiled-entity
   (s/keys
-    :req-un [::program ::vao ::uniform-locations ::textures ::index-count]
+    :req-un [::program ::vao ::uniform-locations ::textures ::draw-count]
     :opt-un [::render-to-texture]))
 
 (s/fdef compile
@@ -218,7 +218,7 @@
                          :vao vao
                          :uniform-locations uniform-locations
                          :textures {}
-                         :index-count (or index-count vertex-count)})
+                         :draw-count (or index-count vertex-count)})
         entity (reduce
                  (partial call-uniform game)
                  entity
@@ -266,7 +266,7 @@
 (defn render
   "Renders the provided entity."
   [game
-   {:keys [program vao index-count uniforms indices
+   {:keys [program vao draw-count uniforms indices
            viewport clear render-to-texture]
     :as entity}]
   (let [previous-program (gl game #?(:clj getInteger :cljs getParameter)
@@ -284,10 +284,10 @@
       (some->> entity :render-to-texture (render->texture game textures)))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
-    (when index-count
+    (when draw-count
       (if-let [{:keys [type]} indices]
-        (gl game drawElements (gl game TRIANGLES) index-count type 0)
-        (gl game drawArrays (gl game TRIANGLES) 0 index-count)))
+        (gl game drawElements (gl game TRIANGLES) draw-count type 0)
+        (gl game drawArrays (gl game TRIANGLES) 0 draw-count)))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)))
 
