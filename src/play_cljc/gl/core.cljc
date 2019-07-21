@@ -195,6 +195,9 @@
                                      (u/create-buffer game program (name attr-name) data opts)
                                      (/ (#?(:clj count :cljs .-length) data) size))))
                            set)
+        vertex-count (if (<= (count vertex-counts) 1)
+                       (first vertex-counts)
+                       (throw (ex-info "The :attributes have an inconsistent number of vertices" {})))
         entity (if-let [data (:data indices)]
                  (let [ctor (or (attribute-type->constructor game (:type indices))
                                 (throw (ex-info "The :type provided to :indices is invalid" {})))
@@ -202,10 +205,7 @@
                    (assoc entity
                      :draw-count (#?(:clj count :cljs .-length) data)
                      :index-buffer (u/create-index-buffer game data)))
-                 (assoc entity :draw-count
-                   (if (<= (count vertex-counts) 1)
-                     (first vertex-counts)
-                     (throw (ex-info "The :attributes have an inconsistent number of vertices" {})))))
+                 (assoc entity :draw-count vertex-count))
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
