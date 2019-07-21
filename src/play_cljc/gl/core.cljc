@@ -188,11 +188,15 @@
         _ (gl game useProgram program)
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
-        counts (mapv (fn [[attr-name {:keys [data type] :as opts}]]
-                       (u/create-buffer game program (name attr-name)
-                         (convert-type game attr-name type data)
-                         opts))
-                 attributes)
+        vertex-counts (->> attributes
+                           (mapv (fn [[attr-name {:keys [data type] :as opts}]]
+                                   (u/create-buffer game program (name attr-name)
+                                     (convert-type game attr-name type data)
+                                     opts)))
+                           set)
+        vertex-count (if (<= (count vertex-counts) 1)
+                       (first vertex-counts)
+                       (throw (ex-info "The :attributes have an inconsistent number of vertices" {})))
         index-count (some->> indices
                              :data
                              ((or (attribute-type->constructor game (:type indices))
@@ -214,7 +218,7 @@
                          :vao vao
                          :uniform-locations uniform-locations
                          :textures {}
-                         :index-count (or index-count (apply max counts))})
+                         :index-count (or index-count vertex-count)})
         entity (reduce
                  (partial call-uniform game)
                  entity
