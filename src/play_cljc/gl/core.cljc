@@ -164,11 +164,12 @@
 (s/def ::uniform-locations (s/map-of symbol? ::location))
 (s/def ::textures (s/map-of symbol? ::texture-map))
 (s/def ::draw-count integer?)
+(s/def ::index-buffer #?(:clj integer? :cljs #(instance? js/WebGLBuffer %)))
 
 (s/def ::compiled-entity
   (s/keys
     :req-un [::program ::vao ::uniform-locations ::textures ::draw-count]
-    :opt-un [::render-to-texture]))
+    :opt-un [::render-to-texture ::index-buffer]))
 
 (s/fdef compile
   :args (s/cat :game ::game :entity ::uncompiled-entity)
@@ -177,7 +178,7 @@
 (defn compile
   "Initializes the provided entity, compiling the shaders and creating all the
   necessary state for rendering."
-  [game {:keys [vertex fragment attributes uniforms indices] :as m}]
+  [game {:keys [vertex fragment attributes uniforms indices] :as entity}]
   (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
         fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
@@ -189,19 +190,22 @@
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
         vertex-counts (->> attributes
-                           (mapv (fn [[attr-name {:keys [data type] :as opts}]]
-                                   (u/create-buffer game program (name attr-name)
-                                     (convert-type game attr-name type data)
-                                     opts)))
+                           (mapv (fn [[attr-name {:keys [size data type] :as opts}]]
+                                   (let [data (convert-type game attr-name type data)]
+                                     (u/create-buffer game program (name attr-name) data opts)
+                                     (/ (#?(:clj count :cljs .-length) data) size))))
                            set)
-        vertex-count (if (<= (count vertex-counts) 1)
-                       (first vertex-counts)
-                       (throw (ex-info "The :attributes have an inconsistent number of vertices" {})))
-        index-count (some->> indices
-                             :data
-                             ((or (attribute-type->constructor game (:type indices))
-                                  (throw (ex-info "The :type provided to :indices is invalid" {}))))
-                             (u/create-index-buffer game))
+        entity (if-let [data (:data indices)]
+                 (let [ctor (or (attribute-type->constructor game (:type indices))
+                                (throw (ex-info "The :type provided to :indices is invalid" {})))
+                       data (ctor data)]
+                   (assoc entity
+                     :draw-count (#?(:clj count :cljs .-length) data)
+                     :index-buffer (u/create-index-buffer game data)))
+                 (assoc entity :draw-count
+                   (if (<= (count vertex-counts) 1)
+                     (first vertex-counts)
+                     (throw (ex-info "The :attributes have an inconsistent number of vertices" {})))))
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
@@ -210,20 +214,19 @@
                             (-> #{}
                                 (into (-> vertex :uniforms keys))
                                 (into (-> fragment :uniforms keys))))
-        entity (merge m {:vertex vertex
-                         :fragment fragment
-                         :vertex-source vertex-source
-                         :fragment-source fragment-source
-                         :program program
-                         :vao vao
-                         :uniform-locations uniform-locations
-                         :textures {}
-                         :draw-count (or index-count vertex-count)})
+        entity (merge entity {:vertex vertex
+                              :fragment fragment
+                              :vertex-source vertex-source
+                              :fragment-source fragment-source
+                              :program program
+                              :vao vao
+                              :uniform-locations uniform-locations
+                              :textures {}})
         entity (reduce
                  (partial call-uniform game)
                  entity
                  uniforms)]
-    (some->> m :render-to-texture (render->texture game (:textures entity)))
+    (some->> entity :render-to-texture (render->texture game (:textures entity)))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)
     (dissoc entity :uniforms :attributes :render-to-texture)))
@@ -267,14 +270,17 @@
   "Renders the provided entity."
   [game
    {:keys [program vao draw-count uniforms indices
-           viewport clear render-to-texture]
+           viewport clear render-to-texture index-buffer]
     :as entity}]
   (let [previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
-                       (gl game VERTEX_ARRAY_BINDING))]
+                       (gl game VERTEX_ARRAY_BINDING))
+        previous-index-buffer (gl game #?(:clj getInteger :cljs getParameter)
+                                (gl game ELEMENT_ARRAY_BUFFER_BINDING))]
     (some->> program (gl game useProgram))
     (some->> vao (gl game bindVertexArray))
+    (some->> index-buffer (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER)))
     (let [{:keys [textures]} (reduce
                                (partial call-uniform game)
                                entity
@@ -289,5 +295,6 @@
         (gl game drawElements (gl game TRIANGLES) draw-count type 0)
         (gl game drawArrays (gl game TRIANGLES) 0 draw-count)))
     (gl game useProgram previous-program)
-    (gl game bindVertexArray previous-vao)))
+    (gl game bindVertexArray previous-vao)
+    (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)))
 

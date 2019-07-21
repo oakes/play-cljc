@@ -30,16 +30,22 @@
     {:keys [size type normalize stride offset]
      :or {normalize false stride 0 offset 0}}]
    (let [attrib-location (gl game getAttribLocation program attrib-name)
+         previous-buffer (gl game #?(:clj getInteger :cljs getParameter)
+                           (gl game ARRAY_BUFFER_BINDING))
          buffer (gl game #?(:clj genBuffers :cljs createBuffer))]
      (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)
      (gl game enableVertexAttribArray attrib-location)
      (gl game vertexAttribPointer attrib-location size type normalize stride offset)
      (gl game bufferData (gl game ARRAY_BUFFER) src-data (gl game STATIC_DRAW))
-     (/ (#?(:clj count :cljs .-length) src-data) size))))
+     (gl game bindBuffer (gl game ARRAY_BUFFER) previous-buffer)
+     buffer)))
 
 (defn create-index-buffer [game indices]
-  (let [index-buffer (gl game #?(:clj genBuffers :cljs createBuffer))]
+  (let [previous-index-buffer (gl game #?(:clj getInteger :cljs getParameter)
+                                (gl game ELEMENT_ARRAY_BUFFER_BINDING))
+        index-buffer (gl game #?(:clj genBuffers :cljs createBuffer))]
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) index-buffer)
     (gl game bufferData (gl game ELEMENT_ARRAY_BUFFER) indices (gl game STATIC_DRAW))
-    (#?(:clj count :cljs .-length) indices)))
+    (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)
+    index-buffer))
 
