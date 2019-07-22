@@ -207,10 +207,11 @@
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
         attr-buffers (mapv (fn [[attr-name {:keys [data type] :as opts}]]
-                             (let [type-name (get-attribute-type entity attr-name)
+                             (let [buffer (u/create-buffer game)
+                                   type-name (get-attribute-type entity attr-name)
                                    opts (merge (type->attribute-opts type-name) opts)
                                    data (convert-type game attr-name type data)]
-                               (u/create-buffer game program (name attr-name) data opts)))
+                               (u/set-array-buffer game program buffer (name attr-name) data opts)))
                        attributes)
         divisor->draw-count (reduce-kv
                               (fn [m divisor buffers]
@@ -226,7 +227,8 @@
         entity (if-let [data (:data indices)]
                  (let [ctor (or (attribute-type->constructor game (:type indices))
                                 (throw (ex-info "The :type provided to :indices is invalid" {})))
-                       {:keys [draw-count buffer]} (u/create-index-buffer game (ctor data))]
+                       buffer (u/create-buffer game)
+                       {:keys [draw-count]} (u/set-index-buffer game buffer (ctor data))]
                    (assoc entity :draw-count draw-count :index-buffer buffer))
                  (cond-> entity
                          vertex-count (assoc :draw-count vertex-count)
