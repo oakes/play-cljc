@@ -45,6 +45,7 @@
          (gl game vertexAttribDivisor loc divisor)))
      (gl game bindBuffer (gl game ARRAY_BUFFER) previous-buffer)
      {:buffer buffer
+      :divisor divisor
       :draw-count (/ (#?(:clj count :cljs .-length) data) total-size)})))
 
 (defn create-index-buffer [game indices]

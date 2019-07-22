@@ -161,7 +161,6 @@
 (s/def ::type integer?)
 (s/def ::attribute (s/keys :req-un [::data ::type]))
 (s/def ::attributes (s/map-of symbol? ::attribute))
-(s/def ::instanced-attributes (s/map-of symbol? ::attribute))
 (s/def ::uniforms (s/map-of symbol? (s/or
                                       :texture-uniform ::texture-uniform
                                       :uniform ::data)))
@@ -174,7 +173,7 @@
 (s/def ::uncompiled-entity
   (s/keys
     :req-un [::vertex ::fragment]
-    :opt-un [::attributes ::instanced-attributes ::uniforms ::indices ::render-to-texture]))
+    :opt-un [::attributes ::uniforms ::indices ::render-to-texture]))
 
 (s/def ::program #?(:clj integer? :cljs #(instance? js/WebGLProgram %)))
 (s/def ::vao #?(:clj integer? :cljs #(instance? js/WebGLVertexArrayObject %)))
@@ -186,8 +185,8 @@
 
 (s/def ::compiled-entity
   (s/keys
-    :req-un [::program ::vao ::uniform-locations ::textures ::draw-count]
-    :opt-un [::render-to-texture ::instance-count ::index-buffer]))
+    :req-un [::program ::vao ::uniform-locations ::textures]
+    :opt-un [::render-to-texture ::draw-count ::instance-count ::index-buffer]))
 
 (s/fdef compile
   :args (s/cat :game ::game :entity ::uncompiled-entity)
@@ -196,7 +195,7 @@
 (defn compile
   "Initializes the provided entity, compiling the shaders and creating all the
   necessary state for rendering."
-  [game {:keys [vertex fragment attributes instanced-attributes uniforms indices] :as entity}]
+  [game {:keys [vertex fragment attributes uniforms indices] :as entity}]
   (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
         fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
@@ -207,27 +206,23 @@
         _ (gl game useProgram program)
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
-        vertex-counts (->> attributes
-                           (map (fn [[attr-name {:keys [data type] :as opts}]]
-                                  (let [type-name (get-attribute-type entity attr-name)
-                                        opts (merge (type->attribute-opts type-name) opts)
-                                        data (convert-type game attr-name type data)]
-                                    (:draw-count (u/create-buffer game program (name attr-name) data opts)))))
-                           set)
-        instance-counts (->> instanced-attributes
-                           (map (fn [[attr-name {:keys [data type] :as opts}]]
-                                  (let [type-name (get-attribute-type entity attr-name)
-                                        opts (merge (type->attribute-opts type-name) opts)
-                                        opts (update opts :divisor #(or % 1))
-                                        data (convert-type game attr-name type data)]
-                                    (:draw-count (u/create-buffer game program (name attr-name) data opts)))))
-                             set)
-        vertex-count (if (<= (count vertex-counts) 1)
-                       (first vertex-counts)
-                       (throw (ex-info "The :attributes have an inconsistent number of vertices" {})))
-        instance-count (if (<= (count instance-counts) 1)
-                         (first instance-counts)
-                         (throw (ex-info "The :instanced-attributes have an inconsistent number of instances" {})))
+        attr-buffers (mapv (fn [[attr-name {:keys [data type] :as opts}]]
+                             (let [type-name (get-attribute-type entity attr-name)
+                                   opts (merge (type->attribute-opts type-name) opts)
+                                   data (convert-type game attr-name type data)]
+                               (u/create-buffer game program (name attr-name) data opts)))
+                       attributes)
+        divisor->draw-count (reduce-kv
+                              (fn [m divisor buffers]
+                                (let [draw-counts (->> buffers (map :draw-count) set)]
+                                  (if (not= 1 (count draw-counts))
+                                    (throw (ex-info (str "The data in :attributes has an inconsistent size")
+                                                    {:divisor divisor}))
+                                    (assoc m divisor (first draw-counts)))))
+                              {}
+                              (group-by :divisor attr-buffers))
+        vertex-count (divisor->draw-count 0)
+        instance-count (divisor->draw-count 1)
         entity (if-let [data (:data indices)]
                  (let [ctor (or (attribute-type->constructor game (:type indices))
                                 (throw (ex-info "The :type provided to :indices is invalid" {})))
