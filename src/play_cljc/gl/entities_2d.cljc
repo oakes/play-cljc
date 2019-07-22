@@ -64,7 +64,7 @@
               (m/look-at-matrix [0 0 -1] [0 1 0]))))
 
 (def ^:private two-d-vertex-shader
-  {:attributes
+  {:inputs
    '{a_position vec2}
    :uniforms
    '{u_matrix mat3}
@@ -97,12 +97,12 @@
        map->TwoDEntity))
 
 (def ^:private image-vertex-shader
-  {:attributes
+  {:inputs
    '{a_position vec2}
    :uniforms
    '{u_matrix mat3
      u_textureMatrix mat3}
-   :varyings
+   :outputs
    '{v_texCoord vec2}
    :signatures
    '{main ([] void)}
@@ -118,7 +118,7 @@
   {:precision "mediump float"
    :uniforms
    '{u_image sampler2D}
-   :varyings
+   :inputs
    '{v_texCoord vec2}
    :outputs
    '{outColor vec4}

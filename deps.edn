@@ -1,5 +1,5 @@
 {:paths ["src"]
- :deps {iglu {:mvn/version "0.5.0"}
+ :deps {iglu {:mvn/version "0.6.3"}
         expound {:mvn/version "0.7.2"}
         net.mikera/vectorz-clj {:mvn/version "0.48.0"
                                 :exclusions [net.mikera/core.matrix]}}

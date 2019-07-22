@@ -67,7 +67,7 @@
   (->Camera (m/identity-matrix 4)))
 
 (def ^:private three-d-uniform-colors-vertex-shader
-  {:attributes
+  {:inputs
    '{a_position vec4}
    :uniforms
    '{u_matrix mat4}
@@ -89,12 +89,12 @@
    '{main ([] (= outColor u_color))}})
 
 (def ^:private three-d-attribute-colors-vertex-shader
-  {:attributes
+  {:inputs
    '{a_position vec4
      a_color vec4}
    :uniforms
    '{u_matrix mat4}
-   :varyings
+   :outputs
    '{v_color vec4}
    :signatures
    '{main ([] void)}
@@ -105,7 +105,7 @@
 
 (def ^:private three-d-attribute-colors-fragment-shader
   {:precision "mediump float"
-   :varyings
+   :inputs
    '{v_color vec4}
    :outputs
    '{outColor vec4}

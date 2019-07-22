@@ -1,12 +1,12 @@
 (ns play-cljc.gl.example-data)
 
 (def texture-vertex-shader
-  {:attributes
+  {:inputs
    '{a_position vec4
      a_texcoord vec2}
    :uniforms
    '{u_matrix mat4}
-   :varyings
+   :outputs
    '{v_texcoord vec2}
    :signatures
    '{main ([] void)}
@@ -19,7 +19,7 @@
   {:precision "mediump float"
    :uniforms
    '{u_texture sampler2D}
-   :varyings
+   :inputs
    '{v_texcoord vec2}
    :outputs
    '{outColor vec4}
@@ -35,11 +35,11 @@
      u_world mat4
      u_viewInverse mat4
      u_worldInverseTranspose mat4}
-   :attributes
+   :inputs
    '{a_position vec4
      a_normal vec3
      a_texCoord vec2}
-   :varyings
+   :outputs
    '{v_position vec4
      v_texCoord vec2
      v_normal vec3
@@ -64,7 +64,7 @@
      u_specular vec4
      u_shininess float
      u_specularFactor float}
-   :varyings
+   :inputs
    '{v_position vec4
      v_texCoord vec2
      v_normal vec3
