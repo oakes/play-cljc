@@ -65,7 +65,7 @@
                            :req-un [::opts]
                            :opt-un [::data ::params ::mipmap ::alignment]))
 
-(defn- create-texture [{:keys [tex-count] :as game} m uni-loc
+(defn- create-texture [{:keys [tex-count] :as game} uni-loc
                        {:keys [data params opts mipmap alignment]}]
   (let [unit (dec (swap! tex-count inc))
         texture (gl game #?(:clj genTextures :cljs createTexture))]
@@ -94,7 +94,28 @@
                       (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer)
                       fb))}))
 
-(defn- call-uniform* [game m glsl-type ^Integer uni-loc uni-name data]
+(def ^:private type->attribute-opts
+  '{float {:size 1}
+    vec2  {:size 2}
+    vec3  {:size 3}
+    vec4  {:size 4}
+    mat2  {:size 4}
+    mat3  {:size 3
+           :iter 3}
+    mat4  {:size 4
+           :iter 4}})
+
+(defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
+  (or (get-in vertex [:uniforms uni-name])
+      (get-in fragment [:uniforms uni-name])
+      (throw (ex-info (str "You must define " uni-name " in your vertex or fragment shader's :uniforms") {}))))
+
+(defn- get-attribute-type [{:keys [vertex]} attr-name]
+  (or (get-in vertex [:inputs attr-name])
+      (get-in vertex [:attributes attr-name]) ;; for backwards compatibility
+      (throw (ex-info (str "You must define " attr-name " in your vertex shader's :inputs") {}))))
+
+(defn- call-uniform* [game entity glsl-type ^Integer uni-loc uni-name data]
   (case glsl-type
     float     (gl game uniform1f uni-loc #?(:clj (float data) :cljs data))
     vec2      (gl game uniform2fv uni-loc #?(:clj (float-array data) :cljs data))
@@ -103,22 +124,17 @@
     mat2      (gl game uniformMatrix2fv uni-loc false #?(:clj (float-array data) :cljs data))
     mat3      (gl game uniformMatrix3fv uni-loc false #?(:clj (float-array data) :cljs data))
     mat4      (gl game uniformMatrix4fv uni-loc false #?(:clj (float-array data) :cljs data))
-    sampler2D (assoc-in m [:textures uni-name]
-                (create-texture game m uni-loc (update data :data
-                                                 (fn [d]
-                                                   (convert-type game uni-name
-                                                     (-> data :opts :src-type) d)))))))
+    sampler2D (assoc-in entity [:textures uni-name]
+                (create-texture game uni-loc (update data :data
+                                               (fn [d]
+                                                 (convert-type game uni-name
+                                                   (-> data :opts :src-type) d)))))))
 
-(defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
-  (or (get-in vertex [:uniforms uni-name])
-      (get-in fragment [:uniforms uni-name])
-      (throw (ex-info (str "You must define " uni-name " in your vertex or fragment shader") {}))))
-
-(defn- call-uniform [game {:keys [uniform-locations] :as m} [uni-name uni-data]]
-  (let [uni-type (get-uniform-type m uni-name)
+(defn- call-uniform [game {:keys [uniform-locations] :as entity} [uni-name uni-data]]
+  (let [uni-type (get-uniform-type entity uni-name)
         uni-loc (get uniform-locations uni-name)]
-    (or (call-uniform* game m uni-type uni-loc uni-name uni-data)
-        m)))
+    (or (call-uniform* game entity uni-type uni-loc uni-name uni-data)
+        entity)))
 
 (declare render)
 
@@ -145,6 +161,7 @@
 (s/def ::type integer?)
 (s/def ::attribute (s/keys :req-un [::data ::type]))
 (s/def ::attributes (s/map-of symbol? ::attribute))
+(s/def ::instanced-attributes (s/map-of symbol? ::attribute))
 (s/def ::uniforms (s/map-of symbol? (s/or
                                       :texture-uniform ::texture-uniform
                                       :uniform ::data)))
@@ -157,19 +174,20 @@
 (s/def ::uncompiled-entity
   (s/keys
     :req-un [::vertex ::fragment]
-    :opt-un [::attributes ::uniforms ::indices ::render-to-texture]))
+    :opt-un [::attributes ::instanced-attributes ::uniforms ::indices ::render-to-texture]))
 
 (s/def ::program #?(:clj integer? :cljs #(instance? js/WebGLProgram %)))
 (s/def ::vao #?(:clj integer? :cljs #(instance? js/WebGLVertexArrayObject %)))
 (s/def ::uniform-locations (s/map-of symbol? ::location))
 (s/def ::textures (s/map-of symbol? ::texture-map))
 (s/def ::draw-count integer?)
+(s/def ::instance-count integer?)
 (s/def ::index-buffer #?(:clj integer? :cljs #(instance? js/WebGLBuffer %)))
 
 (s/def ::compiled-entity
   (s/keys
     :req-un [::program ::vao ::uniform-locations ::textures ::draw-count]
-    :opt-un [::render-to-texture ::index-buffer]))
+    :opt-un [::render-to-texture ::instance-count ::index-buffer]))
 
 (s/fdef compile
   :args (s/cat :game ::game :entity ::uncompiled-entity)
@@ -178,7 +196,7 @@
 (defn compile
   "Initializes the provided entity, compiling the shaders and creating all the
   necessary state for rendering."
-  [game {:keys [vertex fragment attributes uniforms indices] :as entity}]
+  [game {:keys [vertex fragment attributes instanced-attributes uniforms indices] :as entity}]
   (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
         fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
@@ -190,22 +208,34 @@
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
         vertex-counts (->> attributes
-                           (mapv (fn [[attr-name {:keys [size data type] :as opts}]]
-                                   (let [data (convert-type game attr-name type data)]
-                                     (u/create-buffer game program (name attr-name) data opts)
-                                     (/ (#?(:clj count :cljs .-length) data) size))))
+                           (map (fn [[attr-name {:keys [data type] :as opts}]]
+                                  (let [type-name (get-attribute-type entity attr-name)
+                                        opts (merge (type->attribute-opts type-name) opts)
+                                        data (convert-type game attr-name type data)]
+                                    (:draw-count (u/create-buffer game program (name attr-name) data opts)))))
                            set)
+        instance-counts (->> instanced-attributes
+                           (map (fn [[attr-name {:keys [data type] :as opts}]]
+                                  (let [type-name (get-attribute-type entity attr-name)
+                                        opts (merge (type->attribute-opts type-name) opts)
+                                        opts (update opts :divisor #(or % 1))
+                                        data (convert-type game attr-name type data)]
+                                    (:draw-count (u/create-buffer game program (name attr-name) data opts)))))
+                             set)
         vertex-count (if (<= (count vertex-counts) 1)
                        (first vertex-counts)
                        (throw (ex-info "The :attributes have an inconsistent number of vertices" {})))
+        instance-count (if (<= (count instance-counts) 1)
+                         (first instance-counts)
+                         (throw (ex-info "The :instanced-attributes have an inconsistent number of instances" {})))
         entity (if-let [data (:data indices)]
                  (let [ctor (or (attribute-type->constructor game (:type indices))
                                 (throw (ex-info "The :type provided to :indices is invalid" {})))
-                       data (ctor data)]
-                   (assoc entity
-                     :draw-count (#?(:clj count :cljs .-length) data)
-                     :index-buffer (u/create-index-buffer game data)))
-                 (assoc entity :draw-count vertex-count))
+                       {:keys [draw-count buffer]} (u/create-index-buffer game (ctor data))]
+                   (assoc entity :draw-count draw-count :index-buffer buffer))
+                 (cond-> entity
+                         vertex-count (assoc :draw-count vertex-count)
+                         instance-count (assoc :instance-count instance-count)))
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
@@ -270,7 +300,7 @@
   "Renders the provided entity."
   [game
    {:keys [program vao draw-count uniforms indices
-           viewport clear render-to-texture index-buffer]
+           viewport clear render-to-texture index-buffer instance-count]
     :as entity}]
   (let [previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
@@ -293,7 +323,9 @@
     (when draw-count
       (if-let [{:keys [type]} indices]
         (gl game drawElements (gl game TRIANGLES) draw-count type 0)
-        (gl game drawArrays (gl game TRIANGLES) 0 draw-count)))
+        (if instance-count
+          (gl game drawArraysInstanced (gl game TRIANGLES) 0 draw-count instance-count)
+          (gl game drawArrays (gl game TRIANGLES) 0 draw-count))))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)))

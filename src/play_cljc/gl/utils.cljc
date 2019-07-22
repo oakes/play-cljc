@@ -23,22 +23,29 @@
       program
       (throw (ex-info (gl game getProgramInfoLog program) {})))))
 
+(def ^:const float-size 4)
+
 (defn create-buffer
-  ([game program attrib-name src-data]
-   (create-buffer game program attrib-name src-data {}))
-  ([game program attrib-name src-data
-    {:keys [size type normalize stride offset]
-     :or {normalize false stride 0 offset 0}}]
+  ([game program attrib-name data]
+   (create-buffer game program attrib-name data {}))
+  ([game program attrib-name data
+    {:keys [size type iter normalize stride offset divisor]
+     :or {iter 1 normalize false stride 0 offset 0 divisor 0}}]
    (let [attrib-location (gl game getAttribLocation program attrib-name)
          previous-buffer (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game ARRAY_BUFFER_BINDING))
-         buffer (gl game #?(:clj genBuffers :cljs createBuffer))]
+         buffer (gl game #?(:clj genBuffers :cljs createBuffer))
+         total-size (* size iter)]
      (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)
-     (gl game enableVertexAttribArray attrib-location)
-     (gl game vertexAttribPointer attrib-location size type normalize stride offset)
-     (gl game bufferData (gl game ARRAY_BUFFER) src-data (gl game STATIC_DRAW))
+     (gl game bufferData (gl game ARRAY_BUFFER) data (gl game STATIC_DRAW))
+     (dotimes [i iter]
+       (let [loc (+ attrib-location i)]
+         (gl game enableVertexAttribArray loc)
+         (gl game vertexAttribPointer loc size type normalize (* total-size float-size) (* i size float-size))
+         (gl game vertexAttribDivisor loc divisor)))
      (gl game bindBuffer (gl game ARRAY_BUFFER) previous-buffer)
-     buffer)))
+     {:buffer buffer
+      :draw-count (/ (#?(:clj count :cljs .-length) data) total-size)})))
 
 (defn create-index-buffer [game indices]
   (let [previous-index-buffer (gl game #?(:clj getInteger :cljs getParameter)
@@ -47,5 +54,6 @@
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) index-buffer)
     (gl game bufferData (gl game ELEMENT_ARRAY_BUFFER) indices (gl game STATIC_DRAW))
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)
-    index-buffer))
+    {:buffer index-buffer
+     :draw-count (#?(:clj count :cljs .-length) indices)}))
 
