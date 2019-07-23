@@ -116,7 +116,7 @@
       (get-in vertex [:attributes attr-name])
       (throw (ex-info (str "You must define " attr-name " in your vertex shader's :inputs") {}))))
 
-(defn get-attribute-names [vertex]
+(defn- get-attribute-names [vertex]
   (or (some-> vertex :inputs keys)
       ;; for backwards compatibility
       (some-> vertex :attributes keys)))
