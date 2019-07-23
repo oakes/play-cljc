@@ -27,7 +27,7 @@
   (gl game #?(:clj genBuffers :cljs createBuffer)))
 
 (def ^:const float-size 4)
-(def ^:const default-opts '{:iter 1 :normalize false :stride 0 :offset 0 :divisor 0})
+(def ^:const default-opts {:iter 1 :normalize false :stride 0 :offset 0 :divisor 0})
 
 (defn set-array-buffer [game program buffer attrib-name data
                         {:keys [size type iter normalize stride offset divisor] :as opts}]

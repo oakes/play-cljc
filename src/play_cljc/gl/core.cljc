@@ -117,9 +117,9 @@
       (throw (ex-info (str "You must define " attr-name " in your vertex shader's :inputs") {}))))
 
 (defn get-attribute-names [vertex]
-  (concat (-> vertex :inputs keys)
-          ;; for backwards compatibility
-          (-> vertex :attributes keys)))
+  (or (some-> vertex :inputs keys)
+      ;; for backwards compatibility
+      (some-> vertex :attributes keys)))
 
 (defn- call-uniform* [game entity glsl-type ^Integer uni-loc uni-name data]
   (case glsl-type
@@ -253,7 +253,7 @@
         _ (gl game bindVertexArray vao)
         attr-names (get-attribute-names vertex)
         entity (cond-> entity
-                       (seq attr-names)
+                       attr-names
                        (assoc :attribute-buffers
                          (reduce
                            (fn [m attr-name]
