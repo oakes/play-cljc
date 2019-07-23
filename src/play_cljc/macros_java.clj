@@ -27,6 +27,6 @@
   "Work in progress! This macro is subject to change/break in future releases."
   ([content]
    (t/transform content))
-  ([attrs entity]
-   (t/transform-entity attrs entity)))
+  ([entity transforms]
+   (t/transform-entity entity transforms)))
 

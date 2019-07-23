@@ -72,71 +72,79 @@
       (throw (ex-info (expound/expound-str spec content) {}))
       res)))
 
-(defn- transform-attrs [{project-args :project
-                         translate-args :translate
-                         rotate-args :rotate
-                         scale-args :scale
-                         color-args :color
-                         camera-args :camera
-                         look-at-args :look-at}]
-  (cond-> []
-          project-args
-          (conj
-            (let [[kind args] (parse ::project project-args)]
-              (case kind
-                :2d `(project ~(:width args) ~(:height args))
-                :orthographic `(project
-                                 ~(:left args) ~(:right args) ~(:bottom args)
-                                 ~(:top args) ~(:near args) ~(:far args))
-                :perspective `(project
-                                ~(:field-of-view args) ~(:aspect args)
-                                ~(:near args) ~(:far args)))))
-          translate-args
-          (conj
-            (let [[kind args] (parse ::translate translate-args)]
-              (case kind
-                :3d `(translate ~(:x args) ~(:y args) ~(:z args))
-                :2d `(translate ~(:x args) ~(:y args)))))
-          rotate-args
-          (conj
-            (let [[kind args] (parse ::rotate rotate-args)]
-              (case kind
-                :3d `(rotate ~(:angle args) ~(:axis args))
-                :2d `(rotate ~(:angle args)))))
-          scale-args
-          (conj
-            (let [[kind args] (parse ::scale scale-args)]
-              (case kind
-                :3d `(scale ~(:x args) ~(:y args) ~(:z args))
-                :2d `(scale ~(:x args) ~(:y args)))))
-          color-args
-          (conj `(color ~color-args))
-          camera-args
-          (conj `(camera ~camera-args))
-          look-at-args
-          (conj
-            (let [args (parse ::look-at look-at-args)]
-              `(look-at ~(:target args) ~(:up args))))))
+(defmulti transform-entity*
+  "Work in progress! Subject to change/break in future releases."
+  (fn [transform-name transform-args]
+    transform-name))
+
+(defmethod transform-entity* :project [_ args]
+  (let [[kind args] (parse ::project args)]
+    (case kind
+      :2d `(project ~(:width args) ~(:height args))
+      :orthographic `(project
+                       ~(:left args) ~(:right args) ~(:bottom args)
+                       ~(:top args) ~(:near args) ~(:far args))
+      :perspective `(project
+                      ~(:field-of-view args) ~(:aspect args)
+                      ~(:near args) ~(:far args)))))
+
+(defmethod transform-entity* :translate [_ args]
+  (let [[kind args] (parse ::translate args)]
+    (case kind
+      :3d `(translate ~(:x args) ~(:y args) ~(:z args))
+      :2d `(translate ~(:x args) ~(:y args)))))
+
+(defmethod transform-entity* :rotate [_ args]
+  (let [[kind args] (parse ::rotate args)]
+    (case kind
+      :3d `(rotate ~(:angle args) ~(:axis args))
+      :2d `(rotate ~(:angle args)))))
+
+(defmethod transform-entity* :scale [_ args]
+  (let [[kind args] (parse ::scale args)]
+    (case kind
+      :3d `(scale ~(:x args) ~(:y args) ~(:z args))
+      :2d `(scale ~(:x args) ~(:y args)))))
+
+(defmethod transform-entity* :color [_ args]
+  `(color ~args))
+
+(defmethod transform-entity* :camera [_ args]
+  `(camera ~args))
+
+(defmethod transform-entity* :look-at [_ args]
+  (let [args (parse ::look-at args)]
+    `(look-at ~(:target args) ~(:up args))))
 
 (defn transform-entity
   "Work in progress! Subject to change/break in future releases."
-  [attrs entity]
+  [entity transforms]
   (concat ['-> entity]
-    (mapcat transform-attrs attrs)))
+    (map (fn [[name args]]
+           (transform-entity* name args))
+      (partition 2 transforms))))
+
+(s/def ::subcontent (s/cat
+                      :name keyword?
+                      :args map?
+                      :content (s/* ::content)))
+
+(s/def ::content (s/or
+                   :subcontent ::subcontent
+                   :entity any?))
 
 (defn transform
   "Work in progress! Subject to change/break in future releases."
   ([content]
-   (transform content []))
-  ([content parent-attrs]
-   (->> content
-        (reduce
-          (fn [{:keys [entities attrs] :as m} item]
-            (cond
-              (vector? item) (update m :entities into (transform item attrs))
-              (map? item) (update m :attrs conj item)
-              :else (update m :entities conj (transform-entity attrs item))))
-          {:entities []
-           :attrs parent-attrs})
-        :entities)))
+   (transform (parse ::content content) [] []))
+  ([[content-type content-val] entities transforms]
+   (case content-type
+     :subcontent
+     (reduce
+       (fn [entities content]
+         (transform content entities (into transforms ((juxt :name :args) content-val))))
+       entities
+       (:content content-val))
+     :entity
+     (conj entities (transform-entity content-val transforms)))))
 
