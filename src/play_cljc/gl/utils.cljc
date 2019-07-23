@@ -27,30 +27,29 @@
   (gl game #?(:clj genBuffers :cljs createBuffer)))
 
 (def ^:const float-size 4)
+(def ^:const default-opts '{:iter 1 :normalize false :stride 0 :offset 0 :divisor 0})
 
 (defn set-array-buffer [game program buffer attrib-name data
-                        {:keys [size type iter normalize stride offset divisor]
-                         :or {iter 1 normalize false stride 0 offset 0 divisor 0}}]
-   (let [attrib-location (gl game getAttribLocation program attrib-name)
-         previous-buffer (gl game #?(:clj getInteger :cljs getParameter)
-                           (gl game ARRAY_BUFFER_BINDING))
-         total-size (* size iter)]
-     (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)
-     (gl game bufferData (gl game ARRAY_BUFFER) data (gl game STATIC_DRAW))
-     (dotimes [i iter]
-       (let [loc (+ attrib-location i)]
-         (gl game enableVertexAttribArray loc)
-         (gl game vertexAttribPointer loc size type normalize (* total-size float-size) (* i size float-size))
-         (gl game vertexAttribDivisor loc divisor)))
-     (gl game bindBuffer (gl game ARRAY_BUFFER) previous-buffer)
-     {:divisor divisor
-      :draw-count (/ (#?(:clj count :cljs .-length) data) total-size)}))
+                        {:keys [size type iter normalize stride offset divisor] :as opts}]
+  (let [attrib-location (gl game getAttribLocation program attrib-name)
+        previous-buffer (gl game #?(:clj getInteger :cljs getParameter)
+                          (gl game ARRAY_BUFFER_BINDING))
+        total-size (* size iter)]
+    (gl game bindBuffer (gl game ARRAY_BUFFER) buffer)
+    (gl game bufferData (gl game ARRAY_BUFFER) data (gl game STATIC_DRAW))
+    (dotimes [i iter]
+      (let [loc (+ attrib-location i)]
+        (gl game enableVertexAttribArray loc)
+        (gl game vertexAttribPointer loc size type normalize (* total-size float-size) (* i size float-size))
+        (gl game vertexAttribDivisor loc divisor)))
+    (gl game bindBuffer (gl game ARRAY_BUFFER) previous-buffer)
+    (/ (#?(:clj count :cljs .-length) data) total-size)))
 
 (defn set-index-buffer [game index-buffer indices]
-   (let [previous-index-buffer (gl game #?(:clj getInteger :cljs getParameter)
-                                 (gl game ELEMENT_ARRAY_BUFFER_BINDING))]
-     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) index-buffer)
-     (gl game bufferData (gl game ELEMENT_ARRAY_BUFFER) indices (gl game STATIC_DRAW))
-     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)
-     {:draw-count (#?(:clj count :cljs .-length) indices)}))
+  (let [previous-index-buffer (gl game #?(:clj getInteger :cljs getParameter)
+                                (gl game ELEMENT_ARRAY_BUFFER_BINDING))]
+    (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) index-buffer)
+    (gl game bufferData (gl game ELEMENT_ARRAY_BUFFER) indices (gl game STATIC_DRAW))
+    (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)
+    (#?(:clj count :cljs .-length) indices)))
 

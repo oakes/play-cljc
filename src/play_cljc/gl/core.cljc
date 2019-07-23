@@ -112,8 +112,14 @@
 
 (defn- get-attribute-type [{:keys [vertex]} attr-name]
   (or (get-in vertex [:inputs attr-name])
-      (get-in vertex [:attributes attr-name]) ;; for backwards compatibility
+      ;; for backwards compatibility
+      (get-in vertex [:attributes attr-name])
       (throw (ex-info (str "You must define " attr-name " in your vertex shader's :inputs") {}))))
+
+(defn get-attribute-names [vertex]
+  (concat (-> vertex :inputs keys)
+          ;; for backwards compatibility
+          (-> vertex :attributes keys)))
 
 (defn- call-uniform* [game entity glsl-type ^Integer uni-loc uni-name data]
   (case glsl-type
@@ -135,6 +141,45 @@
         uni-loc (get uniform-locations uni-name)]
     (or (call-uniform* game entity uni-type uni-loc uni-name uni-data)
         entity)))
+
+(defn- merge-attribute-opts [entity attr-name opts]
+  (let [type-name (get-attribute-type entity attr-name)]
+    (merge u/default-opts
+           (type->attribute-opts type-name)
+           opts)))
+
+(defn- set-attribute [game entity program buffer attr-name {:keys [data type] :as opts}]
+  (let [data (convert-type game attr-name type data)]
+    (u/set-array-buffer game program buffer (name attr-name) data opts)))
+
+(defn- set-buffer [game entity program m attr-name opts]
+  (let [buffer (or (get-in entity [:attribute-buffers attr-name])
+                   (throw (ex-info (str "Can't find buffer for attribute " attr-name) {})))
+        opts (merge-attribute-opts entity attr-name opts)
+        divisor (:divisor opts)
+        expected-count (get m divisor)
+        draw-count (set-attribute game entity program buffer attr-name opts)]
+    (when (and expected-count (not= expected-count draw-count))
+      (throw (ex-info (str "The data in :attributes has an inconsistent size")
+                      {:divisor divisor})))
+    (assoc m divisor draw-count)))
+
+(defn- set-buffers [game entity program]
+  (let [divisor->draw-count (reduce-kv
+                              (partial set-buffer game entity program)
+                              {}
+                              (:attributes entity))
+        vertex-count (divisor->draw-count 0)
+        instance-count (divisor->draw-count 1)]
+    (if-let [{:keys [data type]} (:indices entity)]
+      (let [ctor (or (attribute-type->constructor game type)
+                     (throw (ex-info "The :type provided to :indices is invalid" {})))
+            buffer (:index-buffer entity)
+            draw-count (u/set-index-buffer game buffer (ctor data))]
+        (assoc entity :draw-count draw-count))
+      (cond-> entity
+              vertex-count (assoc :draw-count vertex-count)
+              instance-count (assoc :instance-count instance-count)))))
 
 (declare render)
 
@@ -206,33 +251,18 @@
         _ (gl game useProgram program)
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
-        attr-buffers (mapv (fn [[attr-name {:keys [data type] :as opts}]]
-                             (let [buffer (u/create-buffer game)
-                                   type-name (get-attribute-type entity attr-name)
-                                   opts (merge (type->attribute-opts type-name) opts)
-                                   data (convert-type game attr-name type data)]
-                               (u/set-array-buffer game program buffer (name attr-name) data opts)))
-                       attributes)
-        divisor->draw-count (reduce-kv
-                              (fn [m divisor buffers]
-                                (let [draw-counts (->> buffers (map :draw-count) set)]
-                                  (if (not= 1 (count draw-counts))
-                                    (throw (ex-info (str "The data in :attributes has an inconsistent size")
-                                                    {:divisor divisor}))
-                                    (assoc m divisor (first draw-counts)))))
-                              {}
-                              (group-by :divisor attr-buffers))
-        vertex-count (divisor->draw-count 0)
-        instance-count (divisor->draw-count 1)
-        entity (if-let [data (:data indices)]
-                 (let [ctor (or (attribute-type->constructor game (:type indices))
-                                (throw (ex-info "The :type provided to :indices is invalid" {})))
-                       buffer (u/create-buffer game)
-                       {:keys [draw-count]} (u/set-index-buffer game buffer (ctor data))]
-                   (assoc entity :draw-count draw-count :index-buffer buffer))
-                 (cond-> entity
-                         vertex-count (assoc :draw-count vertex-count)
-                         instance-count (assoc :instance-count instance-count)))
+        attr-names (get-attribute-names vertex)
+        entity (cond-> entity
+                       (seq attr-names)
+                       (assoc :attribute-buffers
+                         (reduce
+                           (fn [m attr-name]
+                             (assoc m attr-name (u/create-buffer game)))
+                           {}
+                           attr-names))
+                       indices
+                       (assoc :index-buffer (u/create-buffer game)))
+        entity (set-buffers game entity program)
         uniform-locations (reduce
                             (fn [m uniform]
                               (assoc m uniform
@@ -296,8 +326,8 @@
 (defn render
   "Renders the provided entity."
   [game
-   {:keys [program vao draw-count uniforms indices
-           viewport clear render-to-texture index-buffer instance-count]
+   {:keys [program vao uniforms indices
+           viewport clear render-to-texture index-buffer]
     :as entity}]
   (let [previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
@@ -317,12 +347,13 @@
       (some->> entity :render-to-texture (render->texture game textures)))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
-    (when draw-count
-      (if-let [{:keys [type]} indices]
-        (gl game drawElements (gl game TRIANGLES) draw-count type 0)
-        (if instance-count
-          (gl game drawArraysInstanced (gl game TRIANGLES) 0 draw-count instance-count)
-          (gl game drawArrays (gl game TRIANGLES) 0 draw-count))))
+    (let [{:keys [draw-count instance-count]} (set-buffers game entity program)]
+      (when draw-count
+        (if-let [{:keys [type]} indices]
+          (gl game drawElements (gl game TRIANGLES) draw-count type 0)
+          (if instance-count
+            (gl game drawArraysInstanced (gl game TRIANGLES) 0 draw-count instance-count)
+            (gl game drawArrays (gl game TRIANGLES) 0 draw-count)))))
     (gl game useProgram previous-program)
     (gl game bindVertexArray previous-vao)
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)))
