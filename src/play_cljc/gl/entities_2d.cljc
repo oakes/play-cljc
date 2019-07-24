@@ -123,7 +123,7 @@
     (-> entity
         (assoc :vertex instanced-two-d-vertex-shader
                :fragment instanced-two-d-fragment-shader)
-        (dissoc :uniforms)
+        (update :uniforms dissoc 'u_matrix 'u_color)
         ei/map->InstancedEntity))
   ei/IConjInstance
   (conj-instance [entity instanced-entity]
