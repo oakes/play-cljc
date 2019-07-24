@@ -153,16 +153,20 @@
     (u/set-array-buffer game program buffer (name attr-name) data opts)))
 
 (defn- set-buffer [game entity program m attr-name opts]
-  (let [buffer (or (get-in entity [:attribute-buffers attr-name])
-                   (throw (ex-info (str "Can't find buffer for attribute " attr-name) {})))
-        opts (merge-attribute-opts game entity attr-name opts)
-        divisor (:divisor opts)
-        expected-count (get m divisor)
-        draw-count (set-attribute game entity program buffer attr-name opts)]
-    (when (and expected-count (not= expected-count draw-count))
-      (throw (ex-info (str "The data in :attributes has an inconsistent size")
-                      {:divisor divisor})))
-    (assoc m divisor draw-count)))
+  (if (nil? (:data opts))
+    ;; if it's an empty attribute, its purpose was just to
+    ;; cause `compile` to create the buffer, so skip it
+    m
+    (let [buffer (or (get-in entity [:attribute-buffers attr-name])
+                     (throw (ex-info (str "Can't find buffer for attribute " attr-name) {})))
+          opts (merge-attribute-opts game entity attr-name opts)
+          divisor (:divisor opts)
+          expected-count (get m divisor)
+          draw-count (set-attribute game entity program buffer attr-name opts)]
+      (when (and expected-count (not= expected-count draw-count))
+        (throw (ex-info (str "The data in :attributes has an inconsistent size")
+                        {:divisor divisor})))
+      (assoc m divisor draw-count))))
 
 (defn- set-buffers [game entity program]
   (let [divisor->draw-count (reduce-kv
@@ -209,8 +213,7 @@
 (s/def ::stride (s/and integer? #(>= % 0)))
 (s/def ::offset (s/and integer? #(>= % 0)))
 (s/def ::divisor (s/and integer? #(>= % 0)))
-(s/def ::attribute (s/keys :req-un [::data]
-                           :opt-un [::type ::iter ::normalize ::stride ::offset ::divisor]))
+(s/def ::attribute (s/keys :opt-un [::data ::type ::iter ::normalize ::stride ::offset ::divisor]))
 (s/def ::attributes (s/map-of symbol? ::attribute))
 (s/def ::uniforms (s/map-of symbol? (s/or
                                       :texture-uniform ::texture-uniform

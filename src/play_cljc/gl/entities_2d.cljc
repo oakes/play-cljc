@@ -124,6 +124,8 @@
         (assoc :vertex instanced-two-d-vertex-shader
                :fragment instanced-two-d-fragment-shader)
         (update :uniforms dissoc 'u_matrix 'u_color)
+        (update :attributes merge {'a_matrix {}
+                                   'a_color {}})
         ei/map->InstancedEntity))
   ei/IConjInstance
   (conj-instance [entity instanced-entity]
@@ -132,7 +134,7 @@
         (let [data (get-in entity [:uniforms uni-name])]
           (update-in instanced-entity [:attributes attr-name]
                      (fn [attr]
-                       (if attr
+                       (if (seq attr)
                          (update attr :data into data)
                          {:data (vec data)
                           :divisor 1})))))
@@ -238,6 +240,8 @@
         (assoc :vertex instanced-image-vertex-shader
                :fragment instanced-image-fragment-shader)
         (update :uniforms dissoc 'u_matrix 'u_textureMatrix)
+        (update :attributes merge {'a_matrix {}
+                                   'a_textureMatrix {}})
         ei/map->InstancedEntity))
   ei/IConjInstance
   (conj-instance [entity instanced-entity]
@@ -246,7 +250,7 @@
         (let [data (get-in entity [:uniforms uni-name])]
           (update-in instanced-entity [:attributes attr-name]
                      (fn [attr]
-                       (if attr
+                       (if (seq attr)
                          (update attr :data into data)
                          {:data (vec data)
                           :divisor 1})))))
