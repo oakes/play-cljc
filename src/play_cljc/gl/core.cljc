@@ -142,11 +142,11 @@
     (or (call-uniform* game entity uni-type uni-loc uni-name uni-data)
         entity)))
 
-(defn- merge-attribute-opts [entity attr-name opts]
+(defn- merge-attribute-opts [game entity attr-name opts]
   (let [type-name (get-attribute-type entity attr-name)]
     (merge u/default-opts
            (type->attribute-opts type-name)
-           opts)))
+           (update opts :type #(or % (gl game FLOAT))))))
 
 (defn- set-attribute [game entity program buffer attr-name {:keys [data type] :as opts}]
   (let [data (convert-type game attr-name type data)]
@@ -155,7 +155,7 @@
 (defn- set-buffer [game entity program m attr-name opts]
   (let [buffer (or (get-in entity [:attribute-buffers attr-name])
                    (throw (ex-info (str "Can't find buffer for attribute " attr-name) {})))
-        opts (merge-attribute-opts entity attr-name opts)
+        opts (merge-attribute-opts game entity attr-name opts)
         divisor (:divisor opts)
         expected-count (get m divisor)
         draw-count (set-attribute game entity program buffer attr-name opts)]
@@ -204,7 +204,13 @@
 (s/def ::vertex ::parse/shader)
 (s/def ::fragment ::parse/shader)
 (s/def ::type integer?)
-(s/def ::attribute (s/keys :req-un [::data ::type]))
+(s/def ::iter (s/and integer? pos?))
+(s/def ::normalize boolean?)
+(s/def ::stride (s/and integer? #(>= % 0)))
+(s/def ::offset (s/and integer? #(>= % 0)))
+(s/def ::divisor (s/and integer? #(>= % 0)))
+(s/def ::attribute (s/keys :req-un [::data]
+                           :opt-un [::type ::iter ::normalize ::stride ::offset ::divisor]))
 (s/def ::attributes (s/map-of symbol? ::attribute))
 (s/def ::uniforms (s/map-of symbol? (s/or
                                       :texture-uniform ::texture-uniform

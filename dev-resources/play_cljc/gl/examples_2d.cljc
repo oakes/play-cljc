@@ -2,6 +2,7 @@
   "2D examples based on content from webgl2fundamentals.org"
   (:require [play-cljc.gl.core :as c]
             [play-cljc.gl.entities-2d :as e]
+            [play-cljc.gl.entities-instanced :as ei]
             [play-cljc.gl.example-utils :as eu]
             [play-cljc.gl.example-data :as data]
             [play-cljc.transforms :as t]
@@ -13,40 +14,37 @@
 
 ;; rand-rects
 
-(defn rand-rects-example [game]
+(defn rand-rects-example [game entity entities]
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
-  (assoc game
-    :entity
-    (-> (c/compile game (e/->entity game primitives/rect))
-        (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
-        (t/project (eu/get-width game) (eu/get-height game)))
-    :rects
-    (for [_ (range 50)]
-      {:color [(rand) (rand) (rand) 1]
-       :position [(rand-int (eu/get-width game)) (rand-int (eu/get-height game))]
-       :scale [(rand-int 300) (rand-int 300)]})))
+  (->> entities
+       (reduce ei/conj (ei/->instanced-entity entity))
+       (c/compile game)
+       (assoc game :entity)))
 
 (defexample rand-rects-example
   {:with-card card
-   :with-focus [focus (doseq [{color :color
-                               [posx posy] :position
-                               [sx sy] :scale}
-                              rects]
-                        (play-cljc.gl.core/render game
-                          (-> entity
-                              (play-cljc.transforms/color color)
-                              (play-cljc.transforms/translate posx posy)
-                              (play-cljc.transforms/scale sx sy))))]}
-  (->> (play-cljc.gl.example-utils/init-example card)
-       (play-cljc.gl.examples-2d/rand-rects-example)
-       (play-cljc.gl.example-utils/game-loop
-         (fn rand-rects-render [{:keys [entity rects] :as game}]
-            (play-cljc.gl.example-utils/resize-example game)
-            (play-cljc.gl.core/render game
-              {:clear {:color [1 1 1 1] :depth 1}})
-            focus
-            game))))
+   :with-focus [focus (for [_ (range 50)]
+                        (-> entity
+                            (play-cljc.transforms/color [(rand) (rand) (rand) 1])
+                            (play-cljc.transforms/translate (rand-int game-width) (rand-int game-height))
+                            (play-cljc.transforms/scale (rand-int 300) (rand-int 300))))]}
+  (let [game (play-cljc.gl.example-utils/init-example card)
+        game-width (play-cljc.gl.example-utils/get-width game)
+        game-height (play-cljc.gl.example-utils/get-height game)
+        entity (-> (play-cljc.gl.entities-2d/->entity game play-cljc.primitives-2d/rect)
+                   (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
+                   (play-cljc.transforms/project game-width game-height))]
+    (->> focus
+         vec
+         (play-cljc.gl.examples-2d/rand-rects-example game entity)
+         (play-cljc.gl.example-utils/game-loop
+           (fn rand-rects-render [{:keys [entity] :as game}]
+             (play-cljc.gl.example-utils/resize-example game)
+             (play-cljc.gl.core/render game
+               {:clear {:color [1 1 1 1] :depth 1}})
+             (play-cljc.gl.core/render game entity)
+             game)))))
 
 ;; image
 

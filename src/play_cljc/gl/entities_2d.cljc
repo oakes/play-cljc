@@ -2,49 +2,9 @@
   (:require [play-cljc.math :as m]
             [play-cljc.transforms :as t]
             [play-cljc.primitives-2d :as primitives]
+            [play-cljc.gl.entities-instanced :as ei]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
-
-(defrecord TwoDEntity [])
-
-(def ^:private reverse-matrix (m/scaling-matrix -1 -1))
-
-(extend-type TwoDEntity
-  t/IProject
-  (project [entity width height]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/projection-matrix width height) %)))
-  t/ITranslate
-  (translate [entity x y]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
-  t/IScale
-  (scale [entity x y]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/scaling-matrix x y) %)))
-  t/IRotate
-  (rotate [entity angle]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 3 (m/rotation-matrix angle) %)))
-  t/ICamera
-  (camera [entity {:keys [matrix]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(->> %
-            (m/multiply-matrices 3 matrix)
-            (m/multiply-matrices 3 reverse-matrix))))
-  t/IColor
-  (color [entity rgba]
-    (assoc-in entity [:uniforms 'u_color] rgba))
-  t/ICrop
-  (crop [{:keys [width height] :as entity} crop-x crop-y crop-width crop-height]
-    (if-not (or width height)
-      (throw (ex-info "Only image entities can be cropped" {}))
-      (update-in entity [:uniforms 'u_textureMatrix]
-        #(->> %
-              (m/multiply-matrices 3
-                (m/translation-matrix (/ crop-x width) (/ crop-y height)))
-              (m/multiply-matrices 3
-                (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))))
 
 (defrecord Camera [matrix])
 
@@ -62,6 +22,30 @@
   (->Camera (if y-down?
               (m/look-at-matrix [0 0 1] [0 -1 0])
               (m/look-at-matrix [0 0 -1] [0 1 0]))))
+
+(def ^:private reverse-matrix (m/scaling-matrix -1 -1))
+
+(defn- project [entity width height]
+  (update-in entity [:uniforms 'u_matrix]
+    #(m/multiply-matrices 3 (m/projection-matrix width height) %)))
+
+(defn- translate [entity x y]
+  (update-in entity [:uniforms 'u_matrix]
+    #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
+
+(defn- scale [entity x y]
+  (update-in entity [:uniforms 'u_matrix]
+    #(m/multiply-matrices 3 (m/scaling-matrix x y) %)))
+
+(defn- rotate [entity angle]
+  (update-in entity [:uniforms 'u_matrix]
+    #(m/multiply-matrices 3 (m/rotation-matrix angle) %)))
+
+(defn- camera [entity {:keys [matrix]}]
+  (update-in entity [:uniforms 'u_matrix]
+    #(->> %
+          (m/multiply-matrices 3 matrix)
+          (m/multiply-matrices 3 reverse-matrix))))
 
 (def ^:private two-d-vertex-shader
   {:inputs
@@ -88,6 +72,74 @@
    :functions
    '{main ([] (= outColor u_color))}})
 
+(def ^:private instanced-two-d-vertex-shader
+  {:inputs
+   '{a_position vec2
+     a_matrix mat3
+     a_color vec4}
+   :outputs
+   '{v_color vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
+           (= v_color a_color)
+           (= gl_Position
+              (vec4
+                (.xy (* a_matrix (vec3 a_position 1)))
+                0 1)))}})
+
+(def ^:private instanced-two-d-fragment-shader
+  {:precision "mediump float"
+   :inputs
+   '{v_color vec4}
+   :outputs
+   '{outColor vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] (= outColor v_color))}})
+
+(defn- color [entity rgba]
+  (assoc-in entity [:uniforms 'u_color] rgba))
+
+(defrecord TwoDEntity [])
+
+(extend-type TwoDEntity
+  t/IProject
+  (project [entity width height] (project entity width height))
+  t/ITranslate
+  (translate [entity x y] (translate entity x y))
+  t/IScale
+  (scale [entity x y] (scale entity x y))
+  t/IRotate
+  (rotate [entity angle] (rotate entity angle))
+  t/ICamera
+  (camera [entity cam] (camera entity cam))
+  t/IColor
+  (color [entity rgba] (color entity rgba))
+  ei/ICreateInstancedEntity
+  (->instanced-entity [entity]
+    (-> entity
+        (assoc :vertex instanced-two-d-vertex-shader
+               :fragment instanced-two-d-fragment-shader)
+        (dissoc :uniforms)
+        ei/map->InstancedEntity))
+  ei/IConjInstance
+  (conj-instance [entity instanced-entity]
+    (reduce-kv
+      (fn [instanced-entity attr-name uni-name]
+        (let [data (get-in entity [:uniforms uni-name])]
+          (update-in instanced-entity [:attributes attr-name]
+                     (fn [attr]
+                       (if attr
+                         (update attr :data into data)
+                         {:data (vec data)
+                          :divisor 1})))))
+      instanced-entity
+      '{a_matrix u_matrix
+        a_color u_color})))
+
 (defn ->entity [game data]
   (->> {:vertex two-d-vertex-shader
         :fragment two-d-fragment-shader
@@ -95,6 +147,30 @@
                                   :type (gl game FLOAT)
                                   :size 2}}}
        map->TwoDEntity))
+
+(defrecord ImageEntity [width height])
+
+(extend-type ImageEntity
+  t/IProject
+  (project [entity width height] (project entity width height))
+  t/ITranslate
+  (translate [entity x y] (translate entity x y))
+  t/IScale
+  (scale [entity x y] (scale entity x y))
+  t/IRotate
+  (rotate [entity angle] (rotate entity angle))
+  t/ICamera
+  (camera [entity cam] (camera entity cam))
+  t/IColor
+  (color [entity rgba] (color entity rgba))
+  t/ICrop
+  (crop [{:keys [width height] :as entity} crop-x crop-y crop-width crop-height]
+    (update-in entity [:uniforms 'u_textureMatrix]
+      #(->> %
+            (m/multiply-matrices 3
+              (m/translation-matrix (/ crop-x width) (/ crop-y height)))
+            (m/multiply-matrices 3
+              (m/scaling-matrix (/ crop-width width) (/ crop-height height)))))))
 
 (def ^:private image-vertex-shader
   {:inputs
@@ -152,5 +228,5 @@
                     'u_textureMatrix (m/identity-matrix 3)}
          :width width
          :height height}
-        map->TwoDEntity))
+        map->ImageEntity))
 
