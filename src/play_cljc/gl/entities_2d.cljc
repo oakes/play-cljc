@@ -128,6 +128,17 @@
    :functions
    '{main ([] (= o_color v_color))}})
 
+(defrecord InstancedTwoDEntity [instance-count])
+
+(extend-type InstancedTwoDEntity
+  ei/IInstanced
+  (assoc [instanced-entity i entity]
+    (reduce-kv
+      (partial assoc-instance-attr i entity)
+      instanced-entity
+      '{a_matrix u_matrix
+        a_color u_color})))
+
 (defrecord TwoDEntity [])
 
 (extend-type TwoDEntity
@@ -144,7 +155,7 @@
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba))
-  ei/IInstancedEntity
+  ei/IInstance
   (->instanced-entity [entity instance-count]
     (-> entity
         (assoc :vertex instanced-two-d-vertex-shader
@@ -153,13 +164,7 @@
         (update :uniforms dissoc 'u_matrix 'u_color)
         (update :attributes merge {'a_matrix {:data [] :divisor 1}
                                    'a_color {:data [] :divisor 1}})
-        ei/map->InstancedEntity))
-  (assoc-instance [entity instanced-entity i]
-    (reduce-kv
-      (partial assoc-instance-attr i entity)
-      instanced-entity
-      '{a_matrix u_matrix
-        a_color u_color})))
+        map->InstancedTwoDEntity)))
 
 (defn ->entity [game data]
   (->> {:vertex two-d-vertex-shader
@@ -232,6 +237,17 @@
    :functions
    '{main ([] (= o_color (texture u_image v_tex_coord)))}})
 
+(defrecord InstancedImageEntity [instance-count])
+
+(extend-type InstancedImageEntity
+  ei/IInstanced
+  (assoc [instanced-entity i entity]
+    (reduce-kv
+      (partial assoc-instance-attr i entity)
+      instanced-entity
+      '{a_matrix u_matrix
+        a_texture_matrix u_texture_matrix})))
+
 (defrecord ImageEntity [width height])
 
 (extend-type ImageEntity
@@ -253,7 +269,7 @@
               (m/translation-matrix (/ crop-x width) (/ crop-y height)))
             (m/multiply-matrices 3
               (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))
-  ei/IInstancedEntity
+  ei/IInstance
   (->instanced-entity [entity instance-count]
     (-> entity
         (assoc :vertex instanced-image-vertex-shader
@@ -262,13 +278,7 @@
         (update :uniforms dissoc 'u_matrix 'u_texture_matrix)
         (update :attributes merge {'a_matrix {:data [] :divisor 1}
                                    'a_texture_matrix {:data [] :divisor 1}})
-        ei/map->InstancedEntity))
-  (assoc-instance [entity instanced-entity i]
-    (reduce-kv
-      (partial assoc-instance-attr i entity)
-      instanced-entity
-      '{a_matrix u_matrix
-        a_texture_matrix u_texture_matrix})))
+        map->InstancedImageEntity)))
 
 (defn ->image-entity [game data width height]
    (->> {:vertex image-vertex-shader
