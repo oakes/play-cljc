@@ -82,11 +82,11 @@
    :uniforms
    '{u_color vec4}
    :outputs
-   '{outColor vec4}
+   '{o_color vec4}
    :signatures
    '{main ([] void)}
    :functions
-   '{main ([] (= outColor u_color))}})
+   '{main ([] (= o_color u_color))}})
 
 (def ^:private three-d-attribute-colors-vertex-shader
   {:inputs
@@ -108,11 +108,11 @@
    :inputs
    '{v_color vec4}
    :outputs
-   '{outColor vec4}
+   '{o_color vec4}
    :signatures
    '{main ([] void)}
    :functions
-   '{main ([] (= outColor v_color))}})
+   '{main ([] (= o_color v_color))}})
 
 (defn ->entity
   ([game data]
