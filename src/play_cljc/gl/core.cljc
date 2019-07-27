@@ -34,7 +34,9 @@
 (defn- convert-type [game attr-name attr-type data]
   (if (vector? data)
     (let [arr-con (or (attribute-type->constructor game attr-type)
-                      (throw (ex-info (str "The type for " attr-name " is invalid") {})))]
+                      (throw (ex-info "The attribute type is invalid"
+                                      {:attribute-name attr-name
+                                       :type attr-type})))]
       (arr-con data))
     data))
 
@@ -108,13 +110,15 @@
 (defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
   (or (get-in vertex [:uniforms uni-name])
       (get-in fragment [:uniforms uni-name])
-      (throw (ex-info (str "You must define " uni-name " in your vertex or fragment shader's :uniforms") {}))))
+      (throw (ex-info "You must define the uniform in your vertex or fragment shader's :uniforms"
+                      {:uniform-name uni-name}))))
 
 (defn- get-attribute-type [{:keys [vertex]} attr-name]
   (or (get-in vertex [:inputs attr-name])
       ;; for backwards compatibility
       (get-in vertex [:attributes attr-name])
-      (throw (ex-info (str "You must define " attr-name " in your vertex shader's :inputs") {}))))
+      (throw (ex-info "You must define the attribute in your vertex shader's :inputs"
+                      {:attribute-name attr-name}))))
 
 (defn- get-attribute-names [vertex]
   (or (some-> vertex :inputs keys)
@@ -191,9 +195,11 @@
   (doseq [[texture-name inner-entities] render-to-texture
           :let [texture (get textures texture-name)]]
     (when-not texture
-      (throw (ex-info (str "Can't find " texture-name) {})))
+      (throw (ex-info "Can't find texture"
+                      {:texture-name texture-name})))
     (when-not (:framebuffer texture)
-      (throw (ex-info (str texture-name " must have :data set to nil") {})))
+      (throw (ex-info "Texture must have :data set to nil"
+                      {:texture-name texture-name})))
     (let [previous-framebuffer (gl game #?(:clj getInteger :cljs getParameter)
                                  (gl game FRAMEBUFFER_BINDING))]
       (gl game bindFramebuffer (gl game FRAMEBUFFER) (:framebuffer texture))
