@@ -47,6 +47,32 @@
           (m/multiply-matrices 3 matrix)
           (m/multiply-matrices 3 reverse-matrix))))
 
+(defn- assoc-instance-attr [index entity {:keys [instance-count] :as instanced-entity} attr-name uni-name]
+  (let [new-data (get-in entity [:uniforms uni-name])
+        data-len (count new-data)
+        total-len (* data-len instance-count)
+        offset (* index data-len)]
+    (when (>= index instance-count)
+      (throw (ex-info "Attempted to assoc at an index that is >= the instance-count"
+                      {:index index
+                       :instance-count instance-count})))
+    (update-in instanced-entity [:attributes attr-name]
+               (fn [attr]
+                 (if attr
+                   (update attr :data
+                           (fn [old-data]
+                             (let [old-data (cond-> old-data
+                                                    (> (count old-data) total-len)
+                                                    (subvec 0 total-len))]
+                               (persistent!
+                                 (reduce-kv
+                                   (fn [data i n]
+                                     (assoc! data (+ offset i) n))
+                                   (transient old-data)
+                                   new-data)))))
+                   {:data (vec new-data)
+                    :divisor 1})))))
+
 ;; TwoDEntity
 
 (def ^:private two-d-vertex-shader
@@ -118,26 +144,19 @@
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba))
-  ei/ICreateInstancedEntity
-  (->instanced-entity [entity]
+  ei/IInstancedEntity
+  (->instanced-entity [entity instance-count]
     (-> entity
         (assoc :vertex instanced-two-d-vertex-shader
-               :fragment instanced-two-d-fragment-shader)
+               :fragment instanced-two-d-fragment-shader
+               :instance-count instance-count)
         (update :uniforms dissoc 'u_matrix 'u_color)
-        (update :attributes merge {'a_matrix {}
-                                   'a_color {}})
+        (update :attributes merge {'a_matrix {:data [] :divisor 1}
+                                   'a_color {:data [] :divisor 1}})
         ei/map->InstancedEntity))
-  ei/IConjInstance
-  (conj-instance [entity instanced-entity]
+  (assoc-instance [entity instanced-entity i]
     (reduce-kv
-      (fn [instanced-entity attr-name uni-name]
-        (let [data (get-in entity [:uniforms uni-name])]
-          (update-in instanced-entity [:attributes attr-name]
-                     (fn [attr]
-                       (if (seq attr)
-                         (update attr :data into data)
-                         {:data (vec data)
-                          :divisor 1})))))
+      (partial assoc-instance-attr i entity)
       instanced-entity
       '{a_matrix u_matrix
         a_color u_color})))
@@ -234,26 +253,19 @@
               (m/translation-matrix (/ crop-x width) (/ crop-y height)))
             (m/multiply-matrices 3
               (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))
-  ei/ICreateInstancedEntity
-  (->instanced-entity [entity]
+  ei/IInstancedEntity
+  (->instanced-entity [entity instance-count]
     (-> entity
         (assoc :vertex instanced-image-vertex-shader
-               :fragment instanced-image-fragment-shader)
+               :fragment instanced-image-fragment-shader
+               :instance-count instance-count)
         (update :uniforms dissoc 'u_matrix 'u_textureMatrix)
-        (update :attributes merge {'a_matrix {}
-                                   'a_textureMatrix {}})
+        (update :attributes merge {'a_matrix {:data [] :divisor 1}
+                                   'a_textureMatrix {:data [] :divisor 1}})
         ei/map->InstancedEntity))
-  ei/IConjInstance
-  (conj-instance [entity instanced-entity]
+  (assoc-instance [entity instanced-entity i]
     (reduce-kv
-      (fn [instanced-entity attr-name uni-name]
-        (let [data (get-in entity [:uniforms uni-name])]
-          (update-in instanced-entity [:attributes attr-name]
-                     (fn [attr]
-                       (if (seq attr)
-                         (update attr :data into data)
-                         {:data (vec data)
-                          :divisor 1})))))
+      (partial assoc-instance-attr i entity)
       instanced-entity
       '{a_matrix u_matrix
         a_textureMatrix u_textureMatrix})))

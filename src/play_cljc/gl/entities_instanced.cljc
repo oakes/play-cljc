@@ -1,14 +1,12 @@
 (ns play-cljc.gl.entities-instanced
-  (:refer-clojure :exclude [conj]))
+  (:refer-clojure :exclude [assoc]))
 
-(defrecord InstancedEntity [])
+(defrecord InstancedEntity [instance-count])
 
-(defprotocol ICreateInstancedEntity
-  (->instanced-entity [entity]))
+(defprotocol IInstancedEntity
+  (->instanced-entity [entity instance-count])
+  (assoc-instance [entity instanced-entity i]))
 
-(defprotocol IConjInstance
-  (conj-instance [entity instanced-entity]))
-
-(defn conj [instanced-entity entity]
-  (conj-instance entity instanced-entity))
+(defn assoc [instanced-entity i entity]
+  (assoc-instance entity instanced-entity i))
 

@@ -18,7 +18,7 @@
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (->> entities
-       (reduce ei/conj (ei/->instanced-entity entity))
+       (reduce-kv ei/assoc (ei/->instanced-entity entity (count entities)))
        (c/compile game)
        (assoc game :entity)))
 

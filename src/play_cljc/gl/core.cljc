@@ -162,32 +162,39 @@
     ;; cause `compile` to create the buffer, so skip it
     m
     (let [buffer (or (get-in entity [:attribute-buffers attr-name])
-                     (throw (ex-info (str "Can't find buffer for attribute " attr-name) {})))
+                     (throw (ex-info "Can't find buffer for attribute"
+                                     {:attribute-name attr-name})))
           opts (merge-attribute-opts game entity attr-name opts)
           divisor (:divisor opts)
           expected-count (get m divisor)
           draw-count (set-attribute game entity program buffer attr-name opts)]
       (when (and expected-count (not= expected-count draw-count))
-        (throw (ex-info (str "The data in :attributes has an inconsistent size")
-                        {:divisor divisor})))
+        (throw (ex-info "The data in :attributes has an inconsistent size"
+                        {:divisor divisor
+                         :expected-count expected-count
+                         :draw-count draw-count})))
       (assoc m divisor draw-count))))
 
 (defn- set-buffers [game entity program]
   (let [divisor->draw-count (reduce-kv
                               (partial set-buffer game entity program)
                               {}
-                              (:attributes entity))
-        vertex-count (divisor->draw-count 0)
-        instance-count (divisor->draw-count 1)]
+                              (:attributes entity))]
+    (when-let [instance-count (divisor->draw-count 1)]
+      (when (not= instance-count (:instance-count entity))
+        (throw (ex-info "The provided instance count is not equal to how many were assoc'ed"
+                        {:instance-count-provided (:instance-count entity)
+                         :instance-count-assoced instance-count}))))
     (if-let [{:keys [data type]} (:indices entity)]
       (let [ctor (or (attribute-type->constructor game type)
-                     (throw (ex-info "The :type provided to :indices is invalid" {})))
+                     (throw (ex-info "The :type provided to :indices is invalid"
+                                     {:type type})))
             buffer (:index-buffer entity)
             draw-count (u/set-index-buffer game buffer (ctor data))]
         (assoc entity :draw-count draw-count))
-      (cond-> entity
-              vertex-count (assoc :draw-count vertex-count)
-              instance-count (assoc :instance-count instance-count)))))
+      (if-let [vertex-count (divisor->draw-count 0)]
+        (assoc entity :draw-count vertex-count)
+        entity))))
 
 (declare render)
 
