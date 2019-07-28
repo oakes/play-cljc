@@ -6,23 +6,6 @@
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
 
-(defrecord Camera [matrix])
-
-(extend-type Camera
-  t/ITranslate
-  (translate [camera x y]
-    (update camera :matrix
-      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
-  t/IRotate
-  (rotate [camera angle]
-    (update camera :matrix
-      #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
-
-(defn ->camera [y-down?]
-  (->Camera (if y-down?
-              (m/look-at-matrix [0 0 1] [0 -1 0])
-              (m/look-at-matrix [0 0 -1] [0 1 0]))))
-
 (def ^:private reverse-matrix (m/scaling-matrix -1 -1))
 
 (defn- project [entity width height]
@@ -73,32 +56,26 @@
                    {:data (vec new-data)
                     :divisor 1})))))
 
-;; TwoDEntity
+;; Camera
 
-(def ^:private two-d-vertex-shader
-  {:inputs
-   '{a_position vec2}
-   :uniforms
-   '{u_matrix mat3}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([]
-           (= gl_Position
-              (vec4
-                (.xy (* u_matrix (vec3 a_position 1)))
-                0 1)))}})
+(defrecord Camera [matrix])
 
-(def ^:private two-d-fragment-shader
-  {:precision "mediump float"
-   :uniforms
-   '{u_color vec4}
-   :outputs
-   '{o_color vec4}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([] (= o_color u_color))}})
+(extend-type Camera
+  t/ITranslate
+  (translate [camera x y]
+    (update camera :matrix
+      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
+  t/IRotate
+  (rotate [camera angle]
+    (update camera :matrix
+      #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
+
+(defn ->camera [y-down?]
+  (->Camera (if y-down?
+              (m/look-at-matrix [0 0 1] [0 -1 0])
+              (m/look-at-matrix [0 0 -1] [0 1 0]))))
+
+;; InstancedTwoDEntity
 
 (def ^:private instanced-two-d-vertex-shader
   {:inputs
@@ -139,6 +116,33 @@
       '{a_matrix u_matrix
         a_color u_color})))
 
+;; TwoDEntity
+
+(def ^:private two-d-vertex-shader
+  {:inputs
+   '{a_position vec2}
+   :uniforms
+   '{u_matrix mat3}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
+           (= gl_Position
+              (vec4
+                (.xy (* u_matrix (vec3 a_position 1)))
+                0 1)))}})
+
+(def ^:private two-d-fragment-shader
+  {:precision "mediump float"
+   :uniforms
+   '{u_color vec4}
+   :outputs
+   '{o_color vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] (= o_color u_color))}})
+
 (defrecord TwoDEntity [])
 
 (extend-type TwoDEntity
@@ -174,38 +178,7 @@
                                   :size 2}}}
        map->TwoDEntity))
 
-;; ImageEntity
-
-(def ^:private image-vertex-shader
-  {:inputs
-   '{a_position vec2}
-   :uniforms
-   '{u_matrix mat3
-     u_texture_matrix mat3}
-   :outputs
-   '{v_tex_coord vec2}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([]
-           (= gl_Position
-              (vec4
-                (.xy (* u_matrix (vec3 a_position 1)))
-                0 1))
-           (= v_tex_coord (.xy (* u_texture_matrix (vec3 a_position 1)))))}})
-
-(def ^:private image-fragment-shader
-  {:precision "mediump float"
-   :uniforms
-   '{u_image sampler2D}
-   :inputs
-   '{v_tex_coord vec2}
-   :outputs
-   '{o_color vec4}
-   :signatures
-   '{main ([] void)}
-   :functions
-   '{main ([] (= o_color (texture u_image v_tex_coord)))}})
+;; InstancedImageEntity
 
 (def ^:private instanced-image-vertex-shader
   {:inputs
@@ -247,6 +220,39 @@
       instanced-entity
       '{a_matrix u_matrix
         a_texture_matrix u_texture_matrix})))
+
+;; ImageEntity
+
+(def ^:private image-vertex-shader
+  {:inputs
+   '{a_position vec2}
+   :uniforms
+   '{u_matrix mat3
+     u_texture_matrix mat3}
+   :outputs
+   '{v_tex_coord vec2}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
+           (= gl_Position
+              (vec4
+                (.xy (* u_matrix (vec3 a_position 1)))
+                0 1))
+           (= v_tex_coord (.xy (* u_texture_matrix (vec3 a_position 1)))))}})
+
+(def ^:private image-fragment-shader
+  {:precision "mediump float"
+   :uniforms
+   '{u_image sampler2D}
+   :inputs
+   '{v_tex_coord vec2}
+   :outputs
+   '{o_color vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] (= o_color (texture u_image v_tex_coord)))}})
 
 (defrecord ImageEntity [width height])
 
