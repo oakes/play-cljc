@@ -1,6 +1,7 @@
 {:paths ["src"]
  :deps {iglu {:mvn/version "0.6.3"}
         expound {:mvn/version "0.7.2"}
+        play-cljc.text {:mvn/version "0.3.0"}
         net.mikera/vectorz-clj {:mvn/version "0.48.0"
                                 :exclusions [net.mikera/core.matrix]}}
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
