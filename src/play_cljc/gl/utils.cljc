@@ -53,29 +53,21 @@
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)
     (#?(:clj count :cljs .-length) indices)))
 
-(defn assoc-instance-attr [index entity {:keys [instance-count] :as instanced-entity} attr-name uni-name]
+(defn assoc-instance-attr [index entity instanced-entity attr-name uni-name]
   (let [new-data (get-in entity [:uniforms uni-name])
         data-len (count new-data)
-        total-len (* data-len instance-count)
         offset (* index data-len)]
-    (when (>= index instance-count)
-      (throw (ex-info "Attempted to assoc at an index that is >= the instance-count"
-                      {:index index
-                       :instance-count instance-count})))
     (update-in instanced-entity [:attributes attr-name]
                (fn [attr]
                  (if attr
                    (update attr :data
                            (fn [old-data]
-                             (let [old-data (cond-> old-data
-                                                    (> (count old-data) total-len)
-                                                    (subvec 0 total-len))]
-                               (persistent!
-                                 (reduce-kv
-                                   (fn [data i n]
-                                     (assoc! data (+ offset i) n))
-                                   (transient old-data)
-                                   new-data)))))
+                             (persistent!
+                               (reduce-kv
+                                 (fn [data i n]
+                                   (assoc! data (+ offset i) n))
+                                 (transient old-data)
+                                 new-data))))
                    {:data (vec new-data)
                     :divisor 1})))))
 

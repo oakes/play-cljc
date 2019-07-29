@@ -179,12 +179,9 @@
   (let [divisor->draw-count (reduce-kv
                               (partial set-buffer game entity program)
                               {}
-                              (:attributes entity))]
-    (when-let [instance-count (divisor->draw-count 1)]
-      (when (not= instance-count (:instance-count entity))
-        (throw (ex-info "The provided instance count is not equal to how many were assoc'ed"
-                        {:instance-count-provided (:instance-count entity)
-                         :instance-count-assoced instance-count}))))
+                              (:attributes entity))
+        vertex-count (divisor->draw-count 0)
+        instance-count (divisor->draw-count 1)]
     (if-let [{:keys [data type]} (:indices entity)]
       (let [ctor (or (attribute-type->constructor game type)
                      (throw (ex-info "The :type provided to :indices is invalid"
@@ -192,9 +189,9 @@
             buffer (:index-buffer entity)
             draw-count (u/set-index-buffer game buffer (ctor data))]
         (assoc entity :draw-count draw-count))
-      (if-let [vertex-count (divisor->draw-count 0)]
-        (assoc entity :draw-count vertex-count)
-        entity))))
+      (cond-> entity
+              vertex-count (assoc :draw-count vertex-count)
+              instance-count (assoc :instance-count instance-count)))))
 
 (declare render)
 

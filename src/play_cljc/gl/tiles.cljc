@@ -1,7 +1,7 @@
 (ns play-cljc.gl.tiles
   (:require [play-cljc.math :as m]
             [play-cljc.transforms :as t]
-            [play-cljc.gl.entities-instanced :as ei]
+            [play-cljc.instances :as i]
             [play-cljc.gl.utils :as u]))
 
 (def ^:private ^:const reverse-matrix (m/scaling-matrix -1 -1))
@@ -63,7 +63,7 @@
       #(->> %
             (m/multiply-matrices 3 matrix)
             (m/multiply-matrices 3 reverse-matrix))))
-  ei/IInstanced
+  i/IInstanced
   (assoc [instanced-entity i entity]
     (reduce-kv
       (partial u/assoc-instance-attr i entity)
@@ -92,12 +92,11 @@
                 (m/translation-matrix (/ crop-x width) (/ crop-y height)))
               (m/multiply-matrices 3
                 (m/scaling-matrix (/ crop-width width) (/ crop-height height)))))))
-  ei/IInstance
-  (->instanced-entity [entity instance-count]
+  i/IInstance
+  (->instanced-entity [entity]
     (-> entity
         (assoc :vertex instanced-tile-vertex-shader
-               :fragment instanced-tile-fragment-shader
-               :instance-count instance-count)
+               :fragment instanced-tile-fragment-shader)
         (update :uniforms dissoc 'u_matrix 'u_texture_matrix)
         (update :uniforms merge {'u_project_matrix (m/identity-matrix 3)
                                  'u_scale_matrix (m/identity-matrix 3)

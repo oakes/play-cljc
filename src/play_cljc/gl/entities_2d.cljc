@@ -1,8 +1,8 @@
 (ns play-cljc.gl.entities-2d
   (:require [play-cljc.math :as m]
             [play-cljc.transforms :as t]
+            [play-cljc.instances :as i]
             [play-cljc.primitives-2d :as primitives]
-            [play-cljc.gl.entities-instanced :as ei]
             [play-cljc.gl.utils :as u]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
@@ -83,7 +83,7 @@
 (defrecord InstancedTwoDEntity [instance-count])
 
 (extend-type InstancedTwoDEntity
-  ei/IInstanced
+  i/IInstanced
   (assoc [instanced-entity i entity]
     (reduce-kv
       (partial u/assoc-instance-attr i entity)
@@ -134,12 +134,11 @@
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba))
-  ei/IInstance
-  (->instanced-entity [entity instance-count]
+  i/IInstance
+  (->instanced-entity [entity]
     (-> entity
         (assoc :vertex instanced-two-d-vertex-shader
-               :fragment instanced-two-d-fragment-shader
-               :instance-count instance-count)
+               :fragment instanced-two-d-fragment-shader)
         (update :uniforms dissoc 'u_matrix 'u_color)
         (update :attributes merge {'a_matrix {:data [] :divisor 1}
                                    'a_color {:data [] :divisor 1}})
@@ -188,7 +187,7 @@
 (defrecord InstancedImageEntity [instance-count])
 
 (extend-type InstancedImageEntity
-  ei/IInstanced
+  i/IInstanced
   (assoc [instanced-entity i entity]
     (reduce-kv
       (partial u/assoc-instance-attr i entity)
@@ -250,12 +249,11 @@
               (m/translation-matrix (/ crop-x width) (/ crop-y height)))
             (m/multiply-matrices 3
               (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))
-  ei/IInstance
-  (->instanced-entity [entity instance-count]
+  i/IInstance
+  (->instanced-entity [entity]
     (-> entity
         (assoc :vertex instanced-image-vertex-shader
-               :fragment instanced-image-fragment-shader
-               :instance-count instance-count)
+               :fragment instanced-image-fragment-shader)
         (update :uniforms dissoc 'u_matrix 'u_texture_matrix)
         (update :attributes merge {'a_matrix {:data [] :divisor 1}
                                    'a_texture_matrix {:data [] :divisor 1}})

@@ -2,10 +2,10 @@
   "2D examples based on content from webgl2fundamentals.org"
   (:require [play-cljc.gl.core :as c]
             [play-cljc.gl.entities-2d :as e]
-            [play-cljc.gl.entities-instanced :as ei]
             [play-cljc.gl.example-utils :as eu]
             [play-cljc.gl.example-data :as data]
             [play-cljc.transforms :as t]
+            [play-cljc.instances :as i]
             [play-cljc.primitives-2d :as primitives]
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])
@@ -18,7 +18,7 @@
   (gl game disable (gl game CULL_FACE))
   (gl game disable (gl game DEPTH_TEST))
   (->> entities
-       (reduce-kv ei/assoc (ei/->instanced-entity entity (count entities)))
+       (reduce-kv i/assoc (i/->instanced-entity entity))
        (c/compile game)
        (assoc game :entity)))
 
