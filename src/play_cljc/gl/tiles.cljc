@@ -46,6 +46,10 @@
    :functions
    '{main ([] (= o_color (texture u_image v_tex_coord)))}})
 
+(def ^:private instanced-tile-attrs->unis
+  '{a_matrix u_matrix
+    a_texture_matrix u_texture_matrix})
+
 (defrecord InstancedTileEntity [instance-count])
 
 (extend-type InstancedTileEntity
@@ -68,8 +72,12 @@
     (reduce-kv
       (partial u/assoc-instance-attr i entity)
       instanced-entity
-      '{a_matrix u_matrix
-        a_texture_matrix u_texture_matrix})))
+      instanced-tile-attrs->unis))
+  (dissoc [instanced-entity i]
+    (reduce-kv
+      (partial u/dissoc-instance-attr i)
+      instanced-entity
+      instanced-tile-attrs->unis)))
 
 ;; TileEntity
 

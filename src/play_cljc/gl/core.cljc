@@ -96,35 +96,6 @@
                       (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer)
                       fb))}))
 
-(def ^:private type->attribute-opts
-  '{float {:size 1}
-    vec2  {:size 2}
-    vec3  {:size 3}
-    vec4  {:size 4}
-    mat2  {:size 4}
-    mat3  {:size 3
-           :iter 3}
-    mat4  {:size 4
-           :iter 4}})
-
-(defn- get-uniform-type [{:keys [vertex fragment]} uni-name]
-  (or (get-in vertex [:uniforms uni-name])
-      (get-in fragment [:uniforms uni-name])
-      (throw (ex-info "You must define the uniform in your vertex or fragment shader's :uniforms"
-                      {:uniform-name uni-name}))))
-
-(defn- get-attribute-type [{:keys [vertex]} attr-name]
-  (or (get-in vertex [:inputs attr-name])
-      ;; for backwards compatibility
-      (get-in vertex [:attributes attr-name])
-      (throw (ex-info "You must define the attribute in your vertex shader's :inputs"
-                      {:attribute-name attr-name}))))
-
-(defn- get-attribute-names [vertex]
-  (or (some-> vertex :inputs keys)
-      ;; for backwards compatibility
-      (some-> vertex :attributes keys)))
-
 (defn- call-uniform* [game entity glsl-type ^Integer uni-loc uni-name data]
   (case glsl-type
     float     (gl game uniform1f uni-loc #?(:clj (float data) :cljs data))
@@ -141,16 +112,10 @@
                                                    (-> data :opts :src-type) d)))))))
 
 (defn- call-uniform [game {:keys [uniform-locations] :as entity} [uni-name uni-data]]
-  (let [uni-type (get-uniform-type entity uni-name)
+  (let [uni-type (u/get-uniform-type entity uni-name)
         uni-loc (get uniform-locations uni-name)]
     (or (call-uniform* game entity uni-type uni-loc uni-name uni-data)
         entity)))
-
-(defn- merge-attribute-opts [game entity attr-name opts]
-  (let [type-name (get-attribute-type entity attr-name)]
-    (merge u/default-opts
-           (type->attribute-opts type-name)
-           (update opts :type #(or % (gl game FLOAT))))))
 
 (defn- set-attribute [game entity program buffer attr-name {:keys [data type] :as opts}]
   (let [data (convert-type game attr-name type data)]
@@ -164,7 +129,8 @@
     (let [buffer (or (get-in entity [:attribute-buffers attr-name])
                      (throw (ex-info "Can't find buffer for attribute"
                                      {:attribute-name attr-name})))
-          opts (merge-attribute-opts game entity attr-name opts)
+          opts (-> (u/merge-attribute-opts entity attr-name opts)
+                   (update :type #(or % (gl game FLOAT))))
           divisor (:divisor opts)
           expected-count (get m divisor)
           draw-count (set-attribute game entity program buffer attr-name opts)]
@@ -270,7 +236,7 @@
         _ (gl game useProgram program)
         vao (gl game #?(:clj genVertexArrays :cljs createVertexArray))
         _ (gl game bindVertexArray vao)
-        attr-names (get-attribute-names vertex)
+        attr-names (u/get-attribute-names vertex)
         entity (cond-> entity
                        attr-names
                        (assoc :attribute-buffers

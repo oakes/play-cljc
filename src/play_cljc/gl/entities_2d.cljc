@@ -80,6 +80,10 @@
    :functions
    '{main ([] (= o_color v_color))}})
 
+(def ^:private instanced-two-d-attrs->unis
+  '{a_matrix u_matrix
+    a_color u_color})
+
 (defrecord InstancedTwoDEntity [instance-count])
 
 (extend-type InstancedTwoDEntity
@@ -88,8 +92,12 @@
     (reduce-kv
       (partial u/assoc-instance-attr i entity)
       instanced-entity
-      '{a_matrix u_matrix
-        a_color u_color})))
+      instanced-two-d-attrs->unis))
+  (dissoc [instanced-entity i]
+    (reduce-kv
+      (partial u/dissoc-instance-attr i)
+      instanced-entity
+      instanced-two-d-attrs->unis)))
 
 ;; TwoDEntity
 
@@ -184,6 +192,10 @@
    :functions
    '{main ([] (= o_color (texture u_image v_tex_coord)))}})
 
+(def ^:private instanced-image-attrs->unis
+  '{a_matrix u_matrix
+    a_texture_matrix u_texture_matrix})
+
 (defrecord InstancedImageEntity [instance-count])
 
 (extend-type InstancedImageEntity
@@ -192,8 +204,12 @@
     (reduce-kv
       (partial u/assoc-instance-attr i entity)
       instanced-entity
-      '{a_matrix u_matrix
-        a_texture_matrix u_texture_matrix})))
+      instanced-image-attrs->unis))
+  (dissoc [instanced-entity i]
+    (reduce-kv
+      (partial u/dissoc-instance-attr i)
+      instanced-entity
+      instanced-image-attrs->unis)))
 
 ;; ImageEntity
 

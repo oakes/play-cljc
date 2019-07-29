@@ -27,7 +27,6 @@
   (gl game #?(:clj genBuffers :cljs createBuffer)))
 
 (def ^:const float-size 4)
-(def ^:const default-opts {:iter 1 :normalize false :stride 0 :offset 0 :divisor 0})
 
 (defn set-array-buffer [game program buffer attrib-name data
                         {:keys [size type iter normalize stride offset divisor] :as opts}]
@@ -53,6 +52,42 @@
     (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER) previous-index-buffer)
     (#?(:clj count :cljs .-length) indices)))
 
+(defn get-uniform-type [{:keys [vertex fragment]} uni-name]
+  (or (get-in vertex [:uniforms uni-name])
+      (get-in fragment [:uniforms uni-name])
+      (throw (ex-info "You must define the uniform in your vertex or fragment shader's :uniforms"
+                      {:uniform-name uni-name}))))
+
+(defn get-attribute-type [{:keys [vertex]} attr-name]
+  (or (get-in vertex [:inputs attr-name])
+      ;; for backwards compatibility
+      (get-in vertex [:attributes attr-name])
+      (throw (ex-info "You must define the attribute in your vertex shader's :inputs"
+                      {:attribute-name attr-name}))))
+
+(defn get-attribute-names [vertex]
+  (or (some-> vertex :inputs keys)
+      ;; for backwards compatibility
+      (some-> vertex :attributes keys)))
+
+(def ^:const default-opts {:iter 1 :normalize false :stride 0 :offset 0 :divisor 0})
+(def ^:const type->attribute-opts
+  '{float {:size 1}
+    vec2  {:size 2}
+    vec3  {:size 3}
+    vec4  {:size 4}
+    mat2  {:size 4}
+    mat3  {:size 3
+           :iter 3}
+    mat4  {:size 4
+           :iter 4}})
+
+(defn merge-attribute-opts [entity attr-name opts]
+  (let [type-name (get-attribute-type entity attr-name)]
+    (merge default-opts
+           (type->attribute-opts type-name)
+           opts)))
+
 (defn assoc-instance-attr [index entity instanced-entity attr-name uni-name]
   (let [new-data (get-in entity [:uniforms uni-name])
         data-len (count new-data)
@@ -70,4 +105,15 @@
                                  new-data))))
                    {:data (vec new-data)
                     :divisor 1})))))
+
+(defn dissoc-instance-attr [index instanced-entity attr-name uni-name]
+  (update-in instanced-entity [:attributes attr-name]
+             (fn [attr]
+               (let [{:keys [size iter]} (merge-attribute-opts instanced-entity attr-name attr)
+                     data-len (* size iter)
+                     offset (* index data-len)]
+                 (update attr :data
+                         (fn [data]
+                           (-> (subvec data 0 offset)
+                               (into (subvec data (+ offset data-len))))))))))
 
