@@ -39,11 +39,7 @@
   t/ITranslate
   (translate [camera x y]
     (update camera :matrix
-      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
-  t/IRotate
-  (rotate [camera angle]
-    (update camera :matrix
-      #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
+      #(m/multiply-matrices 3 (m/translation-matrix x y) %))))
 
 (defn ->camera [y-down?]
   (->Camera (if y-down?
