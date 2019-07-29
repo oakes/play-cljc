@@ -1,4 +1,4 @@
-(ns play-cljc.gl.tiled-map
+(ns play-cljc.gl.tiles
   (:require [play-cljc.math :as m]
             [play-cljc.transforms :as t]
             [play-cljc.gl.entities-instanced :as ei]
