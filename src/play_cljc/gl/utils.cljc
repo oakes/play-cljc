@@ -70,8 +70,8 @@
       ;; for backwards compatibility
       (some-> vertex :attributes keys)))
 
-(def ^:const default-opts {:iter 1 :normalize false :stride 0 :offset 0 :divisor 0})
-(def ^:const type->attribute-opts
+(def default-opts {:iter 1 :normalize false :stride 0 :offset 0 :divisor 0})
+(def type->attribute-opts
   '{float {:size 1}
     vec2  {:size 2}
     vec3  {:size 3}
