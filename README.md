@@ -29,10 +29,10 @@ This will start you off with a little platformer. It will contain a README with 
 The commands below are for developing this library, *not* for developing a game created with the template above. For the latter, look in the README file that it generated.
 
 * Install [the Clojure CLI tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools)
-* To develop the web version with figwheel: `clj -A:dev dev.clj`
-* To develop the native version: `clj -A:dev dev.clj native`
-  * On Mac OS, you will need to run `clj -A:dev -J-XstartOnFirstThread dev.clj native`
-* To install the release version: `clj -A:prod prod.clj install`
+* To develop the web version with figwheel: `clj -A:dev`
+* To develop the native version: `clj -A:dev native`
+  * On Mac OS, you will need to run `clj -A:dev -J-XstartOnFirstThread native`
+* To install the release version: `clj -A:prod install`
 
 ## Licensing
 
