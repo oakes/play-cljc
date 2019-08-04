@@ -114,6 +114,7 @@
                      offset (* index data-len)]
                  (update attr :data
                          (fn [data]
-                           (-> (subvec data 0 offset)
-                               (into (subvec data (+ offset data-len))))))))))
+                           (let [v1 (subvec data 0 offset)
+                                 v2 (subvec data (+ offset data-len))]
+                             (into (into [] v1) v2))))))))
 
