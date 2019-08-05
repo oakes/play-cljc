@@ -140,6 +140,8 @@
     (assoc-in entity [:uniforms 'u_color] rgba))
   i/IInstance
   (->instanced-entity [entity]
+    (when (:program entity)
+      (throw (ex-info "Only uncompiled entities can be passed to ->instanced-entity" {})))
     (-> entity
         (assoc :vertex instanced-two-d-vertex-shader
                :fragment instanced-two-d-fragment-shader)

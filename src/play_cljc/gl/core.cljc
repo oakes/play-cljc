@@ -136,7 +136,8 @@
           draw-count (set-attribute game entity program buffer attr-name opts)]
       (when (and expected-count (not= expected-count draw-count))
         (throw (ex-info "The data in :attributes has an inconsistent size"
-                        {:divisor divisor
+                        {:attribute-name attr-name
+                         :divisor divisor
                          :expected-count expected-count
                          :draw-count draw-count})))
       (assoc m divisor draw-count))))
@@ -173,9 +174,10 @@
     (let [previous-framebuffer (gl game #?(:clj getInteger :cljs getParameter)
                                  (gl game FRAMEBUFFER_BINDING))]
       (gl game bindFramebuffer (gl game FRAMEBUFFER) (:framebuffer texture))
-      (if (map? inner-entities)
-        (render game inner-entities)
-        (run! #(render game %) inner-entities))
+      (doseq [entity inner-entities]
+        (when-not (:program entity)
+          (throw (ex-info "Only compiled entities can be passed to :render-to-texture" {})))
+        (render game entity))
       (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
 
 (def ^:private
@@ -196,14 +198,10 @@
                                       :uniform ::data)))
 (s/def ::indices (s/keys :req-un [::data ::type]))
 
-(s/def ::render-to-texture (s/map-of symbol? (s/or
-                                               :single ::renderable
-                                               :multiple (s/coll-of ::renderable))))
-
 (s/def ::uncompiled-entity
   (s/keys
     :req-un [::vertex ::fragment]
-    :opt-un [::attributes ::uniforms ::indices ::render-to-texture]))
+    :opt-un [::attributes ::uniforms ::indices]))
 
 (s/def ::program #?(:clj integer? :cljs #(instance? js/WebGLProgram %)))
 (s/def ::vao #?(:clj integer? :cljs #(instance? js/WebGLVertexArrayObject %)))
@@ -216,7 +214,7 @@
 (s/def ::compiled-entity
   (s/keys
     :req-un [::program ::vao ::uniform-locations ::textures]
-    :opt-un [::render-to-texture ::draw-count ::instance-count ::index-buffer]))
+    :opt-un [::draw-count ::instance-count ::index-buffer]))
 
 (s/fdef compile
   :args (s/cat :game ::game :entity ::uncompiled-entity)
@@ -297,16 +295,6 @@
 
 (defn- render-viewport [game {:keys [x y width height]}]
   (gl game viewport x y width height))
-
-(s/def ::misc-map (s/keys :opt-un [::viewport ::clear]))
-(s/def ::renderable (s/or
-                      :compiled-entity (s/merge ::compiled-entity ::misc-map)
-                      :misc-map ::misc-map))
-
-(s/fdef render
-  :args (s/cat
-          :game ::game
-          :entity ::renderable))
 
 (defn render
   "Renders the provided entity."
