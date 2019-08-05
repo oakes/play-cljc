@@ -156,6 +156,67 @@
                                   :size 2}}}
        map->TwoDEntity))
 
+;; InstancedImageEntity
+
+(def ^:private instanced-image-vertex-shader
+  {:inputs
+   '{a_position vec2
+     a_matrix mat3
+     a_texture_matrix mat3}
+   :uniforms
+   '{u_matrix mat3}
+   :outputs
+   '{v_tex_coord vec2}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([]
+           (= gl_Position
+              (vec4
+                (.xy (* u_matrix
+                        a_matrix
+                        (vec3 a_position 1)))
+                0 1))
+           (= v_tex_coord (.xy (* a_texture_matrix (vec3 a_position 1)))))}})
+
+(def ^:private instanced-image-fragment-shader
+  {:precision "mediump float"
+   :uniforms
+   '{u_image sampler2D}
+   :inputs
+   '{v_tex_coord vec2}
+   :outputs
+   '{o_color vec4}
+   :signatures
+   '{main ([] void)}
+   :functions
+   '{main ([] (= o_color (texture u_image v_tex_coord)))}})
+
+(def ^:private instanced-image-attrs->unis
+  '{a_matrix u_matrix
+    a_texture_matrix u_texture_matrix})
+
+(defrecord InstancedImageEntity [])
+
+(extend-type InstancedImageEntity
+  t/IProject
+  (project [entity width height] (project entity width height))
+  t/IScale
+  (scale [entity x y] (scale entity x y))
+  t/ICamera
+  (camera [entity cam] (camera entity cam))
+  i/IInstanced
+  (assoc [instanced-entity i entity]
+    (reduce-kv
+      (partial u/assoc-instance-attr i entity)
+      instanced-entity
+      instanced-image-attrs->unis))
+  (dissoc [instanced-entity i]
+    (reduce-kv
+      (partial u/dissoc-instance-attr i)
+      instanced-entity
+      instanced-image-attrs->unis)))
+
 ;; ImageEntity
 
 (def ^:private image-vertex-shader
@@ -209,7 +270,17 @@
             (m/multiply-matrices 3
               (m/translation-matrix (/ crop-x width) (/ crop-y height)))
             (m/multiply-matrices 3
-              (m/scaling-matrix (/ crop-width width) (/ crop-height height)))))))
+              (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))
+  i/IInstance
+  (->instanced-entity [entity]
+    (-> entity
+        (assoc :vertex instanced-image-vertex-shader
+               :fragment instanced-image-fragment-shader)
+        (update :uniforms dissoc 'u_matrix 'u_texture_matrix)
+        (update :uniforms merge {'u_matrix (m/identity-matrix 3)})
+        (update :attributes merge {'a_matrix {:data [] :divisor 1}
+                                   'a_texture_matrix {:data [] :divisor 1}})
+        map->InstancedImageEntity)))
 
 (defn ->image-entity [game data width height]
    (->> {:vertex image-vertex-shader
