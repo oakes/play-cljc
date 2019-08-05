@@ -1,6 +1,0 @@
-^{:watch-dirs ["src" "dev-resources"]}
-{:main          play-cljc.dev
- :optimizations :none
- :output-to     "dev-resources/dynadoc-extend/main.js"
- :output-dir    "dev-resources/dynadoc-extend/main.out"
- :asset-path    "/main.out"}
