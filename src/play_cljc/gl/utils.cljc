@@ -89,6 +89,8 @@
            opts)))
 
 (defn assoc-instance-attr [index entity instanced-entity attr-name uni-name]
+  (when (:program entity)
+    (throw (ex-info "Only uncompiled entities can be assoc'ed to an instanced entity" {})))
   (let [new-data (get-in entity [:uniforms uni-name])
         data-len (count new-data)
         offset (* index data-len)]
