@@ -11,7 +11,7 @@
   (:import  [org.lwjgl.glfw GLFW Callbacks GLFWKeyCallbackI]
             [org.lwjgl.opengl GL GL41]))
 
-(defn -main []
+(defn start [ns-syms]
   (st/instrument)
   (set! s/*explain-out* expound/printer)
   (when-not (GLFW/glfwInit)
@@ -30,9 +30,7 @@
       (GLFW/glfwShowWindow window)
       ;; loop
       (GL/createCapabilities)
-      (let [*examples (-> (for [ns-sym '[play-cljc.gl.examples-2d
-                                         play-cljc.gl.examples-3d
-                                         play-cljc.gl.examples-advanced]
+      (let [*examples (-> (for [ns-sym ns-syms
                                 [example-sym examples] (sort-by first (get @ex/registry-ref ns-sym))
                                 example examples]
                             {:ns-sym ns-sym

@@ -20,6 +20,8 @@
 
 (defmethod task "native"
   [_]
-  (dev/-main))
+  (dev/start '[play-cljc.gl.examples-2d
+               play-cljc.gl.examples-3d
+               play-cljc.gl.examples-advanced]))
 
 (task *command-line-args*)
