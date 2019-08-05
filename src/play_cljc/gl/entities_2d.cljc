@@ -80,7 +80,7 @@
   '{a_matrix u_matrix
     a_color u_color})
 
-(defrecord InstancedTwoDEntity [instance-count])
+(defrecord InstancedTwoDEntity [])
 
 (extend-type InstancedTwoDEntity
   i/IInstanced
