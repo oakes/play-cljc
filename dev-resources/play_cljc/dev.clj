@@ -2,6 +2,7 @@
   (:require [play-cljc.gl.examples-2d]
             [play-cljc.gl.examples-3d]
             [play-cljc.gl.examples-advanced]
+            [play-cljc.gl.examples-text]
             [play-cljc.macros-js]
             [dynadoc.example :as ex]
             [dynadoc.transform :as transform]

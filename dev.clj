@@ -22,6 +22,7 @@
   [_]
   (dev/start '[play-cljc.gl.examples-2d
                play-cljc.gl.examples-3d
-               play-cljc.gl.examples-advanced]))
+               play-cljc.gl.examples-advanced
+               play-cljc.gl.text]))
 
 (task *command-line-args*)
