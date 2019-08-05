@@ -1,4 +1,4 @@
-(defproject play-cljc/lein-template "0.5.2"
+(defproject play-cljc/lein-template "0.6.0"
   :description "A template for making play-cljc projects"
   :url "https://github.com/oakes/play-cljc"
   :license {:name "Public Domain"
