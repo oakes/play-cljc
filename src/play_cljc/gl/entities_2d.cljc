@@ -53,6 +53,8 @@
    '{a_position vec2
      a_matrix mat3
      a_color vec4}
+   :uniforms
+   '{u_matrix mat3}
    :outputs
    '{v_color vec4}
    :signatures
@@ -62,7 +64,7 @@
            (= v_color a_color)
            (= gl_Position
               (vec4
-                (.xy (* a_matrix (vec3 a_position 1)))
+                (.xy (* u_matrix a_matrix (vec3 a_position 1)))
                 0 1)))}})
 
 (def ^:private instanced-two-d-fragment-shader
@@ -83,6 +85,16 @@
 (defrecord InstancedTwoDEntity [])
 
 (extend-type InstancedTwoDEntity
+  t/IProject
+  (project [entity width height] (project entity width height))
+  t/ITranslate
+  (translate [entity x y] (translate entity x y))
+  t/IScale
+  (scale [entity x y] (scale entity x y))
+  t/IRotate
+  (rotate [entity angle] (rotate entity angle))
+  t/ICamera
+  (camera [entity cam] (camera entity cam))
   i/IInstanced
   (assoc [instanced-entity i entity]
     (reduce-kv
@@ -144,6 +156,7 @@
         (assoc :vertex instanced-two-d-vertex-shader
                :fragment instanced-two-d-fragment-shader)
         (update :uniforms dissoc 'u_matrix 'u_color)
+        (update :uniforms merge {'u_matrix (m/identity-matrix 3)})
         (update :attributes merge {'a_matrix {:data [] :divisor 1}
                                    'a_color {:data [] :divisor 1}})
         map->InstancedTwoDEntity)))
@@ -153,7 +166,9 @@
         :fragment two-d-fragment-shader
         :attributes {'a_position {:data data
                                   :type (gl game FLOAT)
-                                  :size 2}}}
+                                  :size 2}}
+        :uniforms {'u_matrix (m/identity-matrix 3)
+                   'u_color [0 0 0 1]}}
        map->TwoDEntity))
 
 ;; InstancedImageEntity
