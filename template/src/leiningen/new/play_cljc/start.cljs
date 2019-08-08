@@ -14,7 +14,7 @@
 
 (defn game-loop [game]
   (resize game)
-  (let [game (c/run game)]
+  (let [game (c/tick game)]
     (js/requestAnimationFrame
       (fn [ts]
         (let [ts (* ts 0.001)]

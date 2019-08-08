@@ -85,7 +85,7 @@
                   game (assoc game
                               :delta-time (- ts (:total-time game))
                               :total-time ts)
-                  game (c/run game)]
+                  game (c/tick game)]
               (GLFW/glfwSwapBuffers window)
               (GLFW/glfwPollEvents)
               (recur game)))))
