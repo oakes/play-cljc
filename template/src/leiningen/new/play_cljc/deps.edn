@@ -23,7 +23,8 @@
            :macos {:extra-deps {org.lwjgl/lwjgl$natives-macos {:mvn/version "3.2.2"}
                                 org.lwjgl/lwjgl-glfw$natives-macos {:mvn/version "3.2.2"}
                                 org.lwjgl/lwjgl-opengl$natives-macos {:mvn/version "3.2.2"}
-                                org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.2"}}}
+                                org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.2"}}
+                   :jvm-opts ["-XstartOnFirstThread"]}
            :windows {:extra-deps {org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.2"}
                                   org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.2"}
                                   org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.2"}
