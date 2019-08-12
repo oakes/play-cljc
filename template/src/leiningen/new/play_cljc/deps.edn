@@ -16,7 +16,8 @@
                  :jvm-opts ["-Xmx1g"]}
            :prod {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                                leiningen {:mvn/version "2.9.0"}}
-                  :main-opts ["prod.clj"]}
+                  :main-opts ["prod.clj"]
+                  :jvm-opts ["-Xmx1g"]}
            :linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.2"}
                                 org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.2"}
                                 org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.2"}
