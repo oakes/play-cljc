@@ -12,7 +12,8 @@
                               orchestra {:mvn/version "2018.12.06-2"}
                               expound {:mvn/version "0.7.2"}}
                  :extra-paths ["target"]
-                 :main-opts ["dev.clj"]}
+                 :main-opts ["dev.clj"]
+                 :jvm-opts ["-Xmx1g"]}
            :prod {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                                leiningen {:mvn/version "2.9.0"}}
                   :main-opts ["prod.clj"]}
