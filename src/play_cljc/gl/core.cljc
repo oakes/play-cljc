@@ -311,13 +311,16 @@
     (some->> program (gl game useProgram))
     (some->> vao (gl game bindVertexArray))
     (some->> index-buffer (gl game bindBuffer (gl game ELEMENT_ARRAY_BUFFER)))
-    (let [{:keys [textures]} (reduce
-                               (partial call-uniform game)
-                               entity
-                               uniforms)]
-      (doseq [{:keys [unit location]} (vals textures)]
-        (gl game uniform1i location unit))
-      (some->> entity :render-to-texture (render->texture game textures)))
+    (when uniforms
+      (when-not program
+        (throw (ex-info "Only compiled entities can be rendered" {})))
+      (let [{:keys [textures]} (reduce
+                                 (partial call-uniform game)
+                                 entity
+                                 uniforms)]
+        (doseq [{:keys [unit location]} (vals textures)]
+          (gl game uniform1i location unit))
+        (some->> entity :render-to-texture (render->texture game textures))))
     (some->> viewport (render-viewport game))
     (some->> clear (render-clear game))
     (let [{:keys [draw-count instance-count]} (set-buffers game entity program)]
