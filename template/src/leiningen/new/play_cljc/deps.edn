@@ -6,14 +6,14 @@
         org.lwjgl/lwjgl-opengl {:mvn/version "3.2.2"}
         org.lwjgl/lwjgl-stb {:mvn/version "3.2.2"}
         edna {:mvn/version "1.6.0"}}
- :jvm-opts ["-Xmx1g"]
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.0"}
                               nightlight {:mvn/version "RELEASE"}
                               orchestra {:mvn/version "2018.12.06-2"}
                               expound {:mvn/version "0.7.2"}}
                  :extra-paths ["target"]
-                 :main-opts ["dev.clj"]}
+                 :main-opts ["dev.clj"]
+                 :jvm-opts ["-Xmx1g"]}
            :prod {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                                leiningen {:mvn/version "2.9.0"}}
                   :main-opts ["prod.clj"]}
