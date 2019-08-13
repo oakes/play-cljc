@@ -87,6 +87,8 @@
 (extend-type InstancedTwoDEntity
   t/IProject
   (project [entity width height] (project entity width height))
+  t/ITranslate
+  (translate [entity x y] (translate entity x y))
   t/IScale
   (scale [entity x y] (scale entity x y))
   t/ICamera
@@ -212,6 +214,8 @@
 (extend-type InstancedImageEntity
   t/IProject
   (project [entity width height] (project entity width height))
+  t/ITranslate
+  (translate [entity x y] (translate entity x y))
   t/IScale
   (scale [entity x y] (scale entity x y))
   t/ICamera
