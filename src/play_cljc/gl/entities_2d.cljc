@@ -100,10 +100,10 @@
       instanced-entity
       instanced-two-d-attrs->unis))
   (dissoc [instanced-entity i]
-    (reduce-kv
+    (reduce
       (partial u/dissoc-instance-attr i)
       instanced-entity
-      instanced-two-d-attrs->unis)))
+      (keys instanced-two-d-attrs->unis))))
 
 ;; TwoDEntity
 
@@ -227,10 +227,10 @@
       instanced-entity
       instanced-image-attrs->unis))
   (dissoc [instanced-entity i]
-    (reduce-kv
+    (reduce
       (partial u/dissoc-instance-attr i)
       instanced-entity
-      instanced-image-attrs->unis)))
+      (keys instanced-image-attrs->unis))))
 
 ;; ImageEntity
 

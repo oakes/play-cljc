@@ -108,7 +108,7 @@
                    {:data (vec new-data)
                     :divisor 1})))))
 
-(defn dissoc-instance-attr [index instanced-entity attr-name uni-name]
+(defn dissoc-instance-attr [index instanced-entity attr-name]
   (update-in instanced-entity [:attributes attr-name]
              (fn [attr]
                (let [{:keys [size iter]} (merge-attribute-opts instanced-entity attr-name attr)
