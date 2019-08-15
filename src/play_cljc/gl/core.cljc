@@ -98,7 +98,12 @@
 
 (defn- call-uniform* [game entity glsl-type ^Integer uni-loc uni-name data]
   (case glsl-type
-    float     (gl game uniform1f uni-loc #?(:clj (float data) :cljs data))
+    float     (if (number? data)
+                (gl game uniform1f uni-loc #?(:clj (float data) :cljs data))
+                (gl game uniform1fv uni-loc #?(:clj (float-array data) :cljs data)))
+    int       (if (number? data)
+                (gl game uniform1i uni-loc #?(:clj (int data) :cljs data))
+                (gl game uniform1iv uni-loc #?(:clj (int-array data) :cljs data)))
     vec2      (gl game uniform2fv uni-loc #?(:clj (float-array data) :cljs data))
     vec3      (gl game uniform3fv uni-loc #?(:clj (float-array data) :cljs data))
     vec4      (gl game uniform4fv uni-loc #?(:clj (float-array data) :cljs data))
@@ -109,7 +114,11 @@
                 (create-texture game uni-loc (update data :data
                                                (fn [d]
                                                  (convert-type game uni-name
-                                                   (-> data :opts :src-type) d)))))))
+                                                   (-> data :opts :src-type) d)))))
+    (if (vector? glsl-type)
+      (let [[type-name size] glsl-type]
+        (call-uniform* game entity type-name uni-loc uni-name data))
+      (throw (ex-info "Uniform type not recognized" {:uniform-type glsl-type :uniform-name uni-name})))))
 
 (defn- call-uniform [game {:keys [uniform-locations] :as entity} [uni-name uni-data]]
   (let [uni-type (u/get-uniform-type entity uni-name)
