@@ -53,7 +53,7 @@
            (= v_position (* u_worldViewProjection a_position))
            (= v_normal (.xyz (* u_worldInverseTranspose (vec4 a_normal 0))))
            (= v_surfaceToLight (- u_lightWorldPos (.xyz (* u_world a_position))))
-           (= v_surfaceToView (.xyz (- (3 u_viewInverse) (* u_world a_position))))
+           (= v_surfaceToView (.xyz (- [u_viewInverse 3] (* u_world a_position))))
            (= gl_Position v_position))}})
 
 (def advanced-fragment-shader
