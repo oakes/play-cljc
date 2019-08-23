@@ -27,7 +27,6 @@ This will start you off with a little platformer. It will contain a README with 
 ## Development
 
 * Install [the Clojure CLI tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools)
-* To develop the web version with figwheel: `clj -A:dev`
 * To develop the native version on each OS:
   * `clj -A:dev:linux native`
   * `clj -A:dev:macos native`
