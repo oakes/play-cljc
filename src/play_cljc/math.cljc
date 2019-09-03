@@ -10,32 +10,23 @@
   (#?(:clj to-array-2d :cljs clj->js) v))
 
 (defn identity-matrix [size]
-  #?(:clj
-     (vec (mat/as-vector (mat/identity-matrix size)))
-
-     :cljs
-     (vec (for [row (range size)
-                col (range size)]
-            (if (= row col) 1 0)))))
+  (vec (for [row (range size)
+             col (range size)]
+         (if (= row col) 1 0))))
 
 (defn multiply-matrices [size m1 m2]
-  #?(:clj
-     (let [m1 (mat/matrix (partition size m1))
-           m2 (mat/matrix (partition size (or m2 (identity-matrix size))))]
-       (vec (mat/as-vector (mat/* m1 m2))))
-
-     :cljs
-     (let [m1 (mapv vec (partition size m1))
-           m2 (mapv vec (partition size (or m2 (identity-matrix size))))
-           result (for [i (range size)
-                        j (range size)]
-                    (reduce
-                     (fn [sum k]
-                       (+ sum (* (get-in m1 [i k])
-                                 (get-in m2 [k j]))))
-                     0
-                     (range size)))]
-       (vec result))))
+  (let [m1 (mapv vec (partition size m1))
+        m2 (mapv vec (partition size (or m2 (identity-matrix size))))
+        size-range (range size)
+        result (for [i size-range
+                     j size-range]
+                 (reduce
+                   (fn [sum k]
+                     (+ sum (* (get-in m1 [i k])
+                               (get-in m2 [k j]))))
+                   0
+                   size-range))]
+    (vec result)))
 
 (defn inverse-matrix [size m]
   #?(:clj
