@@ -8,24 +8,24 @@
                               dynadoc {:mvn/version "RELEASE"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.0"}
                               orchestra {:mvn/version "2018.12.06-2"}
-                              org.lwjgl/lwjgl {:mvn/version "3.2.2"}
-                              org.lwjgl/lwjgl-glfw {:mvn/version "3.2.2"}
-                              org.lwjgl/lwjgl-opengl {:mvn/version "3.2.2"}
-                              org.lwjgl/lwjgl-stb {:mvn/version "3.2.2"}}
+                              org.lwjgl/lwjgl {:mvn/version "3.2.3"}
+                              org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
+                              org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
+                              org.lwjgl/lwjgl-stb {:mvn/version "3.2.3"}}
                  :extra-paths ["dev-resources"]
                  :main-opts ["dev.clj"]}
            :prod {:extra-deps {leiningen {:mvn/version "2.9.0"}}
                   :main-opts ["prod.clj"]}
-           :linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.2"}
-                                org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.2"}
-                                org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.2"}
-                                org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.2"}}}
-           :macos {:extra-deps {org.lwjgl/lwjgl$natives-macos {:mvn/version "3.2.2"}
-                                org.lwjgl/lwjgl-glfw$natives-macos {:mvn/version "3.2.2"}
-                                org.lwjgl/lwjgl-opengl$natives-macos {:mvn/version "3.2.2"}
-                                org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.2"}}
+           :linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.3"}
+                                org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}
+                                org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.3"}
+                                org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.3"}}}
+           :macos {:extra-deps {org.lwjgl/lwjgl$natives-macos {:mvn/version "3.2.3"}
+                                org.lwjgl/lwjgl-glfw$natives-macos {:mvn/version "3.2.3"}
+                                org.lwjgl/lwjgl-opengl$natives-macos {:mvn/version "3.2.3"}
+                                org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.3"}}
                    :jvm-opts ["-XstartOnFirstThread"]}
-           :windows {:extra-deps {org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.2"}
-                                  org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.2"}
-                                  org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.2"}
-                                  org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.2"}}}}}
+           :windows {:extra-deps {org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.3"}
+                                  org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}
+                                  org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.3"}
+                                  org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.3"}}}}}
