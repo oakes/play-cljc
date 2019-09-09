@@ -52,34 +52,35 @@
          :as state} @*state
         game-width (utils/get-width game)
         game-height (utils/get-height game)]
-    ;; render the blue background
-    (c/render game (update screen-entity :viewport
-                           assoc :width game-width :height game-height))
-    ;; get the current player image to display
-    (when-let [player (get player-images player-image-key)]
-      (let [player-width (/ game-width 10)
-            player-height (* player-width (/ (:height player) (:width player)))]
-        ;; render the player
-        (c/render game
-          (-> player
-              (t/project game-width game-height)
-              (t/translate (cond-> player-x
-                                   (= direction :left)
-                                   (+ player-width))
-                           player-y)
-              (t/scale (cond-> player-width
-                               (= direction :left)
-                               (* -1))
-                       player-height)))
-        ;; change the state to move the player
-        (swap! *state
-          (fn [state]
-            (->> (assoc state
-                        :player-width player-width
-                        :player-height player-height)
-                 (move/move game)
-                 (move/prevent-move game)
-                 (move/animate game)))))))
+    (when (and (pos? game-width) (pos? game-height))
+      ;; render the blue background
+      (c/render game (update screen-entity :viewport
+                             assoc :width game-width :height game-height))
+      ;; get the current player image to display
+      (when-let [player (get player-images player-image-key)]
+        (let [player-width (/ game-width 10)
+              player-height (* player-width (/ (:height player) (:width player)))]
+          ;; render the player
+          (c/render game
+            (-> player
+                (t/project game-width game-height)
+                (t/translate (cond-> player-x
+                                     (= direction :left)
+                                     (+ player-width))
+                             player-y)
+                (t/scale (cond-> player-width
+                                 (= direction :left)
+                                 (* -1))
+                         player-height)))
+          ;; change the state to move the player
+          (swap! *state
+            (fn [state]
+              (->> (assoc state
+                          :player-width player-width
+                          :player-height player-height)
+                   (move/move game)
+                   (move/prevent-move game)
+                   (move/animate game))))))))
   ;; return the game map
   game)
 
