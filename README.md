@@ -4,7 +4,7 @@ A library for making games that run in both OpenGL and WebGL. There's no black b
 
 ## Getting Started
 
-You can generate a new project with the [The Clojure CLI Tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools):
+You can generate a new project with the [Clojure CLI Tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools):
 
 `clj -Sdeps "{:deps {leiningen {:mvn/version \""2.9.0\""}}}" -m leiningen.core.main new play-cljc hello-world`
 
