@@ -1,15 +1,12 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        play-cljc {:mvn/version "0.8.3"}
-        org.lwjgl/lwjgl {:mvn/version "3.2.3"}
-        org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
-        org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
-        org.lwjgl/lwjgl-stb {:mvn/version "3.2.3"}
+        tile-soup {:mvn/version "0.3.1"}
         edna {:mvn/version "1.6.0"}}
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.0"}
                               orchestra {:mvn/version "2018.12.06-2"}
-                              expound {:mvn/version "0.7.2"}}
+                              expound {:mvn/version "0.7.2"}
+                              paravim {:mvn/version "0.1.0"}}
                  :extra-paths ["target"]
                  :main-opts ["dev.clj"]
                  :jvm-opts ["-Xmx1g"]}
@@ -17,16 +14,23 @@
                                leiningen {:mvn/version "2.9.0"}}
                   :main-opts ["prod.clj"]
                   :jvm-opts ["-Xmx1g"]}
-           :linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.3"}
-                                org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}
-                                org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.3"}
-                                org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.3"}}}
-           :macos {:extra-deps {org.lwjgl/lwjgl$natives-macos {:mvn/version "3.2.3"}
-                                org.lwjgl/lwjgl-glfw$natives-macos {:mvn/version "3.2.3"}
-                                org.lwjgl/lwjgl-opengl$natives-macos {:mvn/version "3.2.3"}
-                                org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.3"}}
-                   :jvm-opts ["-XstartOnFirstThread"]}
-           :windows {:extra-deps {org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.3"}
-                                  org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}
-                                  org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.3"}
-                                  org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.3"}}}}}
+           :macos {:jvm-opts ["-XstartOnFirstThread"]}
+           ;; these deps are not necessary during development
+           ;; because paravim already brings them in
+           :play-cljc {:extra-deps {play-cljc {:mvn/version "0.8.3"}
+                                    org.lwjgl/lwjgl {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-stb {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl$natives-macos {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-glfw$natives-macos {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-opengl$natives-macos {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-stb$natives-macos {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.3"}
+                                    org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.3"}}}}}

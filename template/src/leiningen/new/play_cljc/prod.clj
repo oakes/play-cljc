@@ -69,7 +69,7 @@
 (defmethod task "uberjar"
   [_]
   (let [project (-> (read-project-clj)
-                    (merge (read-deps-edn [:linux :macos :windows]))
+                    (merge (read-deps-edn [:play-cljc]))
                     p/init-project)]
     (clean project)
     (uberjar project)
