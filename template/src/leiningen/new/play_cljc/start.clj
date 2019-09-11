@@ -67,7 +67,7 @@
   (on-mouse-move [this xpos ypos])
   (on-mouse-click [this button action mods])
   (on-key [this keycode scancode action mods])
-  (on-char [window codepoint])
+  (on-char [this codepoint])
   (on-tick [this game]))
 
 (defrecord Window [handle])
