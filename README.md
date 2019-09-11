@@ -20,9 +20,13 @@ This will start you off with a little platformer. It will contain a README with 
 
 ## Companion Libraries
 
-* [edna](https://github.com/oakes/edna) - Create MIDI music (the template above is preconfigured with it)
 * [tile-soup](https://github.com/oakes/tile-soup) - Parse tiled maps
 * [play-cljc.text](https://github.com/oakes/play-cljc.text) - Render text
+
+When you generate a new project with the command above, it'll come preconfigured with:
+
+* [Paravim](https://github.com/oakes/Paravim) - A text editor written with play-cljc
+* [edna](https://github.com/oakes/edna) - Create MIDI music
 
 ## Development
 
