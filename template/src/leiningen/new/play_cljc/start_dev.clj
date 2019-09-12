@@ -28,13 +28,13 @@
           (start/on-mouse-click! handle button action mods)
           (paravim.start/on-mouse-click! paravim-utils handle button action mods)))
       (on-key [{:keys [handle]} keycode scancode action mods]
-        (if @*focus-on-game?
-          (start/on-key! handle keycode scancode action mods)
-          (paravim.start/on-key! paravim-utils handle keycode scancode action mods))
-        (when (and (= action GLFW/GLFW_PRESS)
-                   (= keycode GLFW/GLFW_KEY_ESCAPE)
-                   (= (paravim.core/get-mode) 'NORMAL))
-          (swap! *focus-on-game? not)))
+        (if (and (= action GLFW/GLFW_PRESS)
+                 (= keycode GLFW/GLFW_KEY_ESCAPE)
+                 (= (paravim.core/get-mode) 'NORMAL))
+          (swap! *focus-on-game? not)
+          (if @*focus-on-game?
+            (start/on-key! handle keycode scancode action mods)
+            (paravim.start/on-key! paravim-utils handle keycode scancode action mods))))
       (on-char [{:keys [handle]} codepoint]
         (if @*focus-on-game?
           (start/on-char! handle codepoint)
