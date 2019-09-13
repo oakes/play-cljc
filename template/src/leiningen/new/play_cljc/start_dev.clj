@@ -39,6 +39,9 @@
         (if @*focus-on-game?
           (start/on-char! handle codepoint)
           (paravim.start/on-char! paravim-utils handle codepoint)))
+      (on-resize [{:keys [handle]} width height]
+        (start/on-resize! handle width height)
+        (paravim.start/on-resize! paravim-utils handle width height))
       (on-tick [this game]
         (cond-> (c/tick game)
                 (not @*focus-on-game?)
