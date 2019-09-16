@@ -10,12 +10,8 @@
   (:import [org.lwjgl.glfw GLFW]
            [{{project_name}}.start Window]))
 
-(defn start []
-  (st/instrument)
-  (set! s/*explain-out* expound/printer)
-  (let [window (start/->window)
-        game (pc/->game (:handle window))
-        paravim-utils (paravim.start/init game)
+(defn start-paravim [game]
+  (let [paravim-utils (paravim.start/init game)
         *focus-on-game? (atom true)]
     (extend-type Window
       start/Events
@@ -45,6 +41,15 @@
       (on-tick [this game]
         (cond-> (c/tick game)
                 (not @*focus-on-game?)
-                paravim.core/tick)))
+                paravim.core/tick)))))
+
+(defn start []
+  (st/instrument)
+  (set! s/*explain-out* expound/printer)
+  (let [window (start/->window)
+        game (pc/->game (:handle window))]
+    (try
+      (start-paravim game)
+      (catch Exception e (.printStackTrace e)))
     (start/start game window)))
 
