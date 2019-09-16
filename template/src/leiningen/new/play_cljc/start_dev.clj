@@ -50,6 +50,6 @@
         game (pc/->game (:handle window))]
     (try
       (start-paravim game)
-      (catch Exception e (.printStackTrace e)))
+      (catch Throwable e (.printStackTrace e)))
     (start/start game window)))
 
