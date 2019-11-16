@@ -17,11 +17,15 @@
       start/Events
       (on-mouse-move [{:keys [handle]} xpos ypos]
         (if @*focus-on-game?
-          (start/on-mouse-move! handle xpos ypos)
+          (try
+            (start/on-mouse-move! handle xpos ypos)
+            (catch Exception e (.printStackTrace e)))
           (paravim.start/on-mouse-move! paravim-utils handle xpos ypos)))
       (on-mouse-click [{:keys [handle]} button action mods]
         (if @*focus-on-game?
-          (start/on-mouse-click! handle button action mods)
+          (try
+            (start/on-mouse-click! handle button action mods)
+            (catch Exception e (.printStackTrace e)))
           (paravim.start/on-mouse-click! paravim-utils handle button action mods)))
       (on-key [{:keys [handle]} keycode scancode action mods]
         (if (and (= action GLFW/GLFW_PRESS)
@@ -29,17 +33,27 @@
                  (= (paravim.core/get-mode) 'NORMAL))
           (swap! *focus-on-game? not)
           (if @*focus-on-game?
-            (start/on-key! handle keycode scancode action mods)
+            (try
+              (start/on-key! handle keycode scancode action mods)
+              (catch Exception e (.printStackTrace e)))
             (paravim.start/on-key! paravim-utils handle keycode scancode action mods))))
       (on-char [{:keys [handle]} codepoint]
         (if @*focus-on-game?
-          (start/on-char! handle codepoint)
+          (try
+            (start/on-char! handle codepoint)
+            (catch Exception e (.printStackTrace e)))
           (paravim.start/on-char! paravim-utils handle codepoint)))
       (on-resize [{:keys [handle]} width height]
-        (start/on-resize! handle width height)
+        (try
+          (start/on-resize! handle width height)
+          (catch Exception e (.printStackTrace e)))
         (paravim.start/on-resize! paravim-utils handle width height))
       (on-tick [this game]
-        (cond-> (c/tick game)
+        (cond-> (try
+                  (c/tick game)
+                  (catch Exception e
+                    (.printStackTrace e)
+                    game))
                 (not @*focus-on-game?)
                 paravim.core/tick)))))
 
