@@ -12,7 +12,8 @@
 
 (defn start-paravim [game]
   (let [paravim-utils (paravim.start/init game)
-        *focus-on-game? (atom true)]
+        *focus-on-game? (atom true)
+        *last-tick (atom 0)]
     (extend-type Window
       start/Events
       (on-mouse-move [{:keys [handle]} xpos ypos]
@@ -52,7 +53,10 @@
         (cond-> (try
                   (c/tick game)
                   (catch Exception e
-                    (.printStackTrace e)
+                    (let [current-ms (System/currentTimeMillis)]
+                      (when (> (- current-ms @*last-tick) 1000)
+                        (reset! *last-tick current-ms)
+                        (.printStackTrace e)))
                     game))
                 (not @*focus-on-game?)
                 paravim.core/tick)))))
