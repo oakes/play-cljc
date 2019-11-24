@@ -6,6 +6,7 @@
   (System/exit 1))
 
 (require
+  '{{name}}.start
   '[cljs.build.api :as api]
   '[clojure.java.io :as io]
   '[clojure.string :as str]
