@@ -51,13 +51,14 @@
         (paravim.start/on-resize! paravim-utils handle width height))
       (on-tick [this game]
         (cond-> (try
-                  (c/tick game)
+                  (assoc (c/tick game) :paravim.core/clear? false)
                   (catch Exception e
                     (let [current-ms (System/currentTimeMillis)]
                       (when (> (- current-ms @*last-tick) 1000)
                         (reset! *last-tick current-ms)
                         (.printStackTrace e)))
-                    game))
+                    (reset! *focus-on-game? false)
+                    (assoc game :paravim.core/clear? true)))
                 (not @*focus-on-game?)
                 paravim.core/tick)))))
 
