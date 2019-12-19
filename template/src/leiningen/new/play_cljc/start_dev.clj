@@ -11,7 +11,7 @@
            [{{project_name}}.start Window]))
 
 (defn start-paravim [game]
-  (let [paravim-utils (paravim.start/init game)
+  (let [game (paravim.start/init game)
         *focus-on-game? (atom true)
         *last-tick (atom 0)]
     (extend-type Window
@@ -21,13 +21,13 @@
           (try
             (start/on-mouse-move! handle xpos ypos)
             (catch Exception e (.printStackTrace e)))
-          (paravim.start/on-mouse-move! paravim-utils handle xpos ypos)))
+          (paravim.start/on-mouse-move! game handle xpos ypos)))
       (on-mouse-click [{:keys [handle]} button action mods]
         (if @*focus-on-game?
           (try
             (start/on-mouse-click! handle button action mods)
             (catch Exception e (.printStackTrace e)))
-          (paravim.start/on-mouse-click! paravim-utils handle button action mods)))
+          (paravim.start/on-mouse-click! game handle button action mods)))
       (on-key [{:keys [handle]} keycode scancode action mods]
         (if (and (= action GLFW/GLFW_PRESS)
                  (= keycode GLFW/GLFW_KEY_ESCAPE)
@@ -37,18 +37,18 @@
             (try
               (start/on-key! handle keycode scancode action mods)
               (catch Exception e (.printStackTrace e)))
-            (paravim.start/on-key! paravim-utils handle keycode scancode action mods))))
+            (paravim.start/on-key! game handle keycode scancode action mods))))
       (on-char [{:keys [handle]} codepoint]
         (if @*focus-on-game?
           (try
             (start/on-char! handle codepoint)
             (catch Exception e (.printStackTrace e)))
-          (paravim.start/on-char! paravim-utils handle codepoint)))
+          (paravim.start/on-char! game handle codepoint)))
       (on-resize [{:keys [handle]} width height]
         (try
           (start/on-resize! handle width height)
           (catch Exception e (.printStackTrace e)))
-        (paravim.start/on-resize! paravim-utils handle width height))
+        (paravim.start/on-resize! game handle width height))
       (on-tick [this game]
         (cond-> (try
                   (assoc (c/tick game) :paravim.core/clear? false)
