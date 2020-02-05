@@ -291,12 +291,15 @@
     (gl game clearColor r g b a))
   (some->> depth (gl game clearDepth))
   (some->> stencil (gl game clearStencil))
-  (->> [(when color (gl game COLOR_BUFFER_BIT))
-        (when depth (gl game DEPTH_BUFFER_BIT))
-        (when stencil (gl game STENCIL_BUFFER_BIT))]
-       (remove nil?)
-       (apply bit-or)
-       (gl game clear)))
+  (as-> [(when color (gl game COLOR_BUFFER_BIT))
+         (when depth (gl game DEPTH_BUFFER_BIT))
+         (when stencil (gl game STENCIL_BUFFER_BIT))]
+        $
+        (remove nil? $)
+        (if (= (count $) 1)
+          (first $)
+          (apply bit-or $))
+        (gl game clear $)))
 
 (s/def ::x number?)
 (s/def ::y number?)
