@@ -16,7 +16,9 @@
 
 (defn init [game]
   (gl game enable (gl game BLEND))
-  (gl game blendFunc (gl game SRC_ALPHA) (gl game ONE_MINUS_SRC_ALPHA)))
+  (gl game blendFunc (gl game SRC_ALPHA) (gl game ONE_MINUS_SRC_ALPHA))
+  (gl game disable (gl game CULL_FACE))
+  (gl game disable (gl game DEPTH_TEST)))
 
 ;; ->font-entity
 
