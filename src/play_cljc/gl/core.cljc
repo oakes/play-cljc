@@ -190,7 +190,7 @@
       (gl game bindFramebuffer (gl game FRAMEBUFFER) previous-framebuffer))))
 
 (def ^:private
-  glsl-version #?(:clj "410" :cljs "300 es"))
+  glsl-version #?(:clj "330" :cljs "300 es"))
 
 (s/def ::vertex ::parse/shader)
 (s/def ::fragment ::parse/shader)
