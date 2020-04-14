@@ -233,8 +233,8 @@
   "Initializes the provided entity, compiling the shaders and creating all the
   necessary state for rendering."
   [game {:keys [vertex fragment attributes uniforms indices] :as entity}]
-  (let [vertex-source (ig/iglu->glsl :vertex (assoc vertex :version glsl-version))
-        fragment-source (ig/iglu->glsl :fragment (assoc fragment :version glsl-version))
+  (let [vertex-source (ig/iglu->glsl (assoc vertex :version glsl-version))
+        fragment-source (ig/iglu->glsl (assoc fragment :version glsl-version))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
