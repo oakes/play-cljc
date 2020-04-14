@@ -10,7 +10,7 @@
             [expound.alpha :as expound]
             [clojure.spec.alpha :as s])
   (:import  [org.lwjgl.glfw GLFW Callbacks GLFWKeyCallbackI]
-            [org.lwjgl.opengl GL GL41]))
+            [org.lwjgl.opengl GL GL33]))
 
 (defn start [ns-syms]
   (st/instrument)
@@ -21,7 +21,7 @@
   (GLFW/glfwWindowHint GLFW/GLFW_RESIZABLE GLFW/GLFW_TRUE)
   (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MAJOR 3)
   (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR 3)
-  (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_FORWARD_COMPAT GL41/GL_TRUE)
+  (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_FORWARD_COMPAT GL33/GL_TRUE)
   (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_PROFILE GLFW/GLFW_OPENGL_CORE_PROFILE)
   (if-let [window (GLFW/glfwCreateWindow 800 600 "" 0 0)]
     (do
