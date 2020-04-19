@@ -133,7 +133,7 @@
 
 (defn start [game window]
   (let [handle (:handle window)
-        game (assoc game :delta-time 0 :total-time 0)]
+        game (assoc game :delta-time 0 :total-time (GLFW/glfwGetTime))]
     (GLFW/glfwShowWindow handle)
     (listen-for-events window)
     (c/init game)

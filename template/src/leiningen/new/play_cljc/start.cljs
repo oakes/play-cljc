@@ -4,11 +4,14 @@
             [goog.events :as events])
   (:require-macros [{{name}}.music :refer [build-for-cljs]]))
 
+(defn msec->sec [n]
+  (* 0.001 n))
+
 (defn game-loop [game]
   (let [game (c/tick game)]
     (js/requestAnimationFrame
       (fn [ts]
-        (let [ts (* ts 0.001)]
+        (let [ts (msec->sec ts)]
           (game-loop (assoc game
                             :delta-time (- ts (:total-time game))
                             :total-time ts)))))))
@@ -58,7 +61,7 @@
         context (.getContext canvas "webgl2")
         initial-game (assoc (pc/->game context)
                             :delta-time 0
-                            :total-time 0)]
+                            :total-time (msec->sec (js/performance.now)))]
     (listen-for-mouse canvas)
     (listen-for-keys)
     (resize context)
