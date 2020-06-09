@@ -4,7 +4,8 @@
             [play-cljc.gl.core :as pc])
   (:import  [org.lwjgl.glfw GLFW Callbacks
              GLFWCursorPosCallbackI GLFWKeyCallbackI GLFWMouseButtonCallbackI
-             GLFWCharCallbackI GLFWFramebufferSizeCallbackI]
+             GLFWCharCallbackI GLFWFramebufferSizeCallbackI GLFWWindowCloseCallbackI
+             GLFWScrollCallbackI]
             [org.lwjgl.opengl GL GL33]
             [org.lwjgl.system MemoryUtil]
             [javax.sound.sampled AudioSystem Clip])
@@ -66,12 +67,15 @@
 
 (defn on-resize! [window width height])
 
+(defn on-scroll! [window xoffset yoffset])
+
 (defprotocol Events
   (on-mouse-move [this xpos ypos])
   (on-mouse-click [this button action mods])
   (on-key [this keycode scancode action mods])
   (on-char [this codepoint])
   (on-resize [this width height])
+  (on-scroll [this xoffset yoffset])
   (on-tick [this game]))
 
 (defrecord Window [handle])
@@ -88,6 +92,8 @@
     (on-char! handle codepoint))
   (on-resize [{:keys [handle]} width height]
     (on-resize! handle width height))
+  (on-scroll [{:keys [handle]} xoffset yoffset]
+    (on-scroll! handle xoffset yoffset))
   (on-tick [this game]
     (c/tick game)))
 
@@ -112,7 +118,15 @@
     (GLFW/glfwSetFramebufferSizeCallback
       (reify GLFWFramebufferSizeCallbackI
         (invoke [this _ width height]
-          (on-resize window width height))))))
+          (on-resize window width height))))
+    (GLFW/glfwSetScrollCallback
+      (reify GLFWScrollCallbackI
+        (invoke [this _ xoffset yoffset]
+          (on-scroll window xoffset yoffset))))
+    (GLFW/glfwSetWindowCloseCallback
+      (reify GLFWWindowCloseCallbackI
+        (invoke [this window]
+          (System/exit 0))))))
 
 (defn ->window []
   (when-not (GLFW/glfwInit)

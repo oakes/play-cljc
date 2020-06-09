@@ -49,6 +49,12 @@
           (start/on-resize! handle width height)
           (catch Exception e (.printStackTrace e)))
         (paravim.start/on-resize! game handle width height))
+      (on-scroll [{:keys [handle]} xoffset yoffset]
+        (if @*focus-on-game?
+          (try
+            (start/on-scroll! handle xoffset yoffset)
+            (catch Exception e (.printStackTrace e)))
+          (paravim.start/on-scroll! game handle xoffset yoffset)))
       (on-tick [this game]
         (cond-> (try
                   (assoc (c/tick game) :paravim.core/clear? false)
