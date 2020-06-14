@@ -66,7 +66,8 @@
                     (reset! *focus-on-game? false)
                     (assoc game :paravim.core/clear? true)))
                 (not @*focus-on-game?)
-                paravim.core/tick)))))
+                paravim.core/tick)))
+    game))
 
 (defn start []
   (st/instrument)
@@ -74,7 +75,10 @@
   (let [window (start/->window)
         game (pc/->game (:handle window))]
     (try
-      (start-paravim game)
-      (catch Throwable e (.printStackTrace e)))
-    (start/start game window)))
+      (-> game
+          (start-paravim)
+          (start/start window))
+      (catch Throwable e
+        (.printStackTrace e)
+        (start/start game window)))))
 
