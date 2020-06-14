@@ -73,12 +73,11 @@
   (st/instrument)
   (set! s/*explain-out* expound/printer)
   (let [window (start/->window)
-        game (pc/->game (:handle window))]
-    (try
-      (-> game
-          (start-paravim)
-          (start/start window))
-      (catch Throwable e
-        (.printStackTrace e)
-        (start/start game window)))))
+        game (pc/->game (:handle window))
+        game (try
+               (start-paravim game)
+               (catch Throwable e
+                 (.printStackTrace e)
+                 game))]
+    (start/start game window)))
 
