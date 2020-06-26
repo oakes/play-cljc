@@ -24,6 +24,7 @@ This will start you off with a little platformer. It will contain a README with 
 
 * [tile-soup](https://github.com/oakes/tile-soup) - Parse tiled maps
 * [play-cljc.text](https://github.com/oakes/play-cljc.text) - Render text
+* [iglu](https://github.com/oakes/iglu) - Write shaders as Clojure data
 * [clarax](https://github.com/oakes/clarax) - Manage state with a rules engine
 
 When you generate a new project with the command above, it'll come preconfigured with:
