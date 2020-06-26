@@ -9,24 +9,38 @@
 (defn vector->2d-array [v]
   (#?(:clj to-array-2d :cljs clj->js) v))
 
-(defn identity-matrix [size]
-  (vec (for [row (range size)
-             col (range size)]
-         (if (= row col) 1 0))))
+;(set! *unchecked-math* :warn-on-boxed)
 
-(defn multiply-matrices [size m1 m2]
-  (let [m1 (mapv vec (partition size m1))
-        m2 (mapv vec (partition size (or m2 (identity-matrix size))))
-        size-range (range size)
-        result (for [i size-range
-                     j size-range]
-                 (reduce
-                   (fn [sum k]
-                     (+ sum (* (get-in m1 [i k])
-                               (get-in m2 [k j]))))
-                   0
-                   size-range))]
-    (vec result)))
+;; optimization: use pre-calculated ranges
+(def ^:private ^:const range-3 (vec (range 3)))
+(def ^:private ^:const range-4 (vec (range 4)))
+(defn- ->range [size]
+  (case size
+    3 range-3
+    4 range-4
+    (range size)))
+
+(defn identity-matrix [size]
+  (let [size-range (->range size)]
+    (vec (for [row size-range
+               col size-range]
+           (if (= row col) 1 0)))))
+
+(defn multiply-matrices [^long size m1 m2]
+  (let [m2 (or m2 (identity-matrix size))
+        size-range (->range size)
+        ret (volatile! m1)]
+    (doseq [^long i size-range
+            ^long j size-range]
+      (vswap! ret assoc (-> i (* size) (+ j))
+        (reduce
+          (fn [^double sum ^long k]
+            (let [^double n1 (nth m1 (-> i (* size) (+ k)))
+                  ^double n2 (nth m2 (-> k (* size) (+ j)))]
+              (+ sum (* n1 n2))))
+          (double 0)
+          size-range)))
+    @ret))
 
 (defn inverse-matrix [size m]
   #?(:clj
@@ -35,8 +49,8 @@
 
      :cljs
      (let [mc (mapv vec (partition size m))
-           mi (mapv vec (for [i (range size)]
-                         (for [j (range size)]
+           mi (mapv vec (for [i (->range size)]
+                         (for [j (->range size)]
                            (if (= i j) 1 0))))
            mc (vector->2d-array mc)
            mi (vector->2d-array mi)]
@@ -71,7 +85,7 @@
                      (* e (aget mi i j)))))))))
        (->> mi seq (apply concat) vec))))
 
-(defn deg->rad [d]
+(defn deg->rad [^double d]
   (-> d (* (math PI)) (/ 180)))
 
 (defn transform-vector [m v]
