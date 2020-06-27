@@ -11,20 +11,15 @@
 
 ;(set! *unchecked-math* :warn-on-boxed)
 
-;; optimization: use pre-calculated ranges
-(def ^:private ^:const range-3 (vec (range 3)))
-(def ^:private ^:const range-4 (vec (range 4)))
-(defn- ->range [size]
-  (case size
-    3 range-3
-    4 range-4
-    (range size)))
+(def ^:private ->range (memoize range))
 
-(defn identity-matrix [size]
-  (let [size-range (->range size)]
-    (vec (for [row size-range
-               col size-range]
-           (if (= row col) 1 0)))))
+(def identity-matrix
+  (memoize
+    (fn [size]
+      (let [size-range (->range size)]
+        (vec (for [row size-range
+                   col size-range]
+               (if (= row col) 1 0)))))))
 
 (defn multiply-matrices [^long size m1 m2]
   (let [m2 (or m2 (identity-matrix size))
