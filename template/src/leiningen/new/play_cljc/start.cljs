@@ -62,11 +62,11 @@
         initial-game (assoc (pc/->game context)
                             :delta-time 0
                             :total-time (msec->sec (js/performance.now)))]
+    (c/init initial-game)
     (listen-for-mouse canvas)
     (listen-for-keys)
     (resize context)
     (listen-for-resize context)
-    (c/init initial-game)
     (game-loop initial-game)
     context))
 
