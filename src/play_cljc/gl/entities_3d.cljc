@@ -50,6 +50,10 @@
   (translate [camera x y z]
     (update camera :matrix
       #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
+  t/IScale
+  (scale [camera x y z]
+    (update camera :matrix
+      #(m/multiply-matrices 4 (m/scaling-matrix-3d x y z) %)))
   t/IRotate
   (rotate [camera angle axis]
     (let [matrix (case axis
