@@ -16,10 +16,10 @@
 (def identity-matrix
   (memoize
     (fn [size]
-      (let [size-range (->range size)]
-        (vec (for [row size-range
-                   col size-range]
-               (if (= row col) 1 0)))))))
+      (vec
+        (for [row (->range size)
+              col (->range size)]
+          (if (= row col) 1 0))))))
 
 (defn multiply-matrices [^long size m1 m2]
   (let [m2 (or m2 (identity-matrix size))
