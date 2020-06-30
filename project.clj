@@ -1,4 +1,4 @@
-(defproject play-cljc "0.8.8"
+(defproject play-cljc "0.8.9-SNAPSHOT"
   :description "A Clojure and ClojureScript game library"
   :url "https://github.com/oakes/play-cljc"
   :license {:name "Public Domain"
