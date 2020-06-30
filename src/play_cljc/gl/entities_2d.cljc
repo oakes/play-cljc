@@ -7,8 +7,6 @@
             #?(:clj  [play-cljc.macros-java :refer [gl]]
                :cljs [play-cljc.macros-js :refer-macros [gl]])))
 
-(def ^:private ^:const reverse-matrix (m/scaling-matrix -1 -1))
-
 (defn- project [entity width height]
   (update-in entity [:uniforms 'u_matrix]
     #(m/multiply-matrices 3 (m/projection-matrix width height) %)))
@@ -25,11 +23,17 @@
   (update-in entity [:uniforms 'u_matrix]
     #(m/multiply-matrices 3 (m/rotation-matrix angle) %)))
 
+(def ^:private ^:const reverse-matrix (m/scaling-matrix -1 -1))
+
 (defn- camera [entity {:keys [matrix]}]
   (update-in entity [:uniforms 'u_matrix]
     #(->> %
           (m/multiply-matrices 3 matrix)
           (m/multiply-matrices 3 reverse-matrix))))
+
+(defn- invert [entity {:keys [matrix]}]
+  (update-in entity [:uniforms 'u_matrix]
+    #(m/multiply-matrices 3 (m/inverse-matrix 3 matrix) %)))
 
 ;; Camera
 
@@ -41,10 +45,13 @@
     (update camera :matrix
       #(m/multiply-matrices 3 (m/translation-matrix x y) %))))
 
-(defn ->camera [y-down?]
-  (->Camera (if y-down?
-              (m/look-at-matrix [0 0 1] [0 -1 0])
-              (m/look-at-matrix [0 0 -1] [0 1 0]))))
+(defn ->camera
+  ([]
+   (->Camera (m/identity-matrix 3)))
+  ([y-down?]
+   (->Camera (if y-down?
+               (m/look-at-matrix [0 0 1] [0 -1 0])
+               (m/look-at-matrix [0 0 -1] [0 1 0])))))
 
 ;; InstancedTwoDEntity
 
@@ -93,6 +100,8 @@
   (scale [entity x y] (scale entity x y))
   t/ICamera
   (camera [entity cam] (camera entity cam))
+  t/IInvert
+  (invert [entity cam] (invert entity cam))
   i/IInstanced
   (assoc [instanced-entity i entity]
     (reduce-kv
@@ -145,6 +154,8 @@
   (rotate [entity angle] (rotate entity angle))
   t/ICamera
   (camera [entity cam] (camera entity cam))
+  t/IInvert
+  (invert [entity cam] (invert entity cam))
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba))
@@ -220,6 +231,8 @@
   (scale [entity x y] (scale entity x y))
   t/ICamera
   (camera [entity cam] (camera entity cam))
+  t/IInvert
+  (invert [entity cam] (invert entity cam))
   i/IInstanced
   (assoc [instanced-entity i entity]
     (reduce-kv
@@ -278,6 +291,8 @@
   (rotate [entity angle] (rotate entity angle))
   t/ICamera
   (camera [entity cam] (camera entity cam))
+  t/IInvert
+  (invert [entity cam] (invert entity cam))
   t/ICrop
   (crop [{:keys [width height] :as entity} crop-x crop-y crop-width crop-height]
     (update-in entity [:uniforms 'u_texture_matrix]

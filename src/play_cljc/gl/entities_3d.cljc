@@ -35,6 +35,10 @@
   (camera [entity {:keys [matrix]}]
     (update-in entity [:uniforms 'u_matrix]
       #(m/multiply-matrices 4 (m/inverse-matrix 4 matrix) %)))
+  t/IInvert
+  (invert [entity {:keys [matrix]}]
+    (update-in entity [:uniforms 'u_matrix]
+      #(m/multiply-matrices 4 (m/inverse-matrix 4 matrix) %)))
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba)))

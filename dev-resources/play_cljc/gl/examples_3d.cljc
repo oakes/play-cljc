@@ -209,7 +209,7 @@
                             (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
                             (play-cljc.transforms/project (play-cljc.math/deg->rad 60)
                               (/ game-width game-height) 1 2000)
-                            (play-cljc.transforms/camera camera))
+                            (play-cljc.transforms/invert camera))
                  PI play-cljc.gl.example-utils/PI
                  sin play-cljc.gl.example-utils/sin
                  cos play-cljc.gl.example-utils/cos]
@@ -254,7 +254,7 @@
                             (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
                             (play-cljc.transforms/project (play-cljc.math/deg->rad 60)
                               (/ game-width game-height) 1 2000)
-                            (play-cljc.transforms/camera camera))
+                            (play-cljc.transforms/invert camera))
                  PI play-cljc.gl.example-utils/PI
                  sin play-cljc.gl.example-utils/sin
                  cos play-cljc.gl.example-utils/cos]
@@ -333,7 +333,7 @@
                             (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
                             (play-cljc.transforms/project (play-cljc.math/deg->rad 60)
                               (/ game-width game-height) 1 2000)
-                            (play-cljc.transforms/camera camera)
+                            (play-cljc.transforms/invert camera)
                             (play-cljc.transforms/rotate rx :x)
                             (play-cljc.transforms/rotate ry :y)))]}
   (let [game (play-cljc.gl.example-utils/init-example card)]
@@ -399,7 +399,7 @@
                             (assoc :viewport {:x 0 :y 0 :width game-width :height game-height})
                             (play-cljc.transforms/project (play-cljc.math/deg->rad 60)
                               (/ game-width game-height) 1 2000)
-                            (play-cljc.transforms/camera camera)
+                            (play-cljc.transforms/invert camera)
                             (play-cljc.transforms/rotate rx :x)
                             (play-cljc.transforms/rotate ry :y)))]}
   (->> (play-cljc.gl.example-utils/init-example card)
@@ -489,7 +489,7 @@
                                        (play-cljc.transforms/look-at [0 0 0] [0 1 0]))]
                         (-> entity
                             (play-cljc.transforms/project (play-cljc.math/deg->rad 60) aspect 1 2000)
-                            (play-cljc.transforms/camera camera)
+                            (play-cljc.transforms/invert camera)
                             (play-cljc.transforms/rotate rx :x)
                             (play-cljc.transforms/rotate ry :y)))]}
   (let [target-width 256

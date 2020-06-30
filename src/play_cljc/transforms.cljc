@@ -55,6 +55,9 @@
 (defprotocol ICamera
   (camera [entity camera]))
 
+(defprotocol IInvert
+  (invert [entity camera]))
+
 (defprotocol IColor
   (color [entity rgba]))
 
@@ -111,6 +114,9 @@
 
 (defmethod transform-entity* :camera [_ args]
   `(camera ~args))
+
+(defmethod transform-entity* :invert [_ args]
+  `(invert ~args))
 
 (defmethod transform-entity* :look-at [_ args]
   (let [args (parse ::look-at args)]
