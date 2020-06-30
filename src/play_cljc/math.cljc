@@ -37,21 +37,21 @@
           size-range)))
     @ret))
 
-(defn inverse-matrix [size m]
+(defn inverse-matrix [^long size m]
   #?(:clj
      (let [mc (mat/matrix (partition size m))]
        (vec (mat/as-vector (mat/inverse mc))))
 
      :cljs
-     (let [mc (mapv vec (partition size m))
-           mi (mapv vec (for [i (->range size)]
-                         (for [j (->range size)]
-                           (if (= i j) 1 0))))
-           mc (vector->2d-array mc)
-           mi (vector->2d-array mi)]
+     (let [mc (volatile! m)
+           mi (volatile! (identity-matrix size))
+           aget (fn [arr ^long row ^long col]
+                  (nth @arr (-> row (* size) (+ col))))
+           aset (fn [arr ^long row ^long col v]
+                  (vswap! arr assoc (-> row (* size) (+ col)) v))]
        (dotimes [i size]
          (when (= 0 (aget mc i i))
-           (loop [r (range (+ i 1) size)]
+           (loop [r (->range (+ i 1) size)]
              (when-let [ii (first r)]
                (if (not= 0 (aget mc ii i))
                  (dotimes [j size]
@@ -78,7 +78,7 @@
                  (aset mi ii j
                    (- (aget mi ii j)
                      (* e (aget mi i j)))))))))
-       (->> mi seq (apply concat) vec))))
+       @mi)))
 
 (defn deg->rad [^double d]
   (-> d (* (math PI)) (/ 180)))
