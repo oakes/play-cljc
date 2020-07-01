@@ -1,7 +1,6 @@
 (ns play-cljc.math
-  (:require #?@(:clj  [[play-cljc.macros-java :refer [math]]
-                       [mikera.vectorz.matrix :as mat]]
-                :cljs [[play-cljc.macros-js :refer-macros [math]]])))
+  (:require #?(:clj  [play-cljc.macros-java :refer [math]]
+               :cljs [play-cljc.macros-js :refer-macros [math]])))
 
 (defn vector->array [v]
   (#?(:clj float-array :cljs clj->js) v))
@@ -38,47 +37,42 @@
     @ret))
 
 (defn inverse-matrix [^long size m]
-  #?(:clj
-     (let [mc (mat/matrix (partition size m))]
-       (vec (mat/as-vector (mat/inverse mc))))
-
-     :cljs
-     (let [mc (volatile! m)
-           mi (volatile! (identity-matrix size))
-           aget (fn [arr ^long row ^long col]
-                  (nth @arr (-> row (* size) (+ col))))
-           aset (fn [arr ^long row ^long col v]
-                  (vswap! arr assoc (-> row (* size) (+ col)) v))]
-       (dotimes [i size]
-         (when (= 0 (aget mc i i))
-           (loop [r (->range (+ i 1) size)]
-             (when-let [ii (first r)]
-               (if (not= 0 (aget mc ii i))
-                 (dotimes [j size]
-                   (let [e (aget mc i j)]
-                     (aset mc i j (aget mc ii j))
-                     (aset mc ii j e))
-                   (let [e (aget mi i j)]
-                     (aset mi i j (aget mi ii j))
-                     (aset mi ii j e)))
-                 (recur (rest r))))))
-         (let [e (aget mc i i)]
-           (when (= 0 e)
-             (throw (ex-info "Not invertable" {})))
-           (dotimes [j size]
-             (aset mc i j (/ (aget mc i j) e))
-             (aset mi i j (/ (aget mi i j) e))))
-         (dotimes [ii size]
-           (when (not= i ii)
-             (let [e (aget mc ii i)]
-               (dotimes [j size]
-                 (aset mc ii j
-                   (- (aget mc ii j)
-                     (* e (aget mc i j))))
-                 (aset mi ii j
-                   (- (aget mi ii j)
-                     (* e (aget mi i j)))))))))
-       @mi)))
+  (let [mc (volatile! m)
+        mi (volatile! (identity-matrix size))
+        aget (fn [arr ^long row ^long col]
+               (nth @arr (-> row (* size) (+ col))))
+        aset (fn [arr ^long row ^long col v]
+               (vswap! arr assoc (-> row (* size) (+ col)) v))]
+    (dotimes [i size]
+      (when (= 0 (aget mc i i))
+        (loop [r (->range (+ i 1) size)]
+          (when-let [ii (first r)]
+            (if (not= 0 (aget mc ii i))
+              (dotimes [j size]
+                (let [e (aget mc i j)]
+                  (aset mc i j (aget mc ii j))
+                  (aset mc ii j e))
+                (let [e (aget mi i j)]
+                  (aset mi i j (aget mi ii j))
+                  (aset mi ii j e)))
+              (recur (rest r))))))
+      (let [e (aget mc i i)]
+        (when (= 0 e)
+          (throw (ex-info "Not invertable" {})))
+        (dotimes [j size]
+          (aset mc i j (/ (aget mc i j) e))
+          (aset mi i j (/ (aget mi i j) e))))
+      (dotimes [ii size]
+        (when (not= i ii)
+          (let [e (aget mc ii i)]
+            (dotimes [j size]
+              (aset mc ii j
+                (- (aget mc ii j)
+                  (* e (aget mc i j))))
+              (aset mi ii j
+                (- (aget mi ii j)
+                  (* e (aget mi i j)))))))))
+    @mi))
 
 (defn deg->rad [^double d]
   (-> d (* (math PI)) (/ 180)))
