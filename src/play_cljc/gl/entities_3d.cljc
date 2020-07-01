@@ -32,9 +32,8 @@
       (update-in entity [:uniforms 'u_matrix]
         #(m/multiply-matrices 4 matrix %))))
   t/ICamera
-  (camera [entity {:keys [matrix]}]
-    (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 4 (m/inverse-matrix 4 matrix) %)))
+  (camera [entity cam]
+    (t/invert entity cam))
   t/IInvert
   (invert [entity {:keys [matrix]}]
     (update-in entity [:uniforms 'u_matrix]
