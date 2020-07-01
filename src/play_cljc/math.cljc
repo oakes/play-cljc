@@ -58,7 +58,7 @@
               (recur (rest r))))))
       (let [^:double e (aget mc i i)]
         (when (= 0 e)
-          (throw (ex-info "Not invertable" {})))
+          (throw (ex-info "Not invertable" {:matrix m})))
         (dotimes [j size]
           (aset mc i j (/ ^:double (aget mc i j) e))
           (aset mi i j (/ ^:double (aget mi i j) e))))
