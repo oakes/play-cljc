@@ -54,6 +54,7 @@
       #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
 
 (defn ->camera
+  "Returns a 2D camera. The 1-arg arity is deprecated and should not be used!"
   ([]
    (->Camera (m/identity-matrix 3)))
   ([y-down?]
@@ -180,7 +181,9 @@
                                    'a_color {:data [] :divisor 1}})
         map->InstancedTwoDEntity)))
 
-(defn ->entity [game data]
+(defn ->entity
+  "Returns a 2D entity with a vector of attribute `data`."
+  [game data]
   (->> {:vertex two-d-vertex-shader
         :fragment two-d-fragment-shader
         :attributes {'a_position {:data data
@@ -322,7 +325,10 @@
                                    'a_texture_matrix {:data [] :divisor 1}})
         map->InstancedImageEntity)))
 
-(defn ->image-entity [game data width height]
+(defn ->image-entity
+  "Returns an image entity with a vector of image `data`,
+  along with a `width` and `height` in pixels."
+  [game data width height]
    (->> {:vertex image-vertex-shader
          :fragment image-fragment-shader
          :attributes {'a_position {:data primitives/rect

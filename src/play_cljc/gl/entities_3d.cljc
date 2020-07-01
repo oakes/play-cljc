@@ -70,7 +70,9 @@
         (throw (ex-info "The camera's position is the same as the target" {:target target})))
       (assoc camera :matrix (m/look-at-matrix-3d camera-pos target up)))))
 
-(defn ->camera []
+(defn ->camera
+  "Returns a 3D camera"
+  []
   (->Camera (m/identity-matrix 4)))
 
 (def ^:private three-d-uniform-colors-vertex-shader
@@ -122,6 +124,7 @@
    '{main ([] (= o_color v_color))}})
 
 (defn ->entity
+  "Returns a 3D entity with a vector of attribute `data` and optionally a vector of `color-data`."
   ([game data]
    (->> {:vertex three-d-uniform-colors-vertex-shader
          :fragment three-d-uniform-colors-fragment-shader

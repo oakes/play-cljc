@@ -29,45 +29,54 @@
   (project
     [entity width height]
     [entity left right bottom top near far]
-    [entity field-of-view aspect near far]))
+    [entity field-of-view aspect near far]
+    "Applies a projection matrix to the entity."))
 
 (s/def ::translate (s/or
                      :3d (s/keys :req-un [::x ::y ::z])
                      :2d (s/keys :req-un [::x ::y])))
 
 (defprotocol ITranslate
-  (translate [entity x y] [entity x y z]))
+  (translate [entity x y] [entity x y z]
+             "Applies a translation matrix to the entity or camera."))
 
 (s/def ::scale (s/or
                  :3d (s/keys :req-un [::x ::y ::z])
                  :2d (s/keys :req-un [::x ::y])))
 
 (defprotocol IScale
-  (scale [entity x y] [entity x y z]))
+  (scale [entity x y] [entity x y z]
+         "Applies a scaling matrix to the entity or camera."))
 
 (s/def ::rotate (s/or
                   :3d (s/keys :req-un [::angle ::axis])
                   :2d (s/keys :req-un [::angle])))
 
 (defprotocol IRotate
-  (rotate [entity angle] [entity angle axis]))
+  (rotate [entity angle] [entity angle axis]
+         "Applies a rotation matrix to the entity or camera."))
 
 (defprotocol ICamera
-  (camera [entity camera]))
+  (camera [entity camera]
+          "This function is deprecated -- use `invert` instead!"))
 
 (defprotocol IInvert
-  (invert [entity camera]))
+  (invert [entity camera]
+          "Applies a camera to the entity after creating an inverse matrix of it."))
 
 (defprotocol IColor
-  (color [entity rgba]))
+  (color [entity rgba]
+         "Applies a color to the entity."))
 
 (defprotocol ICrop
-  (crop [entity x y width height]))
+  (crop [entity x y width height]
+        "Crops the visible area of the entity."))
 
 (s/def ::look-at (s/keys :req-un [::target ::up]))
 
 (defprotocol ILookAt
-  (look-at [camera target up]))
+  (look-at [camera target up]
+           "Applies a look at matrix to the camera."))
 
 (defn parse [spec content]
   (let [res (s/conform spec content)]
