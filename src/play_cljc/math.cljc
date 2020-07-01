@@ -56,22 +56,22 @@
                   (aset mi i j (aget mi ii j))
                   (aset mi ii j e)))
               (recur (rest r))))))
-      (let [e (aget mc i i)]
+      (let [^:double e (aget mc i i)]
         (when (= 0 e)
           (throw (ex-info "Not invertable" {})))
         (dotimes [j size]
-          (aset mc i j (/ (aget mc i j) e))
-          (aset mi i j (/ (aget mi i j) e))))
+          (aset mc i j (/ ^:double (aget mc i j) e))
+          (aset mi i j (/ ^:double (aget mi i j) e))))
       (dotimes [ii size]
         (when (not= i ii)
-          (let [e (aget mc ii i)]
+          (let [^:double e (aget mc ii i)]
             (dotimes [j size]
               (aset mc ii j
-                (- (aget mc ii j)
-                  (* e (aget mc i j))))
+                (- ^:double (aget mc ii j)
+                  (* e ^:double (aget mc i j))))
               (aset mi ii j
-                (- (aget mi ii j)
-                  (* e (aget mi i j)))))))))
+                (- ^:double (aget mi ii j)
+                  (* e ^:double (aget mi i j)))))))))
     @mi))
 
 (defn deg->rad [^double d]
