@@ -106,6 +106,8 @@
   (translate [entity x y] (translate entity x y))
   t/IScale
   (scale [entity x y] (scale entity x y))
+  t/IRotate
+  (rotate [entity angle] (rotate entity angle))
   t/ICamera
   (camera [entity cam] (camera entity cam))
   t/IInvert
