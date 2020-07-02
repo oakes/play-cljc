@@ -29,8 +29,8 @@
       (vswap! ret assoc (-> i (* size) (+ j))
         (reduce
           (fn [^double sum ^long k]
-            (let [^double n1 (nth m1 (-> i (* size) (+ k)))
-                  ^double n2 (nth m2 (-> k (* size) (+ j)))]
+            (let [n1 (double (nth m1 (-> i (* size) (+ k))))
+                  n2 (double (nth m2 (-> k (* size) (+ j))))]
               (+ sum (* n1 n2))))
           (double 0)
           size-range)))
@@ -44,34 +44,34 @@
         aset (fn [arr ^long row ^long col v]
                (vswap! arr assoc (-> row (* size) (+ col)) v))]
     (dotimes [i size]
-      (when (== 0 (aget mc i i))
+      (when (== 0 (double (aget mc i i)))
         (loop [r (->range (+ i 1) size)]
           (when-let [ii (first r)]
-            (if (not (== 0 (aget mc ii i)))
+            (if (not (== 0 (double (aget mc ii i))))
               (dotimes [j size]
-                (let [e (aget mc i j)]
+                (let [e (double (aget mc i j))]
                   (aset mc i j (aget mc ii j))
                   (aset mc ii j e))
                 (let [e (aget mi i j)]
                   (aset mi i j (aget mi ii j))
                   (aset mi ii j e)))
               (recur (rest r))))))
-      (let [^:double e (aget mc i i)]
+      (let [e (double (aget mc i i))]
         (when (== 0 e)
           (throw (ex-info "Not invertable" {:matrix m})))
         (dotimes [j size]
-          (aset mc i j (/ ^:double (aget mc i j) e))
-          (aset mi i j (/ ^:double (aget mi i j) e))))
+          (aset mc i j (/ (double (aget mc i j)) e))
+          (aset mi i j (/ (double (aget mi i j)) e))))
       (dotimes [ii size]
         (when (not (== i ii))
-          (let [^:double e (aget mc ii i)]
+          (let [e (double (aget mc ii i))]
             (dotimes [j size]
               (aset mc ii j
-                (- ^:double (aget mc ii j)
-                  (* e ^:double (aget mc i j))))
+                (- (double (aget mc ii j))
+                  (* e (double (aget mc i j)))))
               (aset mi ii j
-                (- ^:double (aget mi ii j)
-                  (* e ^:double (aget mi i j)))))))))
+                (- (double (aget mi ii j))
+                  (* e (double (aget mi i j))))))))))
     @mi))
 
 (defn deg->rad [^double d]
