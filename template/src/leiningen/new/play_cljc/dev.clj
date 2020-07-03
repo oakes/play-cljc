@@ -17,4 +17,8 @@
   [_]
   ({{name}}.start-dev/start))
 
+(defmethod task "repl"
+  [_]
+  (clojure.main/repl :init #(doto '{{name}}.start-dev require in-ns)))
+
 (task *command-line-args*)
