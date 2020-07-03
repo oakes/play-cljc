@@ -81,3 +81,6 @@
                  game))]
     (start/start game window)))
 
+(defn -main []
+  (start))
+
