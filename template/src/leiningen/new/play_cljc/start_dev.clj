@@ -13,7 +13,7 @@
 (defn start-paravim [game]
   (let [game (paravim.start/init game)
         *focus-on-game? (atom true)
-        *last-tick (atom 0)]
+        *last-tick-error (atom 0)]
     (extend-type Window
       start/Events
       (on-mouse-move [{:keys [handle]} xpos ypos]
@@ -32,7 +32,8 @@
         (if (and (= action GLFW/GLFW_PRESS)
                  (= keycode GLFW/GLFW_KEY_ESCAPE)
                  (= (paravim.core/get-mode) 'NORMAL))
-          (swap! *focus-on-game? not)
+          (when-not (and (pos? @*last-tick-error) (not @*focus-on-game?)) ;; stay in paravim if game has error
+            (swap! *focus-on-game? not))
           (if @*focus-on-game?
             (try
               (start/on-key! handle keycode scancode action mods)
@@ -57,13 +58,15 @@
           (paravim.start/on-scroll! game handle xoffset yoffset)))
       (on-tick [this game]
         (cond-> (try
-                  (assoc (c/tick game) :paravim.core/clear? false)
+                  (let [game (assoc (c/tick game) :paravim.core/clear? false)]
+                    (when (pos? @*last-tick-error)
+                      (reset! *last-tick-error 0))
+                    game)
                   (catch Exception e
                     (let [current-ms (System/currentTimeMillis)]
-                      (when (> (- current-ms @*last-tick) 1000)
-                        (reset! *last-tick current-ms)
+                      (when (> (- current-ms @*last-tick-error) 1000)
+                        (reset! *last-tick-error current-ms)
                         (.printStackTrace e)))
-                    (reset! *focus-on-game? false)
                     (assoc game :paravim.core/clear? true)))
                 (not @*focus-on-game?)
                 paravim.core/tick)))
