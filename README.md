@@ -36,7 +36,7 @@ When you generate a new project with the command above, it'll come preconfigured
 ## Development
 
 * Install [the Clojure CLI tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools)
-* To develop the native version on each OS:
+* To run the examples in a native window on each OS:
   * `clj -A:dev:linux native`
   * `clj -A:dev:macos native`
   * `clj -A:dev:windows native`
