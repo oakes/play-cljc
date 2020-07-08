@@ -234,8 +234,8 @@
   necessary state for rendering."
   [game entity]
   (let [{:keys [vertex fragment attributes uniforms indices]} entity
-        vertex-source (ig/iglu->glsl (assoc vertex :version glsl-version))
-        fragment-source (ig/iglu->glsl (assoc fragment :version glsl-version))
+        vertex-source (ig/iglu->glsl (merge {:version glsl-version} vertex))
+        fragment-source (ig/iglu->glsl (merge {:version glsl-version} fragment))
         previous-program (gl game #?(:clj getInteger :cljs getParameter)
                            (gl game CURRENT_PROGRAM))
         previous-vao (gl game #?(:clj getInteger :cljs getParameter)
