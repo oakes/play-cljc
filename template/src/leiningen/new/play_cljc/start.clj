@@ -1,6 +1,5 @@
 (ns {{name}}.start
   (:require [{{name}}.{{core-name}} :as c]
-            [{{name}}.music :as m]
             [play-cljc.gl.core :as pc])
   (:import  [org.lwjgl.glfw GLFW Callbacks
              GLFWCursorPosCallbackI GLFWKeyCallbackI GLFWMouseButtonCallbackI
@@ -10,12 +9,6 @@
             [org.lwjgl.system MemoryUtil]
             [javax.sound.sampled AudioSystem Clip])
   (:gen-class))
-
-(defn play-music! []
-  (doto (AudioSystem/getClip)
-    (.open (AudioSystem/getAudioInputStream (m/build-for-clj)))
-    (.loop Clip/LOOP_CONTINUOUSLY)
-    (.start)))
 
 (defn mousecode->keyword [mousecode]
   (condp = mousecode
@@ -151,8 +144,6 @@
     (GLFW/glfwShowWindow handle)
     (c/init game)
     (listen-for-events window)
-    ; uncomment this to hear music when the game begins!
-    ;(play-music!)
     (loop [game game]
       (when-not (GLFW/glfwWindowShouldClose handle)
         (let [ts (GLFW/glfwGetTime)
