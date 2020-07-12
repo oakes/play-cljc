@@ -6,8 +6,7 @@
              GLFWCharCallbackI GLFWFramebufferSizeCallbackI GLFWWindowCloseCallbackI
              GLFWScrollCallbackI]
             [org.lwjgl.opengl GL GL33]
-            [org.lwjgl.system MemoryUtil]
-            [javax.sound.sampled AudioSystem Clip])
+            [org.lwjgl.system MemoryUtil])
   (:gen-class))
 
 (defn mousecode->keyword [mousecode]
