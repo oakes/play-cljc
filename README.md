@@ -18,14 +18,14 @@ This will start you off with a little platformer. It will contain a README with 
 * Join the discussion on [r/playcljc](https://www.reddit.com/r/playcljc/)
 * See the screencasts:
   * Intro to play-cljc: https://www.youtube.com/watch?v=y6WpUdECwmA
-  * Making play-cljc games with clara rules: https://www.youtube.com/watch?v=WnbQvdyl13k
+  * Making play-cljc games with O'Doyle Rules: https://www.youtube.com/watch?v=6_mDiH5_hSc
 
 ## Companion Libraries
 
 * [tile-soup](https://github.com/oakes/tile-soup) - Parse tiled maps
 * [play-cljc.text](https://github.com/oakes/play-cljc.text) - Render text
 * [iglu](https://github.com/oakes/iglu) - Write shaders as Clojure data
-* [clarax](https://github.com/oakes/clarax) - Manage state with a rules engine
+* [odoyle-rules](https://github.com/oakes/odoyle-rules) - Manage state with a rules engine
 * [edna](https://github.com/oakes/edna) - Create MIDI music ([this example game](https://github.com/oakes/play-cljc-examples/tree/master/super-koalio) shows how to set it up in a project)
 
 When you generate a new project with the command above, it'll come preconfigured with [Paravim](https://github.com/oakes/Paravim), a text editor written with play-cljc. Press `Esc` in dev mode to see the editor appear; see [this demo](https://youtu.be/BBw6ZwWFXwQ?t=752).
