@@ -10,7 +10,7 @@
                               org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
                               org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
                               org.lwjgl/lwjgl-stb {:mvn/version "3.2.3"}}
-                 :extra-paths ["dev-resources"]
+                 :extra-paths ["dev-resources" "doc-resources"]
                  :main-opts ["dev.clj"]}
            :prod {:extra-deps {leiningen {:mvn/version "2.9.0"}}
                   :main-opts ["prod.clj"]}

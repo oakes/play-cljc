@@ -1,2 +1,3 @@
 {:open-url "http://localhost:5000/cljs/play-cljc.gl.examples-3d"
- :clean-outputs true}
+ :clean-outputs true
+ :watch-dirs ["src" "dev-resources"]}
