@@ -2,6 +2,8 @@ It is important to know that play-cljc is a relatively thin wrapper over OpenGL 
 
 Entities are maps that contain all the necessary OpenGL/WebGL state to render something, including shaders and the attributes/uniforms that are passed to them. This tutorial demonstrates how to make a custom entity that renders a triangle.
 
+Some OpenGL/WebGL knowledge would help to understand this. I recommend [WebGL2 Fundamentals](https://webgl2fundamentals.org/) and [Learn OpenGL](https://learnopengl.com/) to learn more.
+
 To begin, create a new project with this command:
 
 `clj -Sdeps "{:deps {leiningen {:mvn/version \""2.9.0\""}}}" -m leiningen.core.main new play-cljc hello-triangle`
