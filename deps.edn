@@ -1,5 +1,5 @@
 {:paths ["src"]
- :deps {iglu {:mvn/version "0.9.2"}
+ :deps {iglu {:mvn/version "0.10.0"}
         expound {:mvn/version "0.7.2"}
         play-cljc.text {:mvn/version "0.5.4"}}
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.764"}
