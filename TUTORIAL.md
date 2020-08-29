@@ -13,11 +13,9 @@ Now `cd` into `hello-triangle` and make sure you can run it with `clj -A:dev`. I
 ```clojure
 (ns hello-triangle.core
   (:require [hello-triangle.utils :as utils]
-            [hello-triangle.move :as move]
             [play-cljc.gl.core :as c]
             [play-cljc.gl.entities-2d :as e]
             [play-cljc.transforms :as t]
-            [play-cljc.math :as m]
             #?(:clj  [play-cljc.macros-java :refer [gl math]]
                :cljs [play-cljc.macros-js :refer-macros [gl math]])))
 
