@@ -18,6 +18,8 @@
     (gl game attachShader program vertex-shader)
     (gl game attachShader program fragment-shader)
     (gl game linkProgram program)
+    (gl game deleteShader vertex-shader)
+    (gl game deleteShader fragment-shader)
     (if #?(:clj (= (gl game TRUE) (gl game getProgrami program (gl game LINK_STATUS)))
            :cljs (gl game getProgramParameter program (gl game LINK_STATUS)))
       program
