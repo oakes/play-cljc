@@ -6,15 +6,13 @@
             [play-cljc.macros-js]
             [dynadoc.example :as ex]
             [dynadoc.transform :as transform]
-            [orchestra.spec.test :as st]
-            [expound.alpha :as expound]
+            [clojure.spec.test.alpha :as st]
             [clojure.spec.alpha :as s])
   (:import  [org.lwjgl.glfw GLFW Callbacks GLFWKeyCallbackI]
             [org.lwjgl.opengl GL GL33]))
 
 (defn start [ns-syms]
   (st/instrument)
-  (set! s/*explain-out* expound/printer)
   (when-not (GLFW/glfwInit)
     (throw (Exception. "Unable to initialize GLFW")))
   (GLFW/glfwWindowHint GLFW/GLFW_VISIBLE GLFW/GLFW_FALSE)
