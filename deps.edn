@@ -1,18 +1,18 @@
 {:paths ["src"]
- :deps {iglu {:mvn/version "0.10.1"}
-        expound {:mvn/version "0.7.2"}
-        play-cljc.text {:mvn/version "0.5.4"}}
+ :deps {iglu/iglu {:mvn/version "0.10.1"}
+        expound/expound {:mvn/version "0.7.2"}
+        play-cljc.text/play-cljc.text {:mvn/version "0.5.4"}}
  :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.764"}
-                              dynadoc {:mvn/version "RELEASE"}
+                              dynadoc/dynadoc {:mvn/version "RELEASE"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.9"}
-                              orchestra {:mvn/version "2018.12.06-2"}
+                              orchestra/orchestra {:mvn/version "2018.12.06-2"}
                               org.lwjgl/lwjgl {:mvn/version "3.2.3"}
                               org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
                               org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
                               org.lwjgl/lwjgl-stb {:mvn/version "3.2.3"}}
                  :extra-paths ["dev-resources" "doc-resources"]
                  :main-opts ["dev.clj"]}
-           :prod {:extra-deps {leiningen {:mvn/version "2.9.0"}}
+           :prod {:extra-deps {leiningen/leiningen {:mvn/version "2.9.0"}}
                   :main-opts ["prod.clj"]}
            :linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.3"}
                                 org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}

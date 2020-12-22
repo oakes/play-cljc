@@ -6,7 +6,7 @@ A library for making games that run in both OpenGL and WebGL. There's no black b
 
 You can generate a new project with the [Clojure CLI Tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools):
 
-`clj -Sdeps "{:deps {leiningen {:mvn/version \""2.9.0\""}}}" -m leiningen.core.main new play-cljc hello-world`
+`clj -Sdeps "{:deps {leiningen/leiningen {:mvn/version \""2.9.0\""}}}" -m leiningen.core.main new play-cljc hello-world`
 
 This will start you off with a little platformer. It will contain a README with all the commands you need to use.
 
@@ -35,10 +35,10 @@ When you generate a new project with the command above, it'll come preconfigured
 
 * Install [the Clojure CLI tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools)
 * To run the examples in a native window on each OS:
-  * `clj -A:dev:linux native`
-  * `clj -A:dev:macos native`
-  * `clj -A:dev:windows native`
-* To install the release version: `clj -A:prod install`
+  * `clj -M:dev:linux native`
+  * `clj -M:dev:macos native`
+  * `clj -M:dev:windows native`
+* To install the release version: `clj -M:prod install`
 
 ## Licensing
 

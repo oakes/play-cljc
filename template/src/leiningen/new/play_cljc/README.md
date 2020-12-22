@@ -6,30 +6,30 @@ https://clojure.org/guides/deps_and_cli
 To develop in a browser with live code reloading:
 
 ```
-clj -A:dev
+clj -M:dev
 ```
 
 
 To build a release version for the web:
 
 ```
-clj -A:prod:play-cljc
+clj -M:prod:play-cljc
 ```
 
 
 To develop the native version:
 
 ```
-clj -A:dev native
+clj -M:dev native
 
 # NOTE: On Mac OS, you need to add the macos alias:
 
-clj -A:dev:macos native
+clj -M:dev:macos native
 ```
 
 
 To build the native version as a jar file:
 
 ```
-clj -A:prod uberjar
+clj -M:prod uberjar
 ```
