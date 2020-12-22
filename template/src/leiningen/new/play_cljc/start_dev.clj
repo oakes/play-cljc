@@ -1,8 +1,7 @@
 (ns {{name}}.start-dev
   (:require [{{name}}.start :as start]
             [{{name}}.{{core-name}} :as c]
-            [orchestra.spec.test :as st]
-            [expound.alpha :as expound]
+            [clojure.spec.test.alpha :as st]
             [clojure.spec.alpha :as s]
             [play-cljc.gl.core :as pc]
             [paravim.start]
@@ -74,7 +73,6 @@
 
 (defn start []
   (st/instrument)
-  (set! s/*explain-out* expound/printer)
   (let [window (start/->window)
         game (pc/->game (:handle window))
         game (try
