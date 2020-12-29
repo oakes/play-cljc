@@ -6,9 +6,9 @@ Some OpenGL/WebGL knowledge would help to understand this. I recommend [WebGL2 F
 
 To begin, create a new project with this command:
 
-`clj -Sdeps "{:deps {leiningen {:mvn/version \""2.9.0\""}}}" -m leiningen.core.main new play-cljc hello-triangle`
+`clj -Sdeps "{:deps {leiningen/leiningen {:mvn/version \""2.9.0\""}}}" -m leiningen.core.main new play-cljc hello-triangle`
 
-Now `cd` into `hello-triangle` and make sure you can run it with `clj -A:dev`. It will open in your default browser. Now completely replace `src/hello_triangle/core.cljc` with the following:
+Now `cd` into `hello-triangle` and make sure you can run it with `clj -M:dev`. It will open in your default browser. Now completely replace `src/hello_triangle/core.cljc` with the following:
 
 ```clojure
 (ns hello-triangle.core
@@ -40,7 +40,7 @@ Now `cd` into `hello-triangle` and make sure you can run it with `clj -A:dev`. I
   game)
 ```
 
-Now when you run `clj -A:dev`, it should just show a light blue background. Note that this command starts figwheel so you don't need to continuously re-run it -- it will reload your code automatically when you edit it.
+Now when you run `clj -M:dev`, it should just show a light blue background. Note that this command starts figwheel so you don't need to continuously re-run it -- it will reload your code automatically when you edit it.
 
 We'll start by using the built-in `TwoDEntity` to draw a triangle. We'll need to define three sets of (x, y) vertices as a constant. Put this somewhere near the top of `src/hello_triangle/core.cljc`:
 
