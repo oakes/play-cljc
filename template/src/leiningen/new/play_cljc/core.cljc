@@ -9,6 +9,7 @@
 
 (defonce *state (atom {:mouse-x 0
                        :mouse-y 0
+                       :mouse-button nil
                        :pressed-keys #{}
                        :x-velocity 0
                        :y-velocity 0

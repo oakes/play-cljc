@@ -15,6 +15,12 @@
                             :delta-time (- ts (:total-time game))
                             :total-time ts)))))))
 
+(defn mousecode->keyword [mousecode]
+  (condp = mousecode
+    0 :left
+    2 :right
+    nil))
+
 (defn listen-for-mouse [canvas]
   (events/listen js/window "mousemove"
     (fn [event]
@@ -23,7 +29,13 @@
           (let [bounds (.getBoundingClientRect canvas)
                 x (- (.-clientX event) (.-left bounds))
                 y (- (.-clientY event) (.-top bounds))]
-            (assoc state :mouse-x x :mouse-y y)))))))
+            (assoc state :mouse-x x :mouse-y y))))))
+  (events/listen js/window "mousedown"
+    (fn [event]
+      (swap! c/*state assoc :mouse-button (mousecode->keyword (.-button event)))))
+  (events/listen js/window "mouseup"
+    (fn [event]
+      (swap! c/*state assoc :mouse-button nil))))
 
 (defn keycode->keyword [keycode]
   (condp = keycode
