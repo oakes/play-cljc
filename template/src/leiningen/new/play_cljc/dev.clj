@@ -5,17 +5,15 @@
   (println "Unknown task:" task-name)
   (System/exit 1))
 
-(require '[figwheel.main :as figwheel])
-
 (defmethod task nil
   [_]
-  (figwheel/-main "--build" "dev"))
-
-(require '[{{name}}.start-dev])
+  (require '[figwheel.main :as figwheel])
+  ((resolve 'figwheel/-main) "--build" "dev"))
 
 (defmethod task "native"
   [_]
-  ({{name}}.start-dev/start))
+  (require '[{{name}}.start-dev])
+  ((resolve '{{name}}.start-dev/start)))
 
 (defmethod task "repl"
   [_]
