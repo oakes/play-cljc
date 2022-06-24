@@ -15,9 +15,9 @@
   (eu/resize-example game)
   (c/render game
     {:clear {:color [1 1 1 1] :depth 1}})
-  (let [projection-matrix (m/perspective-matrix-3d (m/deg->rad 60)
-                                                   (/ (eu/get-width game)
-                                                      (eu/get-height game))
+  (let [[width height] (eu/get-size game)
+        projection-matrix (m/perspective-matrix-3d (m/deg->rad 60)
+                                                   (/ width height)
                                                    1
                                                    2000)
         camera-pos [0 0 100]
@@ -38,7 +38,7 @@
                               (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 tz)))]
         (c/render game
           (-> entity
-              (assoc :viewport {:x 0 :y 0 :width (eu/get-width game) :height (eu/get-height game)})
+              (assoc :viewport {:x 0 :y 0 :width width :height height})
               (update :uniforms assoc
                 'u_world world-matrix
                 'u_worldViewProjection (->> view-projection-matrix
@@ -65,7 +65,7 @@
                   'a_texCoord {:data texcoords
                                :type (gl game FLOAT)
                                :size 2}}
-     :indices {:data indices
+     :indices {:data (#?(:clj short-array :cljs #(js/Uint16Array. %)) indices)
                :type (gl game UNSIGNED_SHORT)}}))
 
 ;; balls-3d
