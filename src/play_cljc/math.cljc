@@ -1,5 +1,7 @@
 (ns play-cljc.math
-  (:require #?(:clj  [play-cljc.macros-java :refer [math]]
+  (:require [play-cljc.macros-common
+             #?(:clj :refer :cljs :refer-macros) [mul-mat-fn inv-mat-fn]]
+            #?(:clj  [play-cljc.macros-java :refer [math]]
                :cljs [play-cljc.macros-js :refer-macros [math]])))
 
 (defn vector->array [v]
@@ -20,7 +22,7 @@
               col (->range size)]
           (if (= row col) 1 0))))))
 
-(defn multiply-matrices [^long size m1 m2]
+(defn- mul-mat [^long size m1 m2]
   (let [m2 (or m2 (identity-matrix size))
         size-range (->range size)
         ret (transient m1)]
@@ -36,7 +38,15 @@
           size-range)))
     (persistent! ret)))
 
-(defn inverse-matrix [^long size m]
+(defn multiply-matrices [^long size m1 m2]
+  (let [m2 (or m2 (identity-matrix size))]
+    (case size
+      2 ((mul-mat-fn 2) m1 m2)
+      3 ((mul-mat-fn 3) m1 m2)
+      4 ((mul-mat-fn 4) m1 m2)
+      (mul-mat size m1 m2))))
+
+(defn- inv-mat [^long size m]
   (let [mc (transient m)
         mi (transient (identity-matrix size))
         aget (fn [arr ^long row ^long col]
@@ -73,6 +83,13 @@
                 (- (double (aget mi ii j))
                   (* e (double (aget mi i j))))))))))
     (persistent! mi)))
+
+(defn inverse-matrix [^long size m]
+  (case size
+    2 ((inv-mat-fn 2) m)
+    3 ((inv-mat-fn 3) m)
+    4 ((inv-mat-fn 4) m)
+    (inv-mat size m)))
 
 (defn deg->rad [^double d]
   (-> d (* (math PI)) (/ 180)))
