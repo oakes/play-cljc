@@ -23,10 +23,10 @@
 (defn multiply-matrices [^long size m1 m2]
   (let [m2 (or m2 (identity-matrix size))
         size-range (->range size)
-        ret (volatile! m1)]
+        ret (transient m1)]
     (doseq [^long i size-range
             ^long j size-range]
-      (vswap! ret assoc (-> i (* size) (+ j))
+      (assoc! ret (-> i (* size) (+ j))
         (reduce
           (fn [^double sum ^long k]
             (let [n1 (double (nth m1 (-> i (* size) (+ k))))
@@ -34,15 +34,15 @@
               (+ sum (* n1 n2))))
           (double 0)
           size-range)))
-    @ret))
+    (persistent! ret)))
 
 (defn inverse-matrix [^long size m]
-  (let [mc (volatile! m)
-        mi (volatile! (identity-matrix size))
+  (let [mc (transient m)
+        mi (transient (identity-matrix size))
         aget (fn [arr ^long row ^long col]
-               (nth @arr (-> row (* size) (+ col))))
+               (nth arr (-> row (* size) (+ col))))
         aset (fn [arr ^long row ^long col v]
-               (vswap! arr assoc (-> row (* size) (+ col)) v))]
+               (assoc! arr (-> row (* size) (+ col)) v))]
     (dotimes [i size]
       (when (== 0 (double (aget mc i i)))
         (loop [r (->range (+ i 1) size)]
@@ -72,7 +72,7 @@
               (aset mi ii j
                 (- (double (aget mi ii j))
                   (* e (double (aget mi i j))))))))))
-    @mi))
+    (persistent! mi)))
 
 (defn deg->rad [^double d]
   (-> d (* (math PI)) (/ 180)))
@@ -220,4 +220,3 @@
      (nth y-axis 0) (nth y-axis 1) (nth y-axis 2) 0
      (nth z-axis 0) (nth z-axis 1) (nth z-axis 2) 0
      (nth camera-pos 0) (nth camera-pos 1) (nth camera-pos 2) 1]))
-
