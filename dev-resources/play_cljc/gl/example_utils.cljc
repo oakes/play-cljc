@@ -142,21 +142,7 @@
             (-> game :context .-canvas .-clientHeight)]))
 
 (defn get-width [game]
-  #?(:clj  (let [*width (MemoryUtil/memAllocInt 1)
-                 *height (MemoryUtil/memAllocInt 1)
-                 _ (GLFW/glfwGetFramebufferSize ^long (:context game) *width *height)
-                 n (.get *width)]
-             (MemoryUtil/memFree *width)
-             (MemoryUtil/memFree *height)
-             n)
-     :cljs (-> game :context .-canvas .-clientWidth)))
+  (first (get-size game)))
 
 (defn get-height [game]
-  #?(:clj  (let [*width (MemoryUtil/memAllocInt 1)
-                 *height (MemoryUtil/memAllocInt 1)
-                 _ (GLFW/glfwGetFramebufferSize ^long (:context game) *width *height)
-                 n (.get *height)]
-             (MemoryUtil/memFree *width)
-             (MemoryUtil/memFree *height)
-             n)
-     :cljs (-> game :context .-canvas .-clientHeight)))
+  (second (get-size game)))
