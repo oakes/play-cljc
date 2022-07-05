@@ -1,5 +1,5 @@
 {:main          play-cljc.dev
- :optimizations :none
+ :optimizations :simple
  :output-to     "doc-resources/dynadoc-extend/main.js"
  :output-dir    "doc-resources/dynadoc-extend/main.out"
  :asset-path    "/main.out"}
