@@ -18,7 +18,7 @@
   (let [s (str n)
         ^Character l (nth s 0)]
     (if (Character/isUpperCase l)
-      `(goog.object/get (:context ~game) ~s)
+      `(aget (:context ~game) ~s)
       (concat [(symbol (str "." s)) `(:context ~game)] args))))
 
 (defmacro transform
