@@ -2,9 +2,9 @@
  :deps {iglu/iglu {:mvn/version "0.10.1"}
         expound/expound {:mvn/version "0.7.2"}
         play-cljc.text/play-cljc.text {:mvn/version "0.5.4"}}
- :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.764"}
+ :aliases {:dev {:extra-deps {org.clojure/clojurescript {:mvn/version "1.11.4"}
+                              com.bhauman/figwheel-main {:mvn/version "0.2.18"}
                               dynadoc/dynadoc {:mvn/version "RELEASE"}
-                              com.bhauman/figwheel-main {:mvn/version "0.2.9"}
                               org.lwjgl/lwjgl {:mvn/version "3.2.3"}
                               org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
                               org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
