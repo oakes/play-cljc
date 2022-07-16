@@ -9,31 +9,31 @@
 
 (defn- project [entity width height]
   (update-in entity [:uniforms 'u_matrix]
-    #(m/multiply-matrices 3 (m/projection-matrix width height) %)))
+    #(m/multiply-matrices (m/projection-matrix width height) %)))
 
 (defn- translate [entity x y]
   (update-in entity [:uniforms 'u_matrix]
-    #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
+    #(m/multiply-matrices (m/translation-matrix x y) %)))
 
 (defn- scale [entity x y]
   (update-in entity [:uniforms 'u_matrix]
-    #(m/multiply-matrices 3 (m/scaling-matrix x y) %)))
+    #(m/multiply-matrices (m/scaling-matrix x y) %)))
 
 (defn- rotate [entity angle]
   (update-in entity [:uniforms 'u_matrix]
-    #(m/multiply-matrices 3 (m/rotation-matrix angle) %)))
+    #(m/multiply-matrices (m/rotation-matrix angle) %)))
 
 (def ^:private ^:const reverse-matrix (m/scaling-matrix -1 -1))
 
 (defn- camera [entity {:keys [matrix]}]
   (update-in entity [:uniforms 'u_matrix]
     #(->> %
-          (m/multiply-matrices 3 matrix)
-          (m/multiply-matrices 3 reverse-matrix))))
+          (m/multiply-matrices matrix)
+          (m/multiply-matrices reverse-matrix))))
 
 (defn- invert [entity {:keys [matrix]}]
   (update-in entity [:uniforms 'u_matrix]
-    #(m/multiply-matrices 3 (m/inverse-matrix 3 matrix) %)))
+    #(m/multiply-matrices (m/inverse-matrix matrix) %)))
 
 ;; Camera
 
@@ -43,15 +43,15 @@
   t/ITranslate
   (translate [camera x y]
     (update camera :matrix
-      #(m/multiply-matrices 3 (m/translation-matrix x y) %)))
+      #(m/multiply-matrices (m/translation-matrix x y) %)))
   t/IScale
   (scale [camera x y]
     (update camera :matrix
-      #(m/multiply-matrices 3 (m/scaling-matrix x y) %)))
+      #(m/multiply-matrices (m/scaling-matrix x y) %)))
   t/IRotate
   (rotate [camera angle]
     (update camera :matrix
-      #(m/multiply-matrices 3 (m/rotation-matrix angle) %))))
+      #(m/multiply-matrices (m/rotation-matrix angle) %))))
 
 (defn ->camera
   "Returns a 2D camera. The 1-arg arity is deprecated and should not be used!"
@@ -310,9 +310,9 @@
   (crop [{:keys [width height] :as entity} crop-x crop-y crop-width crop-height]
     (update-in entity [:uniforms 'u_texture_matrix]
       #(->> %
-            (m/multiply-matrices 3
+            (m/multiply-matrices
               (m/translation-matrix (/ crop-x width) (/ crop-y height)))
-            (m/multiply-matrices 3
+            (m/multiply-matrices
               (m/scaling-matrix (/ crop-width width) (/ crop-height height))))))
   i/IInstance
   (->instanced-entity [entity]

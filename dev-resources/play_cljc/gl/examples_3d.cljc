@@ -15,7 +15,7 @@
   (c/compile game (e/->entity game f-data (mapv #(/ % 255) data/f-3d-colors))))
 
 (defn- transform-f-data [f-data]
-  (let [matrix (m/multiply-matrices 4
+  (let [matrix (m/multiply-matrices-3d
                  (m/translation-matrix-3d -50 -75 -15)
                  (m/x-rotation-matrix-3d (math PI)))]
     (reduce

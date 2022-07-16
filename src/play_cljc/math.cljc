@@ -38,13 +38,23 @@
           size-range)))
     @ret))
 
-(defn multiply-matrices [^long size m1 m2]
-  (let [m2 (or m2 (identity-matrix size))]
-    (case size
-      2 ((mul-mat-fn 2) m1 m2)
-      3 ((mul-mat-fn 3) m1 m2)
-      4 ((mul-mat-fn 4) m1 m2)
-      (mul-mat size m1 m2))))
+(defn multiply-matrices
+  "Given two arguments, multiplies two 3x3 matrices.
+  If an additional `size` arg is provided, multiples two matrices of that size."
+  ([m1 m2]
+   ((mul-mat-fn 3) m1 (or m2 (identity-matrix 3))))
+  ([^long size m1 m2]
+   (let [m2 (or m2 (identity-matrix size))]
+     (case size
+       2 ((mul-mat-fn 2) m1 m2)
+       3 ((mul-mat-fn 3) m1 m2)
+       4 ((mul-mat-fn 4) m1 m2)
+       (mul-mat size m1 m2)))))
+
+(defn multiply-matrices-3d
+  "Multiplies two 4x4 matrices."
+  [m1 m2]
+  ((mul-mat-fn 4) m1 (or m2 (identity-matrix 4))))
 
 (defn- inv-mat [^long size m]
   (let [mc (volatile! m)
@@ -84,12 +94,21 @@
                   (* e (double (aget mi i j))))))))))
     @mi))
 
-(defn inverse-matrix [^long size m]
-  (case size
-    2 ((inv-mat-fn 2) m)
-    3 ((inv-mat-fn 3) m)
-    4 ((inv-mat-fn 4) m)
-    (inv-mat size m)))
+(defn inverse-matrix
+  "Given two arguments, returns the inverse of the given 3x3 matrix.
+  If an additional `size` arg is provided, returns the inverse of the given matrix of that size."
+  ([m]
+   ((inv-mat-fn 3) m))
+  ([^long size m]
+   (case size
+     2 ((inv-mat-fn 2) m)
+     3 ((inv-mat-fn 3) m)
+     4 ((inv-mat-fn 4) m)
+     (inv-mat size m))))
+
+(def inverse-matrix-3d
+  "Returns the inverse of the given 4x4 matrix."
+  (inv-mat-fn 4))
 
 (defn deg->rad [^double d]
   (-> d (* (math PI)) (/ 180)))

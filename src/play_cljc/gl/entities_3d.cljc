@@ -11,18 +11,18 @@
   (project
     ([entity left right bottom top near far]
      (update-in entity [:uniforms 'u_matrix]
-       #(m/multiply-matrices 4 (m/ortho-matrix-3d left right bottom top near far) %)))
+       #(m/multiply-matrices-3d (m/ortho-matrix-3d left right bottom top near far) %)))
     ([entity field-of-view aspect near far]
      (update-in entity [:uniforms 'u_matrix]
-       #(m/multiply-matrices 4 (m/perspective-matrix-3d field-of-view aspect near far) %))))
+       #(m/multiply-matrices-3d (m/perspective-matrix-3d field-of-view aspect near far) %))))
   t/ITranslate
   (translate [entity x y z]
     (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
+      #(m/multiply-matrices-3d (m/translation-matrix-3d x y z) %)))
   t/IScale
   (scale [entity x y z]
     (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 4 (m/scaling-matrix-3d x y z) %)))
+      #(m/multiply-matrices-3d (m/scaling-matrix-3d x y z) %)))
   t/IRotate
   (rotate [entity angle axis]
     (let [matrix (case axis
@@ -30,14 +30,14 @@
                    :y (m/y-rotation-matrix-3d angle)
                    :z (m/z-rotation-matrix-3d angle))]
       (update-in entity [:uniforms 'u_matrix]
-        #(m/multiply-matrices 4 matrix %))))
+        #(m/multiply-matrices-3d matrix %))))
   t/ICamera
   (camera [entity cam]
     (t/invert entity cam))
   t/IInvert
   (invert [entity {:keys [matrix]}]
     (update-in entity [:uniforms 'u_matrix]
-      #(m/multiply-matrices 4 (m/inverse-matrix 4 matrix) %)))
+      #(m/multiply-matrices-3d (m/inverse-matrix-3d matrix) %)))
   t/IColor
   (color [entity rgba]
     (assoc-in entity [:uniforms 'u_color] rgba)))
@@ -48,11 +48,11 @@
   t/ITranslate
   (translate [camera x y z]
     (update camera :matrix
-      #(m/multiply-matrices 4 (m/translation-matrix-3d x y z) %)))
+      #(m/multiply-matrices-3d (m/translation-matrix-3d x y z) %)))
   t/IScale
   (scale [camera x y z]
     (update camera :matrix
-      #(m/multiply-matrices 4 (m/scaling-matrix-3d x y z) %)))
+      #(m/multiply-matrices-3d (m/scaling-matrix-3d x y z) %)))
   t/IRotate
   (rotate [camera angle axis]
     (let [matrix (case axis
@@ -60,7 +60,7 @@
                    :y (m/y-rotation-matrix-3d angle)
                    :z (m/z-rotation-matrix-3d angle))]
       (update camera :matrix
-        #(m/multiply-matrices 4 matrix %))))
+        #(m/multiply-matrices-3d matrix %))))
   t/ILookAt
   (look-at [{:keys [matrix] :as camera} target up]
     (let [camera-pos [(nth matrix 12)

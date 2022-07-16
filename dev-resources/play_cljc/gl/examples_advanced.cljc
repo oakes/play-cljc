@@ -24,8 +24,8 @@
         target [0 0 0]
         up [0 1 0]
         camera-matrix (m/look-at-matrix-3d camera-pos target up)
-        view-matrix (m/inverse-matrix 4 camera-matrix)
-        view-projection-matrix (m/multiply-matrices 4 view-matrix projection-matrix)
+        view-matrix (m/inverse-matrix-3d camera-matrix)
+        view-projection-matrix (m/multiply-matrices-3d view-matrix projection-matrix)
         entity (assoc entity
                  :uniforms {'u_lightWorldPos [-50 30 100]
                             'u_viewInverse camera-matrix
@@ -33,18 +33,18 @@
     (doseq [{:keys [rx ry tz mat-uniforms]}
             objects]
       (let [world-matrix (->> (m/identity-matrix 4)
-                              (m/multiply-matrices 4 (m/x-rotation-matrix-3d (* rx total-time)))
-                              (m/multiply-matrices 4 (m/y-rotation-matrix-3d (* ry total-time)))
-                              (m/multiply-matrices 4 (m/translation-matrix-3d 0 0 tz)))]
+                              (m/multiply-matrices-3d (m/x-rotation-matrix-3d (* rx total-time)))
+                              (m/multiply-matrices-3d (m/y-rotation-matrix-3d (* ry total-time)))
+                              (m/multiply-matrices-3d (m/translation-matrix-3d 0 0 tz)))]
         (c/render game
           (-> entity
               (assoc :viewport {:x 0 :y 0 :width width :height height})
               (update :uniforms assoc
                 'u_world world-matrix
                 'u_worldViewProjection (->> view-projection-matrix
-                                            (m/multiply-matrices 4 world-matrix))
+                                            (m/multiply-matrices-3d world-matrix))
                 'u_worldInverseTranspose (->> world-matrix
-                                              (m/inverse-matrix 4)
+                                              (m/inverse-matrix-3d)
                                               (m/transpose-matrix-3d))
                 'u_color (:u_color mat-uniforms)
                 'u_specular (:u_specular mat-uniforms)
