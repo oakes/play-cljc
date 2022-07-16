@@ -25,10 +25,10 @@
 (defn- mul-mat [^long size m1 m2]
   (let [m2 (or m2 (identity-matrix size))
         size-range (->range size)
-        ret (transient m1)]
+        ret (volatile! m1)]
     (doseq [^long i size-range
             ^long j size-range]
-      (assoc! ret (-> i (* size) (+ j))
+      (vswap! ret assoc (-> i (* size) (+ j))
         (reduce
           (fn [^double sum ^long k]
             (let [n1 (double (nth m1 (-> i (* size) (+ k))))
@@ -36,7 +36,7 @@
               (+ sum (* n1 n2))))
           (double 0)
           size-range)))
-    (persistent! ret)))
+    @ret))
 
 (defn multiply-matrices [^long size m1 m2]
   (let [m2 (or m2 (identity-matrix size))]
@@ -47,12 +47,12 @@
       (mul-mat size m1 m2))))
 
 (defn- inv-mat [^long size m]
-  (let [mc (transient m)
-        mi (transient (identity-matrix size))
+  (let [mc (volatile! m)
+        mi (volatile! (identity-matrix size))
         aget (fn [arr ^long row ^long col]
-               (nth arr (-> row (* size) (+ col))))
+               (nth @arr (-> row (* size) (+ col))))
         aset (fn [arr ^long row ^long col v]
-               (assoc! arr (-> row (* size) (+ col)) v))]
+               (vswap! arr assoc (-> row (* size) (+ col)) v))]
     (dotimes [i size]
       (when (== 0 (double (aget mc i i)))
         (loop [r (->range (+ i 1) size)]
@@ -82,7 +82,7 @@
               (aset mi ii j
                 (- (double (aget mi ii j))
                   (* e (double (aget mi i j))))))))))
-    (persistent! mi)))
+    @mi))
 
 (defn inverse-matrix [^long size m]
   (case size
@@ -237,3 +237,4 @@
      (nth y-axis 0) (nth y-axis 1) (nth y-axis 2) 0
      (nth z-axis 0) (nth z-axis 1) (nth z-axis 2) 0
      (nth camera-pos 0) (nth camera-pos 1) (nth camera-pos 2) 1]))
+
