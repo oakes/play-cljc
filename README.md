@@ -29,8 +29,6 @@ This will start you off with a little platformer. It will contain a README with 
 * [odoyle-rules](https://github.com/oakes/odoyle-rules) - Manage state with a rules engine
 * [edna](https://github.com/oakes/edna) - Create MIDI music
 
-When you generate a new project with the command above, it'll come preconfigured with [Paravim](https://github.com/oakes/Paravim), a text editor written with play-cljc. Press `Esc` in dev mode to see the editor appear; see [this demo](https://youtu.be/BBw6ZwWFXwQ?t=752).
-
 ## Development
 
 * Install [the Clojure CLI tool](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools)
