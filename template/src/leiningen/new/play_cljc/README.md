@@ -13,7 +13,7 @@ clj -M:dev
 To build a release version for the web:
 
 ```
-clj -M:prod:play-cljc
+clj -M:prod
 ```
 
 
